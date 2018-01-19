@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_group_all_channels"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/group_all_channels" />
+
+    <item
+        android:id="@+id/navigation_group_invited_channels"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/group_invited_channels" />
+
+    <item
+        android:id="@+id/navigation_group_joined_channels"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="@string/group_accepted_channels" />
+
+</menu>

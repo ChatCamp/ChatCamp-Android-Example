@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "745456316716",
+    "firebase_url": "https://chatcamp-development.firebaseio.com",
+    "project_id": "chatcamp-development",
+    "storage_bucket": "chatcamp-development.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:745456316716:android:e73663978f8294d5",
+        "android_client_info": {
+          "package_name": "io.chatcamp.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "745456316716-68sfjmp3g65vj1rp58bkpu4anqcjjpet.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBsZCeCC_Qj5hVGQkGP_BA0fEg1nRVQzhE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
