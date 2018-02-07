@@ -1,9 +1,8 @@
 package io.chatcamp.app;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -29,7 +28,7 @@ public class ChannelCreateActivity extends AppCompatActivity {
         @Override
         public void onClick(View view) {
             System.out.println(mSwitchDistinct.isChecked());
-            if(mSpinner.getSelectedItemPosition() == 0 && mChannelName.getText().toString().length() > 0) {
+            if (mSpinner.getSelectedItemPosition() == 0 && mChannelName.getText().toString().length() > 0) {
                 OpenChannel.create(mChannelName.getText().toString(), new OpenChannel.CreateListener() {
                     @Override
                     public void onResult(OpenChannel openChannel, ChatCampException e) {
@@ -37,8 +36,7 @@ public class ChannelCreateActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
-            }
-            else if(mSpinner.getSelectedItemPosition() == 1 && mChannelName.getText().toString().length() > 0 && mChannelParticipants.getText().toString().length() > 0) {
+            } else if (mSpinner.getSelectedItemPosition() == 1 && mChannelName.getText().toString().length() > 0 && mChannelParticipants.getText().toString().length() > 0) {
                 String[] participants = mChannelParticipants.getText().toString().split(",");
                 GroupChannel.create(mChannelName.getText().toString(), participants, mSwitchDistinct.isChecked(), new GroupChannel.CreateListener() {
                     @Override
