@@ -59,7 +59,9 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".logout.LogoutActivity"></activity>
+        <activity android:name=".setting.SettingActivity"
+            android:label="@string/setting"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>
