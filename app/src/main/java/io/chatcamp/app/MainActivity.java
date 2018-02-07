@@ -27,8 +27,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ChatCamp.init(this, "6346990561630613504");
-//        ChatCamp.init(this, "6349277875299938304");
+//        ChatCamp.init(this, "6346990561630613504");
+        ChatCamp.init(this, "6365171677000626176");
 //        ChatCamp.init(this, "6359014142933725184");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
                     userName.setError("Cannot be empty");
                 }
                 else {
-                    ChatCamp.connect(userId.getText().toString(), new ChatCamp.ConnectListener() {
+                    ChatCamp.connect(userId.getText().toString(), "192.168.2.2", "9080", new ChatCamp.ConnectListener() {
                         @Override
                         public void onConnected(User user, ChatCampException e) {
                             System.out.println("CONNECTED");

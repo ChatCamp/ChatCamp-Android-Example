@@ -21,12 +21,23 @@ import io.chatcamp.sdk.OpenChannel;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.stfalcon.chatkit.messages.MessagesListAdapter;
+import com.stfalcon.chatkit.messages.MessagesList;
+import com.stfalcon.chatkit.messages.MessageInput;
+import com.stfalcon.chatkit.commons.ImageLoader;
+import com.squareup.picasso.Picasso;
+import android.widget.ImageView;
+
 public class ConversationActivity extends AppCompatActivity {
 
+    private MessagesList mMessagesList;
+    private MessagesListAdapter<ConversationMessage> messageMessagesListAdapter;
+    private ImageLoader imageLoader;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -34,26 +45,18 @@ public class ConversationActivity extends AppCompatActivity {
 
     private void groupInit(GroupChannel groupChannel) {
         final GroupChannel g = groupChannel;
-        final TextView input = (TextView) findViewById(R.id.edit_conversation_input);
-        input.setOnKeyListener(new View.OnKeyListener() {
+        final MessageInput input = (MessageInput) findViewById(R.id.edit_conversation_input);
+        input.setInputListener(new MessageInput.InputListener() {
             @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_DPAD_CENTER:
-                        case KeyEvent.KEYCODE_ENTER:
-                            g.sendMessage(input.getText().toString(), new GroupChannel.SendMessageListener() {
-                                @Override
-                                public void onSent(Message message, ChatCampException e) {
-                                    input.setText("");
-                                }
-                            });
-                            return true;
-                        default:
-                            break;
+            public boolean onSubmit(CharSequence input) {
+                g.sendMessage(input.toString(), new GroupChannel.SendMessageListener() {
+                    @Override
+                    public void onSent(Message message, ChatCampException e) {
+//                        input.setText("");
                     }
-                }
-                return false;
+                });
+
+                return true;
             }
         });
 
@@ -65,16 +68,22 @@ public class ConversationActivity extends AppCompatActivity {
                 System.out.println("MESSSAGE HISTORY:");
                 System.out.println(m);
 
-                mAdapter = new ConversationMessageListAdapter(m, new ConversationMessageListAdapter.RecyclerViewClickListener() {
-                    @Override
-                    public void onClick(View view, int position) {
-                        Message messageElement = m.get(position);
-                        Toast.makeText(getApplicationContext(), "Element " + messageElement.getText(), Toast.LENGTH_SHORT).show();
-
-
-                    }
-                });
-                mRecyclerView.setAdapter(mAdapter);
+//                mAdapter = new ConversationMessageListAdapter(m, new ConversationMessageListAdapter.RecyclerViewClickListener() {
+//                    @Override
+//                    public void onClick(View view, int position) {
+//                        Message messageElement = m.get(position);
+//                        Toast.makeText(getApplicationContext(), "Element " + messageElement.getText(), Toast.LENGTH_SHORT).show();
+//
+//
+//                    }
+//                });
+//                mRecyclerView.setAdapter(mAdapter);
+                List<ConversationMessage> conversationMessages = new ArrayList<ConversationMessage>();
+                for(Message message: messageList) {
+                    ConversationMessage conversationMessage = new ConversationMessage(message);
+                    conversationMessages.add(conversationMessage);
+                }
+                messageMessagesListAdapter.addToEnd(conversationMessages, false);
 
 
             }
@@ -88,22 +97,34 @@ public class ConversationActivity extends AppCompatActivity {
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_conversation);
 
+        mMessagesList = (MessagesList) findViewById(R.id.messagesList);
+
+        imageLoader = new ImageLoader() {
+            @Override
+            public void loadImage(ImageView imageView, String url) {
+                Picasso.with(ConversationActivity.this).load(url).into(imageView);
+            }
+        };
+        messageMessagesListAdapter = new MessagesListAdapter<>("1", imageLoader);
+        mMessagesList.setAdapter(messageMessagesListAdapter);
+
+
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+//        mRecyclerView.setLayoutManager(mLayoutManager);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         String channelType = getIntent().getStringExtra("channelType");
@@ -115,33 +136,26 @@ public class ConversationActivity extends AppCompatActivity {
                 public void onResult(OpenChannel openChannel, ChatCampException e) {
                     final OpenChannel o = openChannel;
                     getSupportActionBar().setTitle(o.getName());
-                    final TextView input = (TextView) findViewById(R.id.edit_conversation_input);
-                    input.setOnKeyListener(new View.OnKeyListener() {
+                    final MessageInput input = (MessageInput) findViewById(R.id.edit_conversation_input);
+                    input.setInputListener(new MessageInput.InputListener() {
                         @Override
-                        public boolean onKey(View v, int keyCode, KeyEvent event) {
-                            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                                switch (keyCode) {
-                                    case KeyEvent.KEYCODE_DPAD_CENTER:
-                                    case KeyEvent.KEYCODE_ENTER:
-                                        o.sendMessage(input.getText().toString(), new OpenChannel.SendMessageListener() {
-                                            @Override
-                                            public void onSent(Message message, ChatCampException e) {
-                                                input.setText("");
-                                            }
-                                        });
-                                        return true;
-                                    default:
-                                        break;
+                        public boolean onSubmit(CharSequence input) {
+
+                            o.sendMessage(input.toString(), new OpenChannel.SendMessageListener() {
+                                @Override
+                                public void onSent(Message message, ChatCampException e) {
+//                                    input.setText("");
                                 }
-                            }
-                            return false;
+                            });
+
+                            return true;
                         }
                     });
                     openChannel.join(new OpenChannel.JoinListener() {
                         @Override
                         public void onResult(ChatCampException e) {
                             PreviousMessageListQuery previousMessageListQuery = o.createPreviousMessageListQuery();
-                            previousMessageListQuery.load(10, true, new PreviousMessageListQuery.ResultListener() {
+                            previousMessageListQuery.load(20, true, new PreviousMessageListQuery.ResultListener() {
                                 @Override
                                 public void onResult(List<Message> messageList, ChatCampException e) {
                                     final List<Message> m = messageList;
@@ -205,7 +219,8 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onGroupChannelMessageReceived(GroupChannel groupChannel, Message message) {
                 final Message m = message;
-
+                final ConversationMessage conversationMessage = new ConversationMessage(m);
+                messageMessagesListAdapter.addToStart(conversationMessage, true);
                 Toast.makeText(getApplicationContext(), m.getText(), Toast.LENGTH_SHORT).show();
 
             }

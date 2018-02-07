@@ -8,6 +8,7 @@
     tools:context="io.chatcamp.app.ConversationActivity"
     tools:showIn="@layout/activity_conversation">
 
+
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/frameLayout2"
         android:layout_width="match_parent"

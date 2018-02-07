@@ -121,4 +121,5 @@
         completions."
     </string>
     <string name="title_activity_conversation">ConversationActivity</string>
+    <string name="hint_enter_a_message">Type a message…</string>
 </resources>
