@@ -10,7 +10,7 @@ import java.util.Date;
  * Created by ChatCamp Team on 05/02/18.
  */
 
-public class ConversationMessage implements MessageContentType, MessageContentType.Image {
+public class ConversationMessage implements MessageContentType {
 
     private Message message;
     private ConversationAuthor author;
@@ -48,7 +48,6 @@ public class ConversationMessage implements MessageContentType, MessageContentTy
         return date;
     }
 
-    @Override
     public String getImageUrl() {
         if(message.getType().equals("attachment")) {
             System.out.println("URL" + message.getAttachment().getUrl());
