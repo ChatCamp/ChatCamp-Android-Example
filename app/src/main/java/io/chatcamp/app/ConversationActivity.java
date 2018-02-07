@@ -6,33 +6,35 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import io.chatcamp.app.customContent.IncomingActionMessageViewHolder;
-import io.chatcamp.app.customContent.OutcomingActionMessageViewHolder;
-import io.chatcamp.sdk.ChatCamp;
-import io.chatcamp.sdk.ChatCampException;
-import io.chatcamp.sdk.GroupChannelListQuery;
-import io.chatcamp.sdk.Message;
-import io.chatcamp.sdk.OpenChannel;
-import io.chatcamp.sdk.GroupChannel;
-import io.chatcamp.sdk.PreviousMessageListQuery;
+import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.commons.ImageLoader;
+import com.stfalcon.chatkit.messages.MessageHolders;
+import com.stfalcon.chatkit.messages.MessageInput;
+import com.stfalcon.chatkit.messages.MessagesList;
+import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.stfalcon.chatkit.messages.MessageHolders;
-import com.stfalcon.chatkit.messages.MessagesListAdapter;
-import com.stfalcon.chatkit.messages.MessagesList;
-import com.stfalcon.chatkit.messages.MessageInput;
-import com.stfalcon.chatkit.commons.ImageLoader;
-import com.squareup.picasso.Picasso;
-import android.widget.ImageView;
+import io.chatcamp.app.customContent.IncomingActionMessageViewHolder;
+import io.chatcamp.app.customContent.IncomingTextMessageViewHolder;
+import io.chatcamp.app.customContent.OutcomingActionMessageViewHolder;
+import io.chatcamp.app.customContent.OutcomingTextMessageViewHolder;
+import io.chatcamp.sdk.ChatCamp;
+import io.chatcamp.sdk.ChatCampException;
+import io.chatcamp.sdk.GroupChannel;
+import io.chatcamp.sdk.GroupChannelListQuery;
+import io.chatcamp.sdk.Message;
+import io.chatcamp.sdk.OpenChannel;
+import io.chatcamp.sdk.PreviousMessageListQuery;
 
 public class ConversationActivity extends AppCompatActivity {
 
     public static final byte CONTENT_TYPE_ACTION = Byte.valueOf("101");
+    public static final byte CONTENT_TYPE_TEXT = Byte.valueOf("102");
     private MessagesList mMessagesList;
     private MessagesListAdapter<ConversationMessage> messageMessagesListAdapter;
     private ImageLoader imageLoader;
@@ -77,7 +79,7 @@ public class ConversationActivity extends AppCompatActivity {
 //                });
 //                mRecyclerView.setAdapter(mAdapter);
                 List<ConversationMessage> conversationMessages = new ArrayList<ConversationMessage>();
-                for(Message message: messageList) {
+                for (Message message : messageList) {
                     ConversationMessage conversationMessage = new ConversationMessage(message);
                     conversationMessages.add(conversationMessage);
                 }
@@ -115,6 +117,14 @@ public class ConversationActivity extends AppCompatActivity {
                         R.layout.layout_outcoming_action,
                         contentChecker);
 
+        holders.registerContentType(
+                CONTENT_TYPE_TEXT,
+                IncomingTextMessageViewHolder.class,
+                R.layout.layout_item_incoming_text_message,
+                OutcomingTextMessageViewHolder.class,
+                R.layout.layout_item_outcoming_text_message,
+                contentChecker);
+
         messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holders, imageLoader);
         mMessagesList.setAdapter(messageMessagesListAdapter);
 
@@ -140,7 +150,7 @@ public class ConversationActivity extends AppCompatActivity {
         String channelType = getIntent().getStringExtra("channelType");
         String channelId = getIntent().getStringExtra("channelId");
 
-        if(channelType.equals("open")) {
+        if (channelType.equals("open")) {
             OpenChannel.get(channelId, new OpenChannel.GetListener() {
                 @Override
                 public void onResult(OpenChannel openChannel, ChatCampException e) {
@@ -190,30 +200,29 @@ public class ConversationActivity extends AppCompatActivity {
                 }
             });
 
-        }
-        else {
+        } else {
             groupFilter = GroupChannelListQuery.ParticipantState.valueOf(getIntent().getStringExtra("participantState"));
             GroupChannel.get(channelId, new GroupChannel.GetListener() {
                 @Override
                 public void onResult(final GroupChannel groupChannel, ChatCampException e) {
 
-                getSupportActionBar().setTitle(groupChannel.getName());
-                groupChannel.sync(new GroupChannel.SyncListener() {
-                    @Override
-                    public void onResult(ChatCampException e) {
-
-                    }
-                });
-                if (groupFilter == GroupChannelListQuery.ParticipantState.INVITED) {
-                    groupChannel.acceptInvitation(new GroupChannel.AcceptInvitationListener() {
+                    getSupportActionBar().setTitle(groupChannel.getName());
+                    groupChannel.sync(new GroupChannel.SyncListener() {
                         @Override
-                        public void onResult(GroupChannel groupChannel, ChatCampException e) {
-                            groupInit(groupChannel);
+                        public void onResult(ChatCampException e) {
+
                         }
                     });
-                } else {
-                    groupInit(groupChannel);
-                }
+                    if (groupFilter == GroupChannelListQuery.ParticipantState.INVITED) {
+                        groupChannel.acceptInvitation(new GroupChannel.AcceptInvitationListener() {
+                            @Override
+                            public void onResult(GroupChannel groupChannel, ChatCampException e) {
+                                groupInit(groupChannel);
+                            }
+                        });
+                    } else {
+                        groupInit(groupChannel);
+                    }
 
                 }
             });
@@ -226,6 +235,7 @@ public class ConversationActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), m.getText(), Toast.LENGTH_SHORT).show();
 
             }
+
             @Override
             public void onGroupChannelMessageReceived(GroupChannel groupChannel, Message message) {
                 final Message m = message;
@@ -238,14 +248,15 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
 
-
     public class ContentCheckerAction implements MessageHolders.ContentChecker<ConversationMessage> {
 
         @Override
         public boolean hasContentFor(ConversationMessage message, byte type) {
-            if(type == CONTENT_TYPE_ACTION) {
-                    return message.getMessage().getType().equals("text")
-                            && message.getMessage().getCustomType().equals("action_link");
+            if (type == CONTENT_TYPE_ACTION) {
+                return message.getMessage().getType().equals("text")
+                        && message.getMessage().getCustomType().equals("action_link");
+            } else if (type == CONTENT_TYPE_TEXT) {
+                return message.getMessage().getType().equals("text");
             }
             return false;
         }
