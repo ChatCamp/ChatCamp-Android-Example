@@ -1,16 +1,18 @@
 package io.chatcamp.app;
 
-import android.util.Log;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.content.Intent;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -20,21 +22,34 @@ import io.chatcamp.sdk.User;
 
 public class MainActivity extends AppCompatActivity {
 
+    private EditText userId;
+    private EditText userName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!TextUtils.isEmpty(LocalStorage.getInstance().getUserId())
+                && !TextUtils.isEmpty(LocalStorage.getInstance().getUsername())) {
+            connectToChatSdk(LocalStorage.getInstance().getUserId(),
+                    LocalStorage.getInstance().getUsername(), false);
+            return;
+        }
+       setUpView();
+    }
+
+    private void setUpView() {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        ChatCamp.init(this, "6346990561630613504");
+
 //        ChatCamp.init(this, "6365171677000626176");
 //        ChatCamp.init(this, "6359014142933725184");
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         Button bConnect = (Button) findViewById(R.id.button_connect);
-        final EditText userId = (EditText) findViewById(R.id.edit_view_id);
-        final EditText userName = (EditText) findViewById(R.id.edit_view_name);
+        userId = (EditText) findViewById(R.id.edit_view_id);
+        userName = (EditText) findViewById(R.id.edit_view_name);
 //        Log.d("CHATCAMP APP", FirebaseInstanceId.getInstance().getToken());
 
 
@@ -42,48 +57,61 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(userId.getText().toString().length() == 0) {
+                if (userId.getText().toString().length() == 0) {
                     userId.setError("Cannot be empty");
-                }
-                else if(userName.getText().toString().length() == 0) {
+                } else if (userName.getText().toString().length() == 0) {
                     userName.setError("Cannot be empty");
-                }
-                else {
-                    ChatCamp.connect(userId.getText().toString(), new ChatCamp.ConnectListener() {
-                        @Override
-                        public void onConnected(User user, ChatCampException e) {
-                            System.out.println("CONNECTED");
-                            ChatCamp.updateUserDisplayName(userName.getText().toString(), new ChatCamp.UserUpdateListener() {
-//                            ChatCamp.updateUserProfileUrl("https://iflychat.com", new ChatCamp.UserUpdateListener() {
-                                @Override
-                                public void onUpdated(User user, ChatCampException e) {
-                                    System.out.println("UPDATE DISPLAY NAME" + user.getDisplayName());
-
-                                    Intent intent = new Intent(getApplicationContext(), ListActivity.class);
-                                    startActivity(intent);
-
-                                    Log.d("CHATCAMP APP", FirebaseInstanceId.getInstance().getToken());
-
-
-
-
-                                }
-                            });
-                            ChatCamp.updateUserPushToken(FirebaseInstanceId.getInstance().getToken(), new ChatCamp.UserPushTokenUpdateListener() {
-                                @Override
-                                public void onUpdated(User user, ChatCampException e) {
-                                    Log.d("CHATCAMP_APP", "PUSH TOKEN REGISTERED");
-
-                                }
-                            });
-                        }
-                    });
+                } else {
+                    connectToChatSdk(userId.getText().toString(), userName.getText().toString(), true);
                 }
 
 
 //                Snackbar.make(view, "Hello".concat("Replace with your own action"), Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
 
+            }
+        });
+    }
+
+    public void connectToChatSdk(final String userId, final String username, final boolean buttonClicked) {
+        ChatCamp.init(this, "6346990561630613504");
+        ChatCamp.connect(userId, new ChatCamp.ConnectListener() {
+            @Override
+            public void onConnected(User user, ChatCampException e) {
+                if (e != null) {
+                    if(!buttonClicked) {
+                        LocalStorage.getInstance().setUserId("");
+                        LocalStorage.getInstance().setUsername("");
+                        setUpView();
+                    } else {
+                        Snackbar.make(MainActivity.this.userId, "Something went wrong", Snackbar.LENGTH_LONG).show();
+                    }
+                } else {
+                    System.out.println("CONNECTED");
+                    LocalStorage.getInstance().setUserId(user.getId());
+                    LocalStorage.getInstance().setUsername(username);
+                    ChatCamp.updateUserDisplayName(userId, new ChatCamp.UserUpdateListener() {
+                        //                            ChatCamp.updateUserProfileUrl("https://iflychat.com", new ChatCamp.UserUpdateListener() {
+                        @Override
+                        public void onUpdated(User user, ChatCampException e) {
+                            System.out.println("UPDATE DISPLAY NAME" + user.getDisplayName());
+
+                            Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                            startActivity(intent);
+
+                            Log.d("CHATCAMP APP", FirebaseInstanceId.getInstance().getToken());
+
+
+                        }
+                    });
+                    ChatCamp.updateUserPushToken(FirebaseInstanceId.getInstance().getToken(), new ChatCamp.UserPushTokenUpdateListener() {
+                        @Override
+                        public void onUpdated(User user, ChatCampException e) {
+                            Log.d("CHATCAMP_APP", "PUSH TOKEN REGISTERED");
+
+                        }
+                    });
+                }
             }
         });
     }
