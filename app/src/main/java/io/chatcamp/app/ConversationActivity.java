@@ -115,7 +115,7 @@ public class ConversationActivity extends AppCompatActivity {
                         R.layout.layout_outcoming_action,
                         contentChecker);
 
-        messageMessagesListAdapter = new MessagesListAdapter<>("1", holders, imageLoader);
+        messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holders, imageLoader);
         mMessagesList.setAdapter(messageMessagesListAdapter);
 
 

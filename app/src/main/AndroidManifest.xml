@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
+        android:name=".BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -17,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="io.chatcamp.app.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -27,37 +28,38 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="io.chatcamp.app.ListActivity"
+            android:name=".ListActivity"
             android:label="@string/title_activity_list" />
         <activity
-            android:name="io.chatcamp.app.ChannelCreateActivity"
+            android:name=".ChannelCreateActivity"
             android:label="@string/title_activity_channel_create"
-            android:parentActivityName="io.chatcamp.app.ListActivity">
+            android:parentActivityName=".ListActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.chatcamp.app.ListActivity" />
         </activity>
         <activity
-            android:name="io.chatcamp.app.ConversationActivity"
+            android:name=".ConversationActivity"
             android:label="@string/title_activity_conversation"
-            android:parentActivityName="io.chatcamp.app.ListActivity"
+            android:parentActivityName=".ListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.chatcamp.app.ListActivity" />
         </activity>
-        <service
-            android:name="io.chatcamp.app.ChatCampAppFirebaseMessagingService">
+
+        <service android:name=".ChatCampAppFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name="io.chatcamp.app.ChatCampAppFirebaseInstanceIDService">
+        <service android:name=".ChatCampAppFirebaseInstanceIDService">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+        <activity android:name=".logout.LogoutActivity"></activity>
     </application>
 
 </manifest>

@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import io.chatcamp.app.logout.LogoutActivity;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
@@ -86,6 +87,7 @@ public class ListActivity extends AppCompatActivity {
                     return true;
                 case R.id.navigation_notifications:
 //                    mTextMessage.setText(R.string.title_notifications);
+                    startActivity(new Intent(ListActivity.this, LogoutActivity.class));
                     return true;
             }
             return false;
