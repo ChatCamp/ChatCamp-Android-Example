@@ -8,4 +8,6 @@
     <dimen name="margin_x">8dp</dimen>
     <dimen name="normal_text">16sp</dimen>
     <dimen name="default_text">14sp</dimen>
+    <dimen name="chat_user_name">12sp</dimen>
+    <dimen name="chat_time_text">8sp</dimen>
 </resources>

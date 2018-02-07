@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println("CONNECTED");
                     LocalStorage.getInstance().setUserId(user.getId());
                     LocalStorage.getInstance().setUsername(username);
-                    ChatCamp.updateUserDisplayName(userId, new ChatCamp.UserUpdateListener() {
+                    ChatCamp.updateUserDisplayName(username, new ChatCamp.UserUpdateListener() {
                         //                            ChatCamp.updateUserProfileUrl("https://iflychat.com", new ChatCamp.UserUpdateListener() {
                         @Override
                         public void onUpdated(User user, ChatCampException e) {
