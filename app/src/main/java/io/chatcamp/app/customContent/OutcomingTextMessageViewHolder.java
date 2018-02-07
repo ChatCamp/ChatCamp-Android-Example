@@ -5,6 +5,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
@@ -15,7 +16,8 @@ import io.chatcamp.app.R;
  * Created by shubhamdhabhai on 08/02/18.
  */
 
-public class OutcomingTextMessageViewHolder extends MessageHolders.OutcomingTextMessageViewHolder<ConversationMessage> {
+public class OutcomingTextMessageViewHolder
+        extends MessageHolders.OutcomingTextMessageViewHolder<ConversationMessage> {
 
     TextView usernameTv;
     ImageView avatarIv;

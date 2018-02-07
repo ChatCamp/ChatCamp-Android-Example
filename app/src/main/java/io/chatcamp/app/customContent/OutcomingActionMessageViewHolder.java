@@ -18,7 +18,7 @@ import io.chatcamp.app.R;
  * Created by shubhamdhabhai on 07/02/18.
  */
 
-public class OutcomingActionMessageViewHolder extends MessageHolders.OutcomingTextMessageViewHolder<ConversationMessage> {
+public class OutcomingActionMessageViewHolder extends OutcomingTextMessageViewHolder {
     private final TextView actionTitle;
     private final TextView actionCode;
     private final TextView actionDescription;
@@ -36,7 +36,6 @@ public class OutcomingActionMessageViewHolder extends MessageHolders.OutcomingTe
         actionDescription = itemView.findViewById(R.id.tv_action_description);
         actionShippingCost = itemView.findViewById(R.id.tv_action_shipping_cost);
         gson = new Gson();
-
     }
 
     @Override

@@ -18,7 +18,7 @@ import io.chatcamp.app.R;
  * Created by shubhamdhabhai on 07/02/18.
  */
 
-public class IncomingActionMessageViewHolder extends MessageHolders.IncomingTextMessageViewHolder<ConversationMessage> {
+public class IncomingActionMessageViewHolder extends IncomingTextMessageViewHolder {
     private final TextView actionTitle;
     private final TextView actionCode;
     private final TextView actionDescription;
