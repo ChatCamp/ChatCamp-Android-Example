@@ -15,8 +15,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
         android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
-        app:alignContent="stretch"
-        app:alignItems="stretch"
+        app:alignContent="flex_end"
+        app:alignItems="center"
         app:flexWrap="wrap"
         app:justifyContent="flex_end"
         app:flexDirection="column">
@@ -25,7 +25,8 @@
             android:id="@id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true" />
+            android:layout_alignWithParentIfMissing="true"
+            app:layout_alignSelf="flex_start"/>
 
         <android.support.v7.widget.CardView
             android:id="@+id/cv_action_container"
