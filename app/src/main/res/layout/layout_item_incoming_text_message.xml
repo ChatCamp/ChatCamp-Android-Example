@@ -8,6 +8,16 @@
     android:layout_marginRight="16dp"
     android:layout_marginTop="8dp">
 
+    <TextView
+        android:id="@+id/tv_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/chat_user_name"
+        app:layout_alignSelf="flex_start"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@id/bubble"
+        android:layout_alignStart="@id/bubble"/>
+
     <com.stfalcon.chatkit.utils.ShapeImageView
         android:id="@id/messageUserAvatar"
         android:layout_width="40dp"
@@ -24,6 +34,7 @@
         android:layout_marginRight="@dimen/message_incoming_bubble_margin_right"
         android:layout_toEndOf="@id/messageUserAvatar"
         android:layout_toRightOf="@id/messageUserAvatar"
+        android:layout_below="@id/tv_username"
         app:alignContent="stretch"
         app:alignItems="stretch"
         app:flexWrap="wrap"
@@ -31,28 +42,23 @@
         app:flexDirection="column">
 
         <TextView
-            android:id="@+id/tv_username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/chat_user_name"
-            app:layout_alignSelf="flex_start"/>
-
-        <TextView
             android:id="@id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tv_message_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/messageText"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="@dimen/margin_x"
-            app:layout_alignSelf="flex_end"
-            android:textSize="@dimen/chat_time_text"/>
-
     </com.google.android.flexbox.FlexboxLayout>
+
+    <TextView
+        android:id="@+id/tv_message_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/bubble"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="@dimen/margin_x"
+        app:layout_alignSelf="flex_end"
+        android:textSize="@dimen/chat_time_text"
+        android:layout_alignLeft="@id/bubble"
+        android:layout_alignStart="@id/bubble"/>
 
 </RelativeLayout>
