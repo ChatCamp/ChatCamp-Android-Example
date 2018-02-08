@@ -15,14 +15,30 @@ public class ConversationMessage implements MessageContentType {
     private Message message;
     private ConversationAuthor author;
 
+    //TODO remove id, this is only for testing indicator while typing, in real the id should come from server
+    private String id;
+
     public ConversationMessage(Message message) {
         this.message = message;
         this.author = new ConversationAuthor(this.message.getUser());
+        this.id = message.getId();
+    }
+
+    public ConversationMessage(ConversationMessage conversationMessage) {
+        this.message = conversationMessage.getMessage();
+        this.author = new ConversationAuthor(this.message.getUser());
+        this.id = conversationMessage.getId();
     }
 
     @Override
     public String getId() {
-        return message.getText();
+        //TODO uncomment this, it is only for testing indicator, in real the id should come from server
+//        return message.getText();
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
