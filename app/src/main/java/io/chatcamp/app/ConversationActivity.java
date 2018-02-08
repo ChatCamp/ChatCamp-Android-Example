@@ -99,9 +99,9 @@ public class ConversationActivity extends AppCompatActivity {
 
                             messageMessagesListAdapter.addToStart(messageFromOtherUser, true);
                         }
-                    } else {
-                        messageMessagesListAdapter.deleteById(TYPING_TEXT_ID);
                     }
+                } else {
+                    messageMessagesListAdapter.deleteById(TYPING_TEXT_ID);
                 }
 
             }
