@@ -11,6 +11,8 @@ import android.widget.TextView;
 import io.chatcamp.app.LocalStorage;
 import io.chatcamp.app.MainActivity;
 import io.chatcamp.app.R;
+import io.chatcamp.sdk.ChatCamp;
+import io.chatcamp.sdk.ChatCampException;
 
 public class SettingActivity extends AppCompatActivity {
 
@@ -27,10 +29,16 @@ public class SettingActivity extends AppCompatActivity {
             public void onClick(View view) {
                 LocalStorage.getInstance().setUsername("");
                 LocalStorage.getInstance().setUserId("");
-                Intent logoutIntent = new Intent(SettingActivity.this, MainActivity.class);
-                logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(logoutIntent);
+                ChatCamp.disconnect(new ChatCamp.DisconnectListener() {
+                    @Override
+                    public void onDisconnected(ChatCampException e) {
+                        Intent logoutIntent = new Intent(SettingActivity.this, MainActivity.class);
+                        logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(logoutIntent);
+                    }
+                });
+
             }
         });
     }
