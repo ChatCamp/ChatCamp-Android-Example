@@ -1,5 +1,4 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
@@ -11,53 +10,62 @@
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/chat_user_name"
+        android:layout_alignLeft="@id/image_container"
         android:layout_alignParentTop="true"
-        android:layout_alignLeft="@id/image"
-        android:layout_alignStart="@id/image"/>
+        android:layout_alignStart="@id/image_container"
+        android:textSize="@dimen/chat_user_name" />
 
     <com.stfalcon.chatkit.utils.ShapeImageView
         android:id="@id/messageUserAvatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_above="@+id/tv_message_time"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"/>
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp" />
 
-    <com.stfalcon.chatkit.utils.RoundedImageView
-        android:id="@id/image"
+    <FrameLayout
+        android:id="@+id/image_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
-        android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
+        android:layout_below="@id/tv_username"
         android:layout_toLeftOf="@id/messageUserAvatar"
         android:layout_toStartOf="@id/messageUserAvatar"
-        android:layout_below="@id/tv_username"/>
+        android:minWidth="60dp"
+        android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
+        android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left">
+
+        <com.stfalcon.chatkit.utils.RoundedImageView
+            android:id="@id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center"/>
+
+    </FrameLayout>
 
     <View
         android:id="@id/imageOverlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/image"
-        android:layout_alignEnd="@id/image"
-        android:layout_alignLeft="@id/image"
-        android:layout_alignRight="@id/image"
-        android:layout_alignStart="@id/image"
-        android:layout_alignTop="@id/image"/>
+        android:layout_alignBottom="@id/image_container"
+        android:layout_alignEnd="@id/image_container"
+        android:layout_alignLeft="@id/image_container"
+        android:layout_alignRight="@id/image_container"
+        android:layout_alignStart="@id/image_container"
+        android:layout_alignTop="@id/image_container" />
 
     <TextView
         android:id="@id/tv_message_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/image"
-        android:layout_alignRight="@id/image"
-        android:layout_below="@id/image"
+        android:layout_alignEnd="@id/image_container"
+        android:layout_alignRight="@id/image_container"
+        android:layout_below="@id/image_container"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/margin_x"
-        android:textSize="@dimen/chat_time_text"/>
+        android:textSize="@dimen/chat_time_text" />
 
 </RelativeLayout>
