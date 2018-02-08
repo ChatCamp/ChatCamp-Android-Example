@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.app.customContent.IncomingActionMessageViewHolder;
+import io.chatcamp.app.customContent.IncomingImageMessageViewHolder;
 import io.chatcamp.app.customContent.IncomingTextMessageViewHolder;
 import io.chatcamp.app.customContent.OutcomingActionMessageViewHolder;
+import io.chatcamp.app.customContent.OutcomingImageMessageViewHolder;
 import io.chatcamp.app.customContent.OutcomingTextMessageViewHolder;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
@@ -35,6 +37,7 @@ public class ConversationActivity extends AppCompatActivity {
 
     public static final byte CONTENT_TYPE_ACTION = Byte.valueOf("101");
     public static final byte CONTENT_TYPE_TEXT = Byte.valueOf("102");
+    public static final byte CONTENT_TYPE_IMAGE = Byte.valueOf("103");
     private MessagesList mMessagesList;
     private MessagesListAdapter<ConversationMessage> messageMessagesListAdapter;
     private ImageLoader imageLoader;
@@ -123,6 +126,14 @@ public class ConversationActivity extends AppCompatActivity {
                 R.layout.layout_item_incoming_text_message,
                 OutcomingTextMessageViewHolder.class,
                 R.layout.layout_item_outcoming_text_message,
+                contentChecker);
+
+        holders.registerContentType(
+                CONTENT_TYPE_IMAGE,
+                IncomingImageMessageViewHolder.class,
+                R.layout.layout_item_incoming_image_message,
+                OutcomingImageMessageViewHolder.class,
+                R.layout.layout_item_outcoming_image_message,
                 contentChecker);
 
         messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holders, imageLoader);
@@ -257,6 +268,8 @@ public class ConversationActivity extends AppCompatActivity {
                         && message.getMessage().getCustomType().equals("action_link");
             } else if (type == CONTENT_TYPE_TEXT) {
                 return message.getMessage().getType().equals("text");
+            } else if (type == CONTENT_TYPE_IMAGE) {
+                return message.getMessage().getType().equals("attachment");
             }
             return false;
         }

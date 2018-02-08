@@ -3,6 +3,7 @@ package io.chatcamp.app.customContent;
 import android.view.View;
 import android.widget.TextView;
 
+import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
@@ -13,7 +14,8 @@ import io.chatcamp.app.R;
  * Created by shubhamdhabhai on 08/02/18.
  */
 
-public class IncomingTextMessageViewHolder extends MessageHolders.IncomingTextMessageViewHolder<ConversationMessage> {
+public class IncomingTextMessageViewHolder
+        extends MessageHolders.IncomingTextMessageViewHolder<ConversationMessage> {
 
     TextView usernameTv;
     TextView timeTv;

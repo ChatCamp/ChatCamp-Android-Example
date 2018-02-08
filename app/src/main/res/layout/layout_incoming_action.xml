@@ -32,6 +32,13 @@
         app:justifyContent="flex_end">
 
         <TextView
+            android:id="@+id/tv_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/chat_user_name"
+            app:layout_alignSelf="flex_start"/>
+
+        <TextView
             android:id="@id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -115,15 +122,15 @@
         </android.support.v7.widget.CardView>
 
         <TextView
-            android:id="@id/messageTime"
+            android:id="@+id/tv_message_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/cv_action_container"
-            android:layout_marginEnd="@dimen/margin_x"
+            android:layout_below="@id/messageText"
             android:layout_marginLeft="8dp"
-            android:layout_marginRight="@dimen/margin_x"
             android:layout_marginStart="8dp"
-            app:layout_alignSelf="flex_end" />
+            android:layout_marginTop="@dimen/margin_x"
+            app:layout_alignSelf="flex_end"
+            android:textSize="@dimen/chat_time_text"/>
 
     </com.google.android.flexbox.FlexboxLayout>
 </RelativeLayout>
