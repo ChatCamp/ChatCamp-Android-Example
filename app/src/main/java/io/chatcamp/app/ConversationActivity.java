@@ -1,6 +1,7 @@
 package io.chatcamp.app;
 
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -52,8 +53,24 @@ public class ConversationActivity extends AppCompatActivity {
     private GroupChannelListQuery.ParticipantState groupFilter;
     private ArrayList<ConversationMessage> conversationMessages;
 
-    private void groupInit(GroupChannel groupChannel) {
+    private void groupInit(final GroupChannel groupChannel) {
         final GroupChannel g = groupChannel;
+        ChatCamp.addConnectionListener("1", new ChatCamp.ConnectionListener() {
+            @Override
+            public void onConnectionChanged(boolean b) {
+                if(b) {
+                    groupChannel.sync(new GroupChannel.SyncListener() {
+                        @Override
+                        public void onResult(ChatCampException e) {
+                            if(mMessagesList != null) {
+                                Snackbar.make(mMessagesList, "Group sync successful",
+                                        Snackbar.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+                }
+            }
+        });
         final MessageInput input = (MessageInput) findViewById(R.id.edit_conversation_input);
         input.setInputListener(new MessageInput.InputListener() {
             @Override
@@ -210,6 +227,7 @@ public class ConversationActivity extends AppCompatActivity {
 
         String channelType = getIntent().getStringExtra("channelType");
         String channelId = getIntent().getStringExtra("channelId");
+
 
         if (channelType.equals("open")) {
             OpenChannel.get(channelId, new OpenChannel.GetListener() {
