@@ -13,8 +13,8 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/chat_user_name"
         android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/bubble"
-        android:layout_alignEnd="@+id/bubble"/>
+        android:layout_alignLeft="@+id/bubble"
+        android:layout_alignStart="@+id/bubble"/>
 
     <com.stfalcon.chatkit.utils.ShapeImageView
         android:id="@id/messageUserAvatar"

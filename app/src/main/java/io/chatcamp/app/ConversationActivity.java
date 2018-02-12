@@ -5,6 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -22,6 +25,7 @@ import java.util.List;
 import io.chatcamp.app.customContent.IncomingActionMessageViewHolder;
 import io.chatcamp.app.customContent.IncomingImageMessageViewHolder;
 import io.chatcamp.app.customContent.IncomingTextMessageViewHolder;
+import io.chatcamp.app.customContent.IncomingTypingMessageViewHolder;
 import io.chatcamp.app.customContent.OutcomingActionMessageViewHolder;
 import io.chatcamp.app.customContent.OutcomingImageMessageViewHolder;
 import io.chatcamp.app.customContent.OutcomingTextMessageViewHolder;
@@ -38,6 +42,8 @@ public class ConversationActivity extends AppCompatActivity {
     public static final byte CONTENT_TYPE_ACTION = Byte.valueOf("101");
     public static final byte CONTENT_TYPE_TEXT = Byte.valueOf("102");
     public static final byte CONTENT_TYPE_IMAGE = Byte.valueOf("103");
+    public static final byte CONTENT_TYPE_TYPING = Byte.valueOf("104");
+    public static final String TYPING_TEXT_ID = "chatcamp_typing_id";
     private MessagesList mMessagesList;
     private MessagesListAdapter<ConversationMessage> messageMessagesListAdapter;
     private ImageLoader imageLoader;
@@ -45,6 +51,7 @@ public class ConversationActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private GroupChannelListQuery.ParticipantState groupFilter;
+    private ArrayList<ConversationMessage> conversationMessages;
 
     private void groupInit(GroupChannel groupChannel) {
         final GroupChannel g = groupChannel;
@@ -60,6 +67,43 @@ public class ConversationActivity extends AppCompatActivity {
                 });
 
                 return true;
+            }
+        });
+
+        input.getInputEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (!TextUtils.isEmpty(editable.toString())) {
+                    if (editable.toString().equalsIgnoreCase("incoming")
+                            && conversationMessages != null
+                            && conversationMessages.size() > 0) {
+                        ConversationMessage messageFromOtherUser = null;
+                        for (ConversationMessage message : conversationMessages) {
+                            if (!message.getUser().getId().equalsIgnoreCase(LocalStorage.getInstance().getUserId())) {
+                                messageFromOtherUser = new ConversationMessage(message);
+                                break;
+                            }
+                        }
+                        if (messageFromOtherUser != null) {
+                            messageFromOtherUser.setId(TYPING_TEXT_ID);
+
+                            messageMessagesListAdapter.addToStart(messageFromOtherUser, true);
+                        }
+                    }
+                } else {
+                    messageMessagesListAdapter.deleteById(TYPING_TEXT_ID);
+                }
+
             }
         });
 
@@ -81,7 +125,7 @@ public class ConversationActivity extends AppCompatActivity {
 //                    }
 //                });
 //                mRecyclerView.setAdapter(mAdapter);
-                List<ConversationMessage> conversationMessages = new ArrayList<ConversationMessage>();
+                conversationMessages = new ArrayList<ConversationMessage>();
                 for (Message message : messageList) {
                     ConversationMessage conversationMessage = new ConversationMessage(message);
                     conversationMessages.add(conversationMessage);
@@ -113,12 +157,22 @@ public class ConversationActivity extends AppCompatActivity {
 
         MessageHolders holders = new MessageHolders()
                 .registerContentType(
-                        CONTENT_TYPE_ACTION,
-                        IncomingActionMessageViewHolder.class,
-                        R.layout.layout_incoming_action,
-                        OutcomingActionMessageViewHolder.class,
-                        R.layout.layout_outcoming_action,
+                        CONTENT_TYPE_TYPING,
+                        IncomingTypingMessageViewHolder.class,
+                        R.layout.layout_item_incoming_typing_message,
+                        //we dont need this but this is required in the argument
+                        IncomingTypingMessageViewHolder.class,
+                        R.layout.layout_item_incoming_typing_message,
                         contentChecker);
+
+
+        holders.registerContentType(
+                CONTENT_TYPE_ACTION,
+                IncomingActionMessageViewHolder.class,
+                R.layout.layout_incoming_action,
+                OutcomingActionMessageViewHolder.class,
+                R.layout.layout_outcoming_action,
+                contentChecker);
 
         holders.registerContentType(
                 CONTENT_TYPE_TEXT,
@@ -263,7 +317,9 @@ public class ConversationActivity extends AppCompatActivity {
 
         @Override
         public boolean hasContentFor(ConversationMessage message, byte type) {
-            if (type == CONTENT_TYPE_ACTION) {
+            if (type == CONTENT_TYPE_TYPING) {
+                return message.getId().equalsIgnoreCase(TYPING_TEXT_ID);
+            } else if (type == CONTENT_TYPE_ACTION) {
                 return message.getMessage().getType().equals("text")
                         && message.getMessage().getCustomType().equals("action_link");
             } else if (type == CONTENT_TYPE_TEXT) {
