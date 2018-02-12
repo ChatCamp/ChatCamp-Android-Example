@@ -6,7 +6,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
@@ -83,27 +82,24 @@ public class ConversationActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (!TextUtils.isEmpty(editable.toString())) {
-                    if (editable.toString().equalsIgnoreCase("incoming")
-                            && conversationMessages != null
-                            && conversationMessages.size() > 0) {
-                        ConversationMessage messageFromOtherUser = null;
-                        for (ConversationMessage message : conversationMessages) {
-                            if (!message.getUser().getId().equalsIgnoreCase(LocalStorage.getInstance().getUserId())) {
-                                messageFromOtherUser = new ConversationMessage(message);
-                                break;
-                            }
+                if (editable.toString().equalsIgnoreCase("incoming")
+                        && conversationMessages != null
+                        && conversationMessages.size() > 0) {
+                    ConversationMessage messageFromOtherUser = null;
+                    for (ConversationMessage message : conversationMessages) {
+                        if (!message.getUser().getId().equalsIgnoreCase(LocalStorage.getInstance().getUserId())) {
+                            messageFromOtherUser = new ConversationMessage(message);
+                            break;
                         }
-                        if (messageFromOtherUser != null) {
-                            messageFromOtherUser.setId(TYPING_TEXT_ID);
+                    }
+                    if (messageFromOtherUser != null) {
+                        messageFromOtherUser.setId(TYPING_TEXT_ID);
 
-                            messageMessagesListAdapter.addToStart(messageFromOtherUser, true);
-                        }
+                        messageMessagesListAdapter.addToStart(messageFromOtherUser, true);
                     }
                 } else {
                     messageMessagesListAdapter.deleteById(TYPING_TEXT_ID);
                 }
-
             }
         });
 
