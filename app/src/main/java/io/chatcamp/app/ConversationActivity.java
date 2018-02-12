@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
@@ -35,6 +36,7 @@ import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
 import io.chatcamp.sdk.Message;
 import io.chatcamp.sdk.OpenChannel;
+import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 
 public class ConversationActivity extends AppCompatActivity {
@@ -51,18 +53,17 @@ public class ConversationActivity extends AppCompatActivity {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private GroupChannelListQuery.ParticipantState groupFilter;
-    private ArrayList<ConversationMessage> conversationMessages;
 
     private void groupInit(final GroupChannel groupChannel) {
         final GroupChannel g = groupChannel;
         ChatCamp.addConnectionListener("1", new ChatCamp.ConnectionListener() {
             @Override
             public void onConnectionChanged(boolean b) {
-                if(b) {
+                if (b) {
                     groupChannel.sync(new GroupChannel.SyncListener() {
                         @Override
                         public void onResult(ChatCampException e) {
-                            if(mMessagesList != null) {
+                            if (mMessagesList != null) {
                                 Snackbar.make(mMessagesList, "Group sync successful",
                                         Snackbar.LENGTH_LONG).show();
                             }
@@ -99,23 +100,10 @@ public class ConversationActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (editable.toString().equalsIgnoreCase("incoming")
-                        && conversationMessages != null
-                        && conversationMessages.size() > 0) {
-                    ConversationMessage messageFromOtherUser = null;
-                    for (ConversationMessage message : conversationMessages) {
-                        if (!message.getUser().getId().equalsIgnoreCase(LocalStorage.getInstance().getUserId())) {
-                            messageFromOtherUser = new ConversationMessage(message);
-                            break;
-                        }
-                    }
-                    if (messageFromOtherUser != null) {
-                        messageFromOtherUser.setId(TYPING_TEXT_ID);
-
-                        messageMessagesListAdapter.addToStart(messageFromOtherUser, true);
-                    }
+                if (!TextUtils.isEmpty(editable)) {
+                    groupChannel.startTyping();
                 } else {
-                    messageMessagesListAdapter.deleteById(TYPING_TEXT_ID);
+                    groupChannel.stopTyping();
                 }
             }
         });
@@ -138,7 +126,7 @@ public class ConversationActivity extends AppCompatActivity {
 //                    }
 //                });
 //                mRecyclerView.setAdapter(mAdapter);
-                conversationMessages = new ArrayList<ConversationMessage>();
+                List<ConversationMessage> conversationMessages = new ArrayList<ConversationMessage>();
                 for (Message message : messageList) {
                     ConversationMessage conversationMessage = new ConversationMessage(message);
                     conversationMessages.add(conversationMessage);
@@ -323,6 +311,54 @@ public class ConversationActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), m.getText(), Toast.LENGTH_SHORT).show();
 
             }
+
+            @Override
+            public void onGroupChannelTypingStatusChanged(GroupChannel groupChannel) {
+                if (groupChannel.isTyping()) {
+                    List<Participant> participants = groupChannel.getTypingParticipants();
+                    List<ConversationMessage> toBeRemovedMessage = new ArrayList<>();
+                    List<ConversationMessage> conversationMessages = messageMessagesListAdapter.getMessageList();
+                    if (conversationMessages != null
+                            && conversationMessages.size() > 0) {
+
+                        for (int i = 0; i < conversationMessages.size(); ++i) {
+                            if(conversationMessages.get(i) instanceof ConversationMessage) {
+                                ConversationMessage message = conversationMessages.get(i);
+                                if (message.getId().equals(TYPING_TEXT_ID)) {
+                                    boolean isAbsent = true;
+                                    for (Participant participant : participants) {
+
+                                        if (message.getUser().getId().equals(participant.getId())) {
+                                            isAbsent = false;
+                                        }
+                                    }
+                                    if (isAbsent) {
+                                        toBeRemovedMessage.add(message);
+                                    }
+                                }
+                            }
+                        }
+                        for (Participant participant : participants) {
+                            ConversationMessage message = new ConversationMessage();
+                            message.setAuthor(new ConversationAuthor(participant));
+                            message.setId(TYPING_TEXT_ID + participant.getId());
+                            messageMessagesListAdapter.addToStart(message, true);
+                        }
+                        if(toBeRemovedMessage.size() > 0) {
+                            messageMessagesListAdapter.delete(toBeRemovedMessage);
+                        }
+                    }
+                } else {
+                    messageMessagesListAdapter.deleteAllTypingMessages();
+                }
+
+
+            }
+
+            @Override
+            public void onOpenChannelTypingStatusChanged(OpenChannel groupChannel) {
+
+            }
         });
     }
 
@@ -332,7 +368,7 @@ public class ConversationActivity extends AppCompatActivity {
         @Override
         public boolean hasContentFor(ConversationMessage message, byte type) {
             if (type == CONTENT_TYPE_TYPING) {
-                return message.getId().equalsIgnoreCase(TYPING_TEXT_ID);
+                return message.getId().contains(TYPING_TEXT_ID);
             } else if (type == CONTENT_TYPE_ACTION) {
                 return message.getMessage().getType().equals("text")
                         && message.getMessage().getCustomType().equals("action_link");
