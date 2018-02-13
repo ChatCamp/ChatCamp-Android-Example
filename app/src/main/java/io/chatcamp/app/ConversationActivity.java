@@ -323,6 +323,7 @@ public class ConversationActivity extends AppCompatActivity {
                         Participant participant = participantIterator.next();
                         if (participant.getId().equals(LocalStorage.getInstance().getUserId())) {
                             participantIterator.remove();
+                            break;
                         }
                     }
                     List<ConversationMessage> toBeRemovedMessage = new ArrayList<>();

@@ -169,6 +169,17 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
                 return;
             }
         } else {
+            for(int i = 0; i < items.size(); ++i) {
+                if(items.get(i).item instanceof IMessage) {
+                    Wrapper<MESSAGE> wrapper = items.get(i);
+                    if(wrapper.item.getUser().getId().equals(element.item.getUser().getId())
+                            && wrapper.item.getId().contains("chatcamp_typing_id")) {
+                       items.remove(wrapper);
+                       notifyItemRemoved(i);
+                       break;
+                    }
+                }
+            }
             for (int i = 0; i < items.size(); ++i) {
                 if(items.get(i).item instanceof IMessage) {
                     Wrapper<MESSAGE> wrapper = items.get(i);
@@ -178,7 +189,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
                             items.add(i, new Wrapper<>(message.getCreatedAt()));
                         }
                         items.add(i, element);
-                        notifyItemRangeInserted(i, isNewMessageToday ? i+ 2 : i + 1);
+                        notifyItemRangeInserted(i, isNewMessageToday ? i + 2 : i + 1);
                         break;
                     }
                 }
