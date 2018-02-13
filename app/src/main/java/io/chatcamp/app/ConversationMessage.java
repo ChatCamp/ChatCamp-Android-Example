@@ -69,7 +69,7 @@ public class ConversationMessage implements MessageContentType {
     public Date getCreatedAt() {
         long ms = Calendar.getInstance().getTimeInMillis();
         if(message != null) {
-            ms = this.message.getInsertedAt();
+            ms = this.message.getInsertedAt() * 1000;
         }
         Date date = new Date(ms);
         return date;

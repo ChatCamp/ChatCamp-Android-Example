@@ -39,6 +39,7 @@ import com.stfalcon.chatkit.utils.DateFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -146,10 +147,7 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
      * @param scroll  {@code true} if need to scroll list to bottom when message added.
      */
     public void addToStart(MESSAGE message, boolean scroll) {
-        boolean isNewMessageToday = !isPreviousSameDate(0, message.getCreatedAt());
-        if (isNewMessageToday) {
-            items.add(0, new Wrapper<>(message.getCreatedAt()));
-        }
+
         Wrapper<MESSAGE> element = new Wrapper<>(message);
         if (message.getId().contains("chatcamp_typing_id")) {
             boolean alreadyPresent = false;
@@ -159,13 +157,14 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
                     if (wrapper.item.getId().contains("chatcamp_typing_id")) {
                         if (wrapper.item.getId().equals(message.getId())) {
                             alreadyPresent = true;
+                            break;
                         }
-                        break;
                     }
                 }
             }
             if (!alreadyPresent) {
                 items.add(0, element);
+                notifyItemInserted(0);
             } else {
                 return;
             }
@@ -174,14 +173,18 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
                 if(items.get(i).item instanceof IMessage) {
                     Wrapper<MESSAGE> wrapper = items.get(i);
                     if (!wrapper.item.getId().contains("chatcamp_typing_id")) {
+                        boolean isNewMessageToday = !isPreviousSameDate(0, message.getCreatedAt());
+                        if (isNewMessageToday) {
+                            items.add(i, new Wrapper<>(message.getCreatedAt()));
+                        }
                         items.add(i, element);
+                        notifyItemRangeInserted(i, isNewMessageToday ? i+ 2 : i + 1);
                         break;
                     }
                 }
             }
         }
 
-        notifyItemRangeInserted(0, isNewMessageToday ? 2 : 1);
         if (layoutManager != null && scroll) {
             layoutManager.scrollToPosition(0);
         }
@@ -287,14 +290,14 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
     }
 
     public void deleteAllTypingMessages() {
-        for(Wrapper<MESSAGE> wrapper : items) {
-            if(wrapper.item.getId().contains("chatcamp_typing_id")) {
-                int index = getMessagePositionById(wrapper.item.getId());
-                items.remove(index);
-                notifyItemRemoved(index);
-
+        Iterator<Wrapper> iter = items.iterator();
+        while(iter.hasNext()){
+            Wrapper wrapper = iter.next();
+            if(wrapper.item instanceof IMessage && ((IMessage)wrapper.item).getId().contains("chatcamp_typing_id")) {
+                iter.remove();
             }
         }
+        notifyDataSetChanged();
     }
 
     /**

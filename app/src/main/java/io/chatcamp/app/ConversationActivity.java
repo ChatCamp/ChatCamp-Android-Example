@@ -21,6 +21,7 @@ import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import io.chatcamp.app.customContent.IncomingActionMessageViewHolder;
@@ -316,6 +317,14 @@ public class ConversationActivity extends AppCompatActivity {
             public void onGroupChannelTypingStatusChanged(GroupChannel groupChannel) {
                 if (groupChannel.isTyping()) {
                     List<Participant> participants = groupChannel.getTypingParticipants();
+                    List<Participant> otherPaticipants = new ArrayList<>(participants);
+                    Iterator<Participant> participantIterator = otherPaticipants.iterator();
+                    while (participantIterator.hasNext()) {
+                        Participant participant = participantIterator.next();
+                        if(participant.getId().equals(LocalStorage.getInstance().getUserId())) {
+                            participantIterator.remove();
+                        }
+                    }
                     List<ConversationMessage> toBeRemovedMessage = new ArrayList<>();
                     List<ConversationMessage> conversationMessages = messageMessagesListAdapter.getMessageList();
                     if (conversationMessages != null
@@ -324,9 +333,9 @@ public class ConversationActivity extends AppCompatActivity {
                         for (int i = 0; i < conversationMessages.size(); ++i) {
                             if(conversationMessages.get(i) instanceof ConversationMessage) {
                                 ConversationMessage message = conversationMessages.get(i);
-                                if (message.getId().equals(TYPING_TEXT_ID)) {
+                                if (message.getId().contains(TYPING_TEXT_ID)) {
                                     boolean isAbsent = true;
-                                    for (Participant participant : participants) {
+                                    for (Participant participant : otherPaticipants) {
 
                                         if (message.getUser().getId().equals(participant.getId())) {
                                             isAbsent = false;
@@ -338,7 +347,7 @@ public class ConversationActivity extends AppCompatActivity {
                                 }
                             }
                         }
-                        for (Participant participant : participants) {
+                        for (Participant participant : otherPaticipants) {
                             ConversationMessage message = new ConversationMessage();
                             message.setAuthor(new ConversationAuthor(participant));
                             message.setId(TYPING_TEXT_ID + participant.getId());
