@@ -102,11 +102,11 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
+    protected void onPause() {
         removeChannelListener();
         removeConnectionListener();
         removeTextWatcher();
-        super.onStop();
+        super.onPause();
     }
 
     private MessageHolders createMessageHolders() {
