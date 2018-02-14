@@ -35,6 +35,17 @@
         android:layout_marginRight="16dp"
         android:background="@color/gray_light"/>
 
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        app:mpb_progressStyle="horizontal"
+        android:progress="0"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+        android:visibility="gone"
+        android:layout_above="@+id/edit_conversation_input"/>
+
     <com.stfalcon.chatkit.messages.MessageInput
         android:id="@+id/edit_conversation_input"
         android:layout_width="match_parent"
