@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/black">
+
+    <ImageView
+        android:id="@+id/preview_image_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/tv_send"/>
+
+    <TextView
+        android:id="@+id/tv_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/margin_x"
+        android:layout_alignParentBottom="true"
+        android:text="SEND"
+        android:gravity="center"
+        android:textColor="@color/red"
+        android:background="@color/colorPrimary"
+        android:textSize="20sp"/>
+</RelativeLayout>

@@ -1,6 +1,14 @@
 package io.chatcamp.app;
 
+import android.*;
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,11 +23,13 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
+import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
+import java.io.File;
 import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -40,6 +50,7 @@ import io.chatcamp.sdk.Message;
 import io.chatcamp.sdk.OpenChannel;
 import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 public class ConversationActivity extends AppCompatActivity {
 
@@ -50,6 +61,9 @@ public class ConversationActivity extends AppCompatActivity {
     public static final String TYPING_TEXT_ID = "chatcamp_typing_id";
     public static final String GROUP_CONNECTION_LISTENER = "group_channel_connection";
     public static final String CHANNEL_LISTENER = "group_channel_listener";
+    private static final int PICKFILE_RESULT_CODE = 111;
+    private static final int PREVIEW_FILE_RESULT_CODE = 112;
+    private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 112;
     private MessagesList mMessagesList;
     private MessagesListAdapter<ConversationMessage> messageMessagesListAdapter;
     private ImageLoader imageLoader;
@@ -61,6 +75,8 @@ public class ConversationActivity extends AppCompatActivity {
     private String channelId;
     private MessageInput input;
     private MessageTextWatcher textWatcher;
+    private GroupChannel g;
+    private MaterialProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +86,7 @@ public class ConversationActivity extends AppCompatActivity {
         mRecyclerView = findViewById(R.id.rv_conversation);
         mMessagesList = findViewById(R.id.messagesList);
         input = findViewById(R.id.edit_conversation_input);
+        progressBar = findViewById(R.id.progress_bar);
 
 
         imageLoader = new ImageLoader() {
@@ -231,7 +248,7 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
     private void groupInit(final GroupChannel groupChannel) {
-        final GroupChannel g = groupChannel;
+        g = groupChannel;
         addConnectionListener(g);
         setInputListener(g);
         addTextWatcher(g);
@@ -289,6 +306,26 @@ public class ConversationActivity extends AppCompatActivity {
                 return true;
             }
         });
+        input.setAttachmentsListener(new MessageInput.AttachmentsListener() {
+            @Override
+            public void onAddAttachments() {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                        return;
+                    }
+                }
+               chooseFile();
+            }
+        });
+    }
+
+    private void chooseFile() {
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICKFILE_RESULT_CODE);
     }
 
     private void addTextWatcher(final GroupChannel groupChannel) {
@@ -426,6 +463,67 @@ public class ConversationActivity extends AppCompatActivity {
             } else {
                 groupChannel.stopTyping();
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
+        if(resultCode == RESULT_OK) {
+            // TODO Auto-generated method stub
+            switch (requestCode) {
+                case PICKFILE_RESULT_CODE:
+                    if (resultCode == RESULT_OK) {
+                        Uri uri = dataFile.getData();
+                        String res = null;
+                        String[] data = {MediaStore.Images.Media.DATA};
+                        Cursor cursor = getContentResolver().query(uri, data, null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                            res = cursor.getString(column_index);
+                        }
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                        Intent intent = new Intent(ConversationActivity.this, ImagePreviewActivity.class);
+                        intent.putExtra(ImagePreviewActivity.IMAGE_URI, res);
+                        startActivityForResult(intent, PREVIEW_FILE_RESULT_CODE);
+
+                        //textFile.setText(FilePath);
+                    }
+                    break;
+                case PREVIEW_FILE_RESULT_CODE:
+                    String uri = dataFile.getExtras().getString(ImagePreviewActivity.IMAGE_URI);
+                    progressBar.setProgress(0);
+                    progressBar.setVisibility(View.VISIBLE);
+                    g.sendAttachment(new File(uri), new GroupChannel.UploadAttachmentListener() {
+                        @Override
+                        public void onUploadProgress(int progress) {
+                            progressBar.setProgress(progress);
+                        }
+
+                        @Override
+                        public void onUploadSuccess() {
+                            progressBar.setVisibility(View.GONE);
+                            Snackbar.make(progressBar, "Image Uploaded Successfully", Snackbar.LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onUploadFailed(Throwable error) {
+                            progressBar.setVisibility(View.GONE);
+                            Snackbar.make(progressBar, "Failed to upload Image", Snackbar.LENGTH_LONG).show();
+                        }
+                    });
+                    break;
+
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            chooseFile();
         }
     }
 }
