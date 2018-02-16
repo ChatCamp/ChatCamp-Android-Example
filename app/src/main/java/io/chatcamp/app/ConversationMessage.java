@@ -4,6 +4,8 @@ import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 
 import io.chatcamp.sdk.Message;
+
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -17,6 +19,8 @@ public class ConversationMessage implements MessageContentType {
 
     //TODO remove id, this is only for testing indicator while typing, in real the id should come from server
     private String id;
+
+    public ConversationMessage(){}
 
     public ConversationMessage(Message message) {
         this.message = message;
@@ -41,6 +45,10 @@ public class ConversationMessage implements MessageContentType {
         this.id = id;
     }
 
+    public void setAuthor(ConversationAuthor author){
+        this.author = author;
+    }
+
     @Override
     public String getText() {
         if(message.getType().equals("text")) {
@@ -59,7 +67,10 @@ public class ConversationMessage implements MessageContentType {
 
     @Override
     public Date getCreatedAt() {
-        long ms = this.message.getInsertedAt();
+        long ms = Calendar.getInstance().getTimeInMillis();
+        if(message != null) {
+            ms = this.message.getInsertedAt() * 1000;
+        }
         Date date = new Date(ms);
         return date;
     }
