@@ -1,6 +1,5 @@
 package io.chatcamp.app;
 
-import android.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,25 +22,17 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
-import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import java.io.File;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import io.chatcamp.app.customContent.IncomingActionMessageViewHolder;
-import io.chatcamp.app.customContent.IncomingImageMessageViewHolder;
-import io.chatcamp.app.customContent.IncomingTextMessageViewHolder;
-import io.chatcamp.app.customContent.IncomingTypingMessageViewHolder;
-import io.chatcamp.app.customContent.OutcomingActionMessageViewHolder;
-import io.chatcamp.app.customContent.OutcomingImageMessageViewHolder;
-import io.chatcamp.app.customContent.OutcomingTextMessageViewHolder;
+import io.chatcamp.app.webview.WebViewActivity;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
@@ -52,13 +43,10 @@ import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
+import static io.chatcamp.app.ConversationMessage.TYPING_TEXT_ID;
+
 public class ConversationActivity extends AppCompatActivity {
 
-    public static final byte CONTENT_TYPE_ACTION = Byte.valueOf("101");
-    public static final byte CONTENT_TYPE_TEXT = Byte.valueOf("102");
-    public static final byte CONTENT_TYPE_IMAGE = Byte.valueOf("103");
-    public static final byte CONTENT_TYPE_TYPING = Byte.valueOf("104");
-    public static final String TYPING_TEXT_ID = "chatcamp_typing_id";
     public static final String GROUP_CONNECTION_LISTENER = "group_channel_connection";
     public static final String CHANNEL_LISTENER = "group_channel_listener";
     private static final int PICKFILE_RESULT_CODE = 111;
@@ -96,9 +84,17 @@ public class ConversationActivity extends AppCompatActivity {
             }
         };
 
-        MessageHolders holders = createMessageHolders();
+        MessageHolders holder = new MessageHolders();
+        holder.setOnActionItemClickedListener(new MessageHolders.OnActionItemClickedListener() {
+            @Override
+            public void onActionItemClicked(String url) {
+                Intent intent = new Intent(BaseApplication.getInstance(), WebViewActivity.class);
+                intent.putExtra(WebViewActivity.URL, url);
+                startActivity(intent);
+            }
+        });
 
-        messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holders, imageLoader);
+        messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holder, imageLoader);
         mMessagesList.setAdapter(messageMessagesListAdapter);
 
 
@@ -124,46 +120,6 @@ public class ConversationActivity extends AppCompatActivity {
         removeConnectionListener();
         removeTextWatcher();
         super.onPause();
-    }
-
-    private MessageHolders createMessageHolders() {
-        ContentCheckerAction contentChecker = new ContentCheckerAction();
-
-        MessageHolders holders = new MessageHolders()
-                .registerContentType(
-                        CONTENT_TYPE_TYPING,
-                        IncomingTypingMessageViewHolder.class,
-                        R.layout.layout_item_incoming_typing_message,
-                        //we dont need this but this is required in the argument
-                        IncomingTypingMessageViewHolder.class,
-                        R.layout.layout_item_incoming_typing_message,
-                        contentChecker);
-
-        holders.registerContentType(
-                CONTENT_TYPE_ACTION,
-                IncomingActionMessageViewHolder.class,
-                R.layout.layout_incoming_action,
-                OutcomingActionMessageViewHolder.class,
-                R.layout.layout_outcoming_action,
-                contentChecker);
-
-        holders.registerContentType(
-                CONTENT_TYPE_TEXT,
-                IncomingTextMessageViewHolder.class,
-                R.layout.layout_item_incoming_text_message,
-                OutcomingTextMessageViewHolder.class,
-                R.layout.layout_item_outcoming_text_message,
-                contentChecker);
-
-        holders.registerContentType(
-                CONTENT_TYPE_IMAGE,
-                IncomingImageMessageViewHolder.class,
-                R.layout.layout_item_incoming_image_message,
-                OutcomingImageMessageViewHolder.class,
-                R.layout.layout_item_outcoming_image_message,
-                contentChecker);
-
-        return holders;
     }
 
     private void getChannelDetails() {
@@ -427,25 +383,6 @@ public class ConversationActivity extends AppCompatActivity {
 
     private void removeChannelListener() {
         ChatCamp.removeChannelListener(CHANNEL_LISTENER);
-    }
-
-    public class ContentCheckerAction implements MessageHolders.ContentChecker<ConversationMessage> {
-
-        @Override
-        public boolean hasContentFor(ConversationMessage message, byte type) {
-            if (type == CONTENT_TYPE_TYPING) {
-                return message.getId().contains(TYPING_TEXT_ID);
-            } else if (type == CONTENT_TYPE_ACTION) {
-                return message.getMessage().getType().equals("text")
-                        && message.getMessage().getCustomType().equals("action_link");
-            } else if (type == CONTENT_TYPE_TEXT) {
-                return message.getMessage().getType().equals("text");
-            } else if (type == CONTENT_TYPE_IMAGE) {
-                return message.getMessage().getType().equals("attachment");
-            }
-            return false;
-        }
-
     }
 
     class MessageTextWatcher implements TextWatcher {
