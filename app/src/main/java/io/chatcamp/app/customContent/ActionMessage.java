@@ -1,13 +1,11 @@
 package io.chatcamp.app.customContent;
 
-import com.stfalcon.chatkit.commons.models.IActionMessage;
-
 /**
  * Created by shubhamdhabhai on 07/02/18.
  */
 
 
-public class ActionMessage implements IActionMessage{
+public class ActionMessage {
 
     private int $id;
     private int ProductID;
