@@ -360,16 +360,16 @@ public class ConversationActivity extends AppCompatActivity {
             public void onOpenChannelTypingStatusChanged(OpenChannel groupChannel) {
 
             }
-
-            @Override
-            public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
-
-            }
-
-            @Override
-            public void onOpenChannelReadStatusUpdated(OpenChannel groupChannel) {
-
-            }
+//
+//            @Override
+//            public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
+//
+//            }
+//
+//            @Override
+//            public void onOpenChannelReadStatusUpdated(OpenChannel groupChannel) {
+//
+//            }
         });
     }
 
