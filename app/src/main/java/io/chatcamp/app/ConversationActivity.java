@@ -4,11 +4,15 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,8 +22,10 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.MessageHolders;
@@ -44,6 +50,7 @@ import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import static io.chatcamp.app.ConversationMessage.TYPING_TEXT_ID;
+import static io.chatcamp.app.GroupDetailActivity.KEY_GROUP_ID;
 
 public class ConversationActivity extends AppCompatActivity {
 
@@ -65,6 +72,9 @@ public class ConversationActivity extends AppCompatActivity {
     private MessageTextWatcher textWatcher;
     private GroupChannel g;
     private MaterialProgressBar progressBar;
+    private TextView groupTitleTv;
+    private ImageView groupImageIv;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,9 +110,12 @@ public class ConversationActivity extends AppCompatActivity {
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        groupImageIv = toolbar.findViewById(R.id.iv_group_image);
+        groupTitleTv = toolbar.findViewById(R.id.tv_group_name);
 
         channelType = getIntent().getStringExtra("channelType");
         channelId = getIntent().getStringExtra("channelId");
@@ -209,7 +222,25 @@ public class ConversationActivity extends AppCompatActivity {
         setInputListener(g);
         addTextWatcher(g);
         addChannelListener(g);
-
+        Picasso.with(this).load(g.getAvatarUrl())
+                .into(groupImageIv, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap imageBitmap = ((BitmapDrawable) groupImageIv.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                        imageDrawable.setCircular(true);
+                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                        groupImageIv.setImageDrawable(imageDrawable);
+                    }
+                    @Override
+                    public void onError() {
+                        groupImageIv.setImageResource(R.mipmap.ic_launcher_round);
+                    }
+                });
+        groupTitleTv.setText(g.getName());
+        OnTitleClickListener titleClickListener = new OnTitleClickListener();
+        groupTitleTv.setOnClickListener(titleClickListener);
+        groupImageIv.setOnClickListener(titleClickListener);
         PreviousMessageListQuery previousMessageListQuery = g.createPreviousMessageListQuery();
         previousMessageListQuery.load(10, true, new PreviousMessageListQuery.ResultListener() {
             @Override
@@ -361,15 +392,15 @@ public class ConversationActivity extends AppCompatActivity {
 
             }
 //
-//            @Override
-//            public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
-//
-//            }
-//
-//            @Override
-//            public void onOpenChannelReadStatusUpdated(OpenChannel groupChannel) {
-//
-//            }
+            @Override
+            public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
+
+            }
+
+            @Override
+            public void onOpenChannelReadStatusUpdated(OpenChannel groupChannel) {
+
+            }
         });
     }
 
@@ -471,6 +502,16 @@ public class ConversationActivity extends AppCompatActivity {
                                            int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
             chooseFile();
+        }
+    }
+
+    class OnTitleClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(ConversationActivity.this, GroupDetailActivity.class);
+            intent.putExtra(KEY_GROUP_ID, g.getId());
+            startActivity(intent);
         }
     }
 }
