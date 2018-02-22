@@ -1,18 +1,24 @@
 package io.chatcamp.app;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
@@ -36,6 +42,7 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
     private Toolbar toolbar;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private GroupDetailAdapter adapter;
+    private GroupChannel groupChannelGLobal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +70,7 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
     }
 
     private void populateUi(GroupChannel groupChannel) {
+        groupChannelGLobal = groupChannel;
         collapsingToolbarLayout.setTitle(groupChannel.getName());
         Picasso.with(this).load(groupChannel.getAvatarUrl()).into(toolbarIv);
         String[] participantIds = groupChannel.getAcceptedParticipants();
@@ -70,14 +78,15 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
         for(Map.Entry<String, Participant> entry : groupChannel.getParticipantsList().entrySet()) {
             participantList.add(new ParticipantView(entry.getValue()));
         }
+        adapter.clear();
         adapter.addAll(participantList);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = new MenuInflater(this);
+        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_group_detail, menu);
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
@@ -85,7 +94,42 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
         if(item.getItemId() == android.R.id.home) {
             finish();
         } else if(item.getItemId() == R.id.action_edit_group) {
-            Toast.makeText(this, "Edit group", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "Edit group", Toast.LENGTH_LONG).show();
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(GroupDetailActivity.this);
+            alertDialog.setTitle("Update Group");
+            alertDialog.setMessage("Enter Group Name");
+
+            final EditText input = new EditText(GroupDetailActivity.this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            input.setLayoutParams(lp);
+            alertDialog.setView(input);
+
+            alertDialog.setPositiveButton("UPDATE",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(TextUtils.isEmpty(input.getText())) {
+                                input.setError("Group name could not be empty");
+                            } else {
+                                groupChannelGLobal.update(input.getText().toString(), null, null, new GroupChannel.UpdateListener() {
+                                    @Override
+                                    public void onResult(GroupChannel groupChannel, ChatCampException e) {
+                                        populateUi(groupChannel);
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+            alertDialog.setNegativeButton("CANCEL",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+            alertDialog.show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -102,6 +146,11 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
 
     @Override
     public void onExitGroupClicked() {
-        Toast.makeText(this, "Exit group Clicked", Toast.LENGTH_LONG).show();
+        groupChannelGLobal.leave(new GroupChannel.LeaveListener() {
+            @Override
+            public void onResult(ChatCampException e) {
+                finish();
+            }
+        });
     }
 }

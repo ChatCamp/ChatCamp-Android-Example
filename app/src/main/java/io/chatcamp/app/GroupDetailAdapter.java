@@ -10,7 +10,10 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import io.chatcamp.sdk.Participant;
@@ -184,15 +187,32 @@ public class GroupDetailAdapter extends RecyclerView.Adapter {
 
         TextView participantTv;
 
+        ImageView onlineIv;
+
+        TextView lastSeenTv;
+
         public ParticipantViewHolder(View itemView) {
             super(itemView);
             participantIv = itemView.findViewById(R.id.iv_participant_image);
             participantTv = itemView.findViewById(R.id.tv_participant_name);
+            onlineIv = itemView.findViewById(R.id.iv_online);
+            lastSeenTv = itemView.findViewById(R.id.tv_last_seen);
         }
 
         public void bind(final ParticipantView participantView) {
             Picasso.with(context).load(participantView.getParticipant().getAvatarUrl()).into(participantIv);
             participantTv.setText(participantView.getParticipant().getDisplayName());
+            if(participantView.getParticipant().isOnline()) {
+                onlineIv.setVisibility(View.VISIBLE);
+                lastSeenTv.setVisibility(View.GONE);
+            } else {
+                onlineIv.setVisibility(View.GONE);
+                lastSeenTv.setVisibility(View.VISIBLE);
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = new Date(participantView.getParticipant().getLastSeen() * 1000);
+                lastSeenTv.setText(format.format(date));
+            }
+
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
