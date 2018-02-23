@@ -9,7 +9,7 @@
     <item
         android:id="@+id/navigation_group_channels"
         android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_group_channels" />
+        android:title="Conversation" />
 
     <item
         android:id="@+id/navigation_settings"
