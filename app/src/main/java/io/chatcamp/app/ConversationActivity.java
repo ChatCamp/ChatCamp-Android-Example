@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import io.chatcamp.app.webview.WebViewActivity;
 import io.chatcamp.sdk.ChatCamp;
@@ -75,6 +76,8 @@ public class ConversationActivity extends AppCompatActivity {
     private TextView groupTitleTv;
     private ImageView groupImageIv;
     private Toolbar toolbar;
+    private boolean isOneToOneConversation;
+    private Participant otherParticipant = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,26 +221,25 @@ public class ConversationActivity extends AppCompatActivity {
 
     private void groupInit(final GroupChannel groupChannel) {
         g = groupChannel;
+        if (g.getParticipantsList().size() <= 2 && g.isDistinct()) {
+            isOneToOneConversation = true;
+        }
         addConnectionListener(g);
         setInputListener(g);
         addTextWatcher(g);
         addChannelListener(g);
-        Picasso.with(this).load(g.getAvatarUrl())
-                .into(groupImageIv, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Bitmap imageBitmap = ((BitmapDrawable) groupImageIv.getDrawable()).getBitmap();
-                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                        imageDrawable.setCircular(true);
-                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                        groupImageIv.setImageDrawable(imageDrawable);
-                    }
-                    @Override
-                    public void onError() {
-                        groupImageIv.setImageResource(R.mipmap.ic_launcher_round);
-                    }
-                });
-        groupTitleTv.setText(g.getName());
+
+        if (isOneToOneConversation) {
+            Map<String, Participant> participantMap = g.getParticipantsList();
+            for(Map.Entry<String, Participant> entry : participantMap.entrySet()) {
+                if(entry.getKey() != LocalStorage.getInstance().getUserId()) {
+                    otherParticipant = entry.getValue();
+                }
+            }
+            populateToobar(otherParticipant.getAvatarUrl(), otherParticipant.getDisplayName());
+        } else {
+           populateToobar(g.getAvatarUrl(), g.getName());
+        }
         OnTitleClickListener titleClickListener = new OnTitleClickListener();
         groupTitleTv.setOnClickListener(titleClickListener);
         groupImageIv.setOnClickListener(titleClickListener);
@@ -254,10 +256,30 @@ public class ConversationActivity extends AppCompatActivity {
                     conversationMessages.add(conversationMessage);
                 }
                 messageMessagesListAdapter.addToEnd(conversationMessages, false);
-
-
             }
         });
+    }
+
+    private void populateToobar(String imageUrl, String title) {
+        Picasso.with(this).load(imageUrl)
+                .into(groupImageIv, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap imageBitmap = ((BitmapDrawable) groupImageIv.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                        imageDrawable.setCircular(true);
+                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                        groupImageIv.setImageDrawable(imageDrawable);
+                    }
+
+                    @Override
+                    public void onError() {
+                        groupImageIv.setImageResource(R.mipmap.ic_launcher_round);
+                    }
+                });
+
+        groupTitleTv.setText(title);
+
     }
 
     private void addConnectionListener(final GroupChannel groupChannel) {
@@ -304,7 +326,7 @@ public class ConversationActivity extends AppCompatActivity {
                         return;
                     }
                 }
-               chooseFile();
+                chooseFile();
             }
         });
     }
@@ -391,7 +413,8 @@ public class ConversationActivity extends AppCompatActivity {
             public void onOpenChannelTypingStatusChanged(OpenChannel groupChannel) {
 
             }
-//
+
+            //
             @Override
             public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
 
@@ -446,7 +469,7 @@ public class ConversationActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             // TODO Auto-generated method stub
             switch (requestCode) {
                 case PICKFILE_RESULT_CODE:
@@ -509,9 +532,18 @@ public class ConversationActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-            Intent intent = new Intent(ConversationActivity.this, GroupDetailActivity.class);
-            intent.putExtra(KEY_GROUP_ID, g.getId());
-            startActivity(intent);
+            if(isOneToOneConversation) {
+                Intent intent = new Intent(ConversationActivity.this, UserProfileActivity.class);
+                if(otherParticipant != null) {
+                    intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, otherParticipant.getId());
+                }
+                startActivity(intent);
+            }
+            else {
+                Intent intent = new Intent(ConversationActivity.this, GroupDetailActivity.class);
+                intent.putExtra(KEY_GROUP_ID, g.getId());
+                startActivity(intent);
+            }
         }
     }
 }

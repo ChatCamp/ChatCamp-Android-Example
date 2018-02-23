@@ -4,6 +4,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,25 +41,27 @@ public class UserProfileActivity extends AppCompatActivity {
         toolbarIv = findViewById(R.id.toolbarImage);
         collapsingToolbarLayout = findViewById(R.id.collapsingToolbar);
         String participantId = getIntent().getStringExtra(KEY_PARTICIPANT_ID);
-        User.getUser(participantId, new User.OnGetUserListener() {
-            @Override
-            public void onGetuser(User user, ChatCampException ex) {
-                collapsingToolbarLayout.setTitle(user.getDisplayName());
-                Picasso.with(UserProfileActivity.this).load(user.getAvatarUrl()).into(toolbarIv);
-                if(user.isOnline()) {
-                    onlineIv.setVisibility(View.VISIBLE);
-                    lastSeenTv.setVisibility(View.GONE);
-                    onlineStatusTv.setText("Online");
-                } else {
-                    onlineIv.setVisibility(View.GONE);
-                    lastSeenTv.setVisibility(View.VISIBLE);
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date date = new Date(user.getLastSeen() * 1000);
-                    lastSeenTv.setText(format.format(date));
-                    onlineStatusTv.setText("Last Seen");
+        if(!TextUtils.isEmpty(participantId)) {
+            User.getUser(participantId, new User.OnGetUserListener() {
+                @Override
+                public void onGetuser(User user, ChatCampException ex) {
+                    collapsingToolbarLayout.setTitle(user.getDisplayName());
+                    Picasso.with(UserProfileActivity.this).load(user.getAvatarUrl()).into(toolbarIv);
+                    if (user.isOnline()) {
+                        onlineIv.setVisibility(View.VISIBLE);
+                        lastSeenTv.setVisibility(View.GONE);
+                        onlineStatusTv.setText("Online");
+                    } else {
+                        onlineIv.setVisibility(View.GONE);
+                        lastSeenTv.setVisibility(View.VISIBLE);
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        Date date = new Date(user.getLastSeen() * 1000);
+                        lastSeenTv.setText(format.format(date));
+                        onlineStatusTv.setText("Last Seen");
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
