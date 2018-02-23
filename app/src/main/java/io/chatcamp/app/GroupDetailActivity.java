@@ -32,6 +32,7 @@ import io.chatcamp.app.R;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.Participant;
+import io.chatcamp.sdk.User;
 
 public class GroupDetailActivity extends AppCompatActivity implements GroupDetailAdapter.OnParticipantClickedListener {
     public  static final String KEY_GROUP_ID = "key_group_id";
@@ -142,6 +143,9 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
     @Override
     public void onParticipantClicked(Participant participant) {
         Toast.makeText(this, participant.getDisplayName() + " Participant Clicked", Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, UserProfileActivity.class);
+        intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, participant.getId());
+        startActivity(intent);
     }
 
     @Override

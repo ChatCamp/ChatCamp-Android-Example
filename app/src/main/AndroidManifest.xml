@@ -85,6 +85,8 @@
         <activity
             android:name=".GroupDetailActivity"
             android:label="@string/title_activity_group_detail"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".UserProfileActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
