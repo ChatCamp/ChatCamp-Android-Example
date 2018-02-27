@@ -73,7 +73,8 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
     private void populateUi(GroupChannel groupChannel) {
         groupChannelGLobal = groupChannel;
         collapsingToolbarLayout.setTitle(groupChannel.getName());
-        Picasso.with(this).load(groupChannel.getAvatarUrl()).into(toolbarIv);
+        Picasso.with(this).load(groupChannel.getAvatarUrl())
+                .placeholder(R.drawable.icon_default_contact).error(R.drawable.icon_default_contact).into(toolbarIv);
         String[] participantIds = groupChannel.getAcceptedParticipants();
         List<ParticipantView> participantList = new ArrayList<>();
         for(Map.Entry<String, Participant> entry : groupChannel.getParticipantsList().entrySet()) {

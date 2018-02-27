@@ -262,6 +262,8 @@ public class ConversationActivity extends AppCompatActivity {
 
     private void populateToobar(String imageUrl, String title) {
         Picasso.with(this).load(imageUrl)
+                .placeholder(R.drawable.icon_default_contact)
+                .error(R.drawable.icon_default_contact)
                 .into(groupImageIv, new Callback() {
                     @Override
                     public void onSuccess() {
