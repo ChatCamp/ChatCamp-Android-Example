@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -78,6 +79,7 @@ public class ConversationActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private boolean isOneToOneConversation;
     private Participant otherParticipant = null;
+    private MessageHolders holder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +99,7 @@ public class ConversationActivity extends AppCompatActivity {
             }
         };
 
-        MessageHolders holder = new MessageHolders();
+        holder = new MessageHolders();
         holder.setOnActionItemClickedListener(new MessageHolders.OnActionItemClickedListener() {
             @Override
             public void onActionItemClicked(String url) {
@@ -128,6 +130,7 @@ public class ConversationActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         getChannelDetails();
+
     }
 
     @Override
@@ -221,6 +224,7 @@ public class ConversationActivity extends AppCompatActivity {
 
     private void groupInit(final GroupChannel groupChannel) {
         g = groupChannel;
+        g.markAsRead();
         if (g.getParticipantsList().size() <= 2 && g.isDistinct()) {
             isOneToOneConversation = true;
         }
@@ -231,14 +235,14 @@ public class ConversationActivity extends AppCompatActivity {
 
         if (isOneToOneConversation) {
             Map<String, Participant> participantMap = g.getParticipantsList();
-            for(Map.Entry<String, Participant> entry : participantMap.entrySet()) {
-                if(entry.getKey() != LocalStorage.getInstance().getUserId()) {
+            for (Map.Entry<String, Participant> entry : participantMap.entrySet()) {
+                if (!entry.getKey().equals(LocalStorage.getInstance().getUserId())) {
                     otherParticipant = entry.getValue();
                 }
             }
             populateToobar(otherParticipant.getAvatarUrl(), otherParticipant.getDisplayName());
         } else {
-           populateToobar(g.getAvatarUrl(), g.getName());
+            populateToobar(g.getAvatarUrl(), g.getName());
         }
         OnTitleClickListener titleClickListener = new OnTitleClickListener();
         groupTitleTv.setOnClickListener(titleClickListener);
@@ -311,6 +315,7 @@ public class ConversationActivity extends AppCompatActivity {
                     @Override
                     public void onSent(Message message, ChatCampException e) {
 //                        input.setText("");
+                        groupChannel.markAsRead();
                     }
                 });
 
@@ -342,6 +347,15 @@ public class ConversationActivity extends AppCompatActivity {
     private void addTextWatcher(final GroupChannel groupChannel) {
         textWatcher = new MessageTextWatcher(groupChannel);
         input.getInputEditText().addTextChangedListener(textWatcher);
+        input.getInputEditText().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (g != null) {
+                    g.markAsRead();
+                }
+                return false;
+            }
+        });
     }
 
     private void addChannelListener(GroupChannel groupChannel) {
@@ -419,7 +433,15 @@ public class ConversationActivity extends AppCompatActivity {
             //
             @Override
             public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
-
+                Map<Integer, Long> readReceipt = groupChannel.getReadReceipt();
+                Long lastRead = 0L;
+                for (Map.Entry<Integer, Long> entry : readReceipt.entrySet()) {
+                    if (lastRead == 0L || entry.getValue() < lastRead) {
+                        lastRead = entry.getValue();
+                    }
+                }
+                holder.setLastTimeRead(lastRead * 1000);
+                messageMessagesListAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -507,6 +529,7 @@ public class ConversationActivity extends AppCompatActivity {
                         @Override
                         public void onUploadSuccess() {
                             progressBar.setVisibility(View.GONE);
+                            g.markAsRead();
                             Snackbar.make(progressBar, "Image Uploaded Successfully", Snackbar.LENGTH_LONG).show();
                         }
 
@@ -534,14 +557,13 @@ public class ConversationActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View view) {
-            if(isOneToOneConversation) {
+            if (isOneToOneConversation) {
                 Intent intent = new Intent(ConversationActivity.this, UserProfileActivity.class);
-                if(otherParticipant != null) {
+                if (otherParticipant != null) {
                     intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, otherParticipant.getId());
                 }
                 startActivity(intent);
-            }
-            else {
+            } else {
                 Intent intent = new Intent(ConversationActivity.this, GroupDetailActivity.class);
                 intent.putExtra(KEY_GROUP_ID, g.getId());
                 startActivity(intent);

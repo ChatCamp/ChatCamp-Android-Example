@@ -39,7 +39,6 @@ public class MessageHolders {
     private static final short VIEW_TYPE_DATE_HEADER = 130;
     private static final short VIEW_TYPE_TEXT_MESSAGE = 131;
     private static final short VIEW_TYPE_IMAGE_MESSAGE = 132;
-    private static final short VIEW_TYPE_TYPING_MESSAGE = 133;
 
     private Class<? extends ViewHolder<Date>> dateHeaderHolder;
     private int dateHeaderLayout;
@@ -59,6 +58,12 @@ public class MessageHolders {
     private List<ContentTypeConfig> customContentTypes = new ArrayList<>();
     private ContentChecker contentChecker;
 
+    public void setLastTimeRead(long lastTimeRead) {
+        MessageHolders.lastTimeRead = lastTimeRead;
+    }
+
+    private static long lastTimeRead;
+
     public void setOnActionItemClickedListener(OnActionItemClickedListener onItemClicked) {
         onActionItemClickedListener = onItemClicked;
     }
@@ -70,6 +75,7 @@ public class MessageHolders {
     }
 
     public MessageHolders() {
+        lastTimeRead = 0L;
         this.dateHeaderHolder = DefaultDateHeaderViewHolder.class;
         this.dateHeaderLayout = R.layout.item_date_header;
 
@@ -1015,17 +1021,28 @@ public class MessageHolders {
 
         protected TextView time;
         protected ImageView userAvatar;
+        protected ImageView readIv;
+
 
         public BaseIncomingMessageViewHolder(View itemView) {
             super(itemView);
             time = (TextView) itemView.findViewById(R.id.messageTime);
             userAvatar = (ImageView) itemView.findViewById(R.id.messageUserAvatar);
+            readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
+
         }
 
         @Override
         public void onBind(MESSAGE message) {
             if (time != null) {
                 time.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
+            }
+            if(readIv != null) {
+                if(lastTimeRead >= message.getCreatedAt().getTime()) {
+                    readIv.setImageResource(R.drawable.double_tick);
+                } else {
+                    readIv.setImageResource(R.drawable.single_tick);
+                }
             }
 
             if (userAvatar != null) {
@@ -1063,16 +1080,25 @@ public class MessageHolders {
             extends BaseMessageViewHolder<MESSAGE> implements DefaultMessageViewHolder {
 
         protected TextView time;
+        protected ImageView readIv;
 
         public BaseOutcomingMessageViewHolder(View itemView) {
             super(itemView);
             time = (TextView) itemView.findViewById(R.id.messageTime);
+            readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
         }
 
         @Override
         public void onBind(MESSAGE message) {
             if (time != null) {
                 time.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
+            }
+            if(readIv != null) {
+                if(lastTimeRead >= message.getCreatedAt().getTime()) {
+                    readIv.setImageResource(R.drawable.double_tick);
+                } else {
+                    readIv.setImageResource(R.drawable.single_tick);
+                }
             }
         }
 
