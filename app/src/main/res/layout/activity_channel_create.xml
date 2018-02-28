@@ -45,7 +45,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:completionHint="Name"
-                    android:hint="@string/prompt_email"
+                    android:hint="Group Name"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true" />
@@ -68,7 +68,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:completionHint="Participant IDs"
-                    android:hint="@string/prompt_email"
+                    android:hint="User Ids"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true" />
