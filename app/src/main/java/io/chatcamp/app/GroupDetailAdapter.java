@@ -68,6 +68,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter {
         participants.clear();
         participants.add(0, new ParticipantView(null));
         participants.add(new ParticipantView(null));
+        participants.add(new ParticipantView(null));
         notifyDataSetChanged();
     }
 
@@ -200,7 +201,8 @@ public class GroupDetailAdapter extends RecyclerView.Adapter {
         }
 
         public void bind(final ParticipantView participantView) {
-            Picasso.with(context).load(participantView.getParticipant().getAvatarUrl()).into(participantIv);
+            Picasso.with(context).load(participantView.getParticipant().getAvatarUrl())
+                    .placeholder(R.drawable.icon_default_contact).into(participantIv);
             participantTv.setText(participantView.getParticipant().getDisplayName());
             if(participantView.getParticipant().isOnline()) {
                 onlineIv.setVisibility(View.VISIBLE);

@@ -95,7 +95,7 @@ public class ConversationActivity extends AppCompatActivity {
         imageLoader = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
-                Picasso.with(ConversationActivity.this).load(url).into(imageView);
+                Picasso.with(ConversationActivity.this).load(url).placeholder(R.drawable.icon_default_contact).into(imageView);
             }
         };
 
@@ -259,6 +259,7 @@ public class ConversationActivity extends AppCompatActivity {
                     ConversationMessage conversationMessage = new ConversationMessage(message);
                     conversationMessages.add(conversationMessage);
                 }
+                messageMessagesListAdapter.clear();
                 messageMessagesListAdapter.addToEnd(conversationMessages, false);
             }
         });
@@ -350,8 +351,10 @@ public class ConversationActivity extends AppCompatActivity {
         input.getInputEditText().setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (g != null) {
-                    g.markAsRead();
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (g != null) {
+                        g.markAsRead();
+                    }
                 }
                 return false;
             }
@@ -434,14 +437,16 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
                 Map<Integer, Long> readReceipt = groupChannel.getReadReceipt();
-                Long lastRead = 0L;
-                for (Map.Entry<Integer, Long> entry : readReceipt.entrySet()) {
-                    if (lastRead == 0L || entry.getValue() < lastRead) {
-                        lastRead = entry.getValue();
+                if (readReceipt.size() == groupChannel.getParticipantsList().size()) {
+                    Long lastRead = 0L;
+                    for (Map.Entry<Integer, Long> entry : readReceipt.entrySet()) {
+                        if (lastRead == 0L || entry.getValue() < lastRead) {
+                            lastRead = entry.getValue();
+                        }
                     }
+                    holder.setLastTimeRead(lastRead * 1000);
+                    messageMessagesListAdapter.notifyDataSetChanged();
                 }
-                holder.setLastTimeRead(lastRead * 1000);
-                messageMessagesListAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -561,6 +566,7 @@ public class ConversationActivity extends AppCompatActivity {
                 Intent intent = new Intent(ConversationActivity.this, UserProfileActivity.class);
                 if (otherParticipant != null) {
                     intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, otherParticipant.getId());
+                    intent.putExtra(UserProfileActivity.KEY_GROUP_ID, g.getId());
                 }
                 startActivity(intent);
             } else {

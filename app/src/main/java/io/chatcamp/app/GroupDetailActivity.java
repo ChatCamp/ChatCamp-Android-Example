@@ -146,6 +146,7 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
         Toast.makeText(this, participant.getDisplayName() + " Participant Clicked", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, UserProfileActivity.class);
         intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, participant.getId());
+        intent.putExtra(UserProfileActivity.KEY_GROUP_ID, groupChannelGLobal.getId());
         startActivity(intent);
     }
 

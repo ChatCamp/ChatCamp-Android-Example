@@ -16,11 +16,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import io.chatcamp.sdk.ChatCampException;
+import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.User;
 
 public class UserProfileActivity extends AppCompatActivity {
 
     public static final String KEY_PARTICIPANT_ID = "key_participant_id";
+    public static final String KEY_GROUP_ID = "key_group_id";
 
     private TextView onlineStatusTv;
     private ImageView onlineIv;
@@ -40,24 +42,30 @@ public class UserProfileActivity extends AppCompatActivity {
         lastSeenTv = findViewById(R.id.tv_last_seen);
         toolbarIv = findViewById(R.id.toolbarImage);
         collapsingToolbarLayout = findViewById(R.id.collapsingToolbar);
-        String participantId = getIntent().getStringExtra(KEY_PARTICIPANT_ID);
-        if(!TextUtils.isEmpty(participantId)) {
-            User.getUser(participantId, new User.OnGetUserListener() {
+        final String participantId = getIntent().getStringExtra(KEY_PARTICIPANT_ID);
+        String groupId = getIntent().getStringExtra(KEY_GROUP_ID);
+        if(!TextUtils.isEmpty(groupId)) {
+            GroupChannel.get(groupId, new GroupChannel.GetListener() {
                 @Override
-                public void onGetuser(User user, ChatCampException ex) {
-                    collapsingToolbarLayout.setTitle(user.getDisplayName());
-                    Picasso.with(UserProfileActivity.this).load(user.getAvatarUrl()).into(toolbarIv);
-                    if (user.isOnline()) {
-                        onlineIv.setVisibility(View.VISIBLE);
-                        lastSeenTv.setVisibility(View.GONE);
-                        onlineStatusTv.setText("Online");
-                    } else {
-                        onlineIv.setVisibility(View.GONE);
-                        lastSeenTv.setVisibility(View.VISIBLE);
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        Date date = new Date(user.getLastSeen() * 1000);
-                        lastSeenTv.setText(format.format(date));
-                        onlineStatusTv.setText("Last Seen");
+                public void onResult(GroupChannel groupChannel, ChatCampException e) {
+                    User user = groupChannel.getParticipant(participantId);
+                    if (user != null) {
+                        collapsingToolbarLayout.setTitle(user.getDisplayName());
+                        Picasso.with(UserProfileActivity.this).load(user.getAvatarUrl())
+                                .placeholder(R.drawable.icon_default_contact)
+                                .error(R.drawable.icon_default_contact).into(toolbarIv);
+                        if (user.isOnline()) {
+                            onlineIv.setVisibility(View.VISIBLE);
+                            lastSeenTv.setVisibility(View.GONE);
+                            onlineStatusTv.setText("Online");
+                        } else {
+                            onlineIv.setVisibility(View.GONE);
+                            lastSeenTv.setVisibility(View.VISIBLE);
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            Date date = new Date(user.getLastSeen() * 1000);
+                            lastSeenTv.setText(format.format(date));
+                            onlineStatusTv.setText("Last Seen");
+                        }
                     }
                 }
             });
