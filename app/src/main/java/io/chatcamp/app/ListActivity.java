@@ -142,7 +142,7 @@ public class ListActivity extends AppCompatActivity {
                 final List<GroupChannel> g = groupChannelList;
 
 
-                mAdapter = new GroupChannelListAdapter(g, new GroupChannelListAdapter.RecyclerViewClickListener() {
+                mAdapter = new GroupChannelListAdapter(ListActivity.this, g, new GroupChannelListAdapter.RecyclerViewClickListener() {
                     @Override
                     public void onClick(View view, int position) {
                         GroupChannel groupChannelElement = g.get(position);
