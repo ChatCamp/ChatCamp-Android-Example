@@ -40,39 +40,14 @@
         app:flexWrap="wrap"
         app:justifyContent="flex_end">
 
-        <TextView
-            android:id="@id/messageText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-    </com.google.android.flexbox.FlexboxLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/bubble"
-        android:layout_alignStart="@id/bubble"
-        android:layout_below="@id/bubble"
-        android:orientation="horizontal"
-        app:layout_alignSelf="flex_end"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="@dimen/margin_x">
-
-        <TextView
-            android:id="@+id/tv_message_time"
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/indication"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/chat_time_text"
-            android:layout_marginRight="4dp"
-            android:layout_marginEnd="4dp"/>
+            app:indicatorColor="@color/black"
+            app:indicatorName="BallPulseIndicator"
+            style="@style/AVLoadingIndicatorView.Small"/>
 
-        <ImageView
-            android:id="@+id/iv_tick"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:src="@drawable/single_tick"
-            android:layout_gravity="center_vertical"/>
-    </LinearLayout>
+    </com.google.android.flexbox.FlexboxLayout>
 
 </RelativeLayout>

@@ -1,15 +1,18 @@
 package io.chatcamp.app;
 
-import android.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,31 +20,27 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
-import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import java.io.File;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import io.chatcamp.app.customContent.IncomingActionMessageViewHolder;
-import io.chatcamp.app.customContent.IncomingImageMessageViewHolder;
-import io.chatcamp.app.customContent.IncomingTextMessageViewHolder;
-import io.chatcamp.app.customContent.IncomingTypingMessageViewHolder;
-import io.chatcamp.app.customContent.OutcomingActionMessageViewHolder;
-import io.chatcamp.app.customContent.OutcomingImageMessageViewHolder;
-import io.chatcamp.app.customContent.OutcomingTextMessageViewHolder;
+import io.chatcamp.app.webview.WebViewActivity;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
@@ -52,13 +51,11 @@ import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
+import static io.chatcamp.app.ConversationMessage.TYPING_TEXT_ID;
+import static io.chatcamp.app.GroupDetailActivity.KEY_GROUP_ID;
+
 public class ConversationActivity extends AppCompatActivity {
 
-    public static final byte CONTENT_TYPE_ACTION = Byte.valueOf("101");
-    public static final byte CONTENT_TYPE_TEXT = Byte.valueOf("102");
-    public static final byte CONTENT_TYPE_IMAGE = Byte.valueOf("103");
-    public static final byte CONTENT_TYPE_TYPING = Byte.valueOf("104");
-    public static final String TYPING_TEXT_ID = "chatcamp_typing_id";
     public static final String GROUP_CONNECTION_LISTENER = "group_channel_connection";
     public static final String CHANNEL_LISTENER = "group_channel_listener";
     private static final int PICKFILE_RESULT_CODE = 111;
@@ -77,6 +74,12 @@ public class ConversationActivity extends AppCompatActivity {
     private MessageTextWatcher textWatcher;
     private GroupChannel g;
     private MaterialProgressBar progressBar;
+    private TextView groupTitleTv;
+    private ImageView groupImageIv;
+    private Toolbar toolbar;
+    private boolean isOneToOneConversation;
+    private Participant otherParticipant = null;
+    private MessageHolders holder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,21 +95,34 @@ public class ConversationActivity extends AppCompatActivity {
         imageLoader = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
-                Picasso.with(ConversationActivity.this).load(url).into(imageView);
+                Picasso.with(ConversationActivity.this).load(url)
+                        .placeholder(R.drawable.icon_default_contact)
+                        .error(R.drawable.icon_default_contact).into(imageView);
             }
         };
 
-        MessageHolders holders = createMessageHolders();
+        holder = new MessageHolders();
+        holder.setOnActionItemClickedListener(new MessageHolders.OnActionItemClickedListener() {
+            @Override
+            public void onActionItemClicked(String url) {
+                Intent intent = new Intent(BaseApplication.getInstance(), WebViewActivity.class);
+                intent.putExtra(WebViewActivity.URL, url);
+                startActivity(intent);
+            }
+        });
 
-        messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holders, imageLoader);
+        messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holder, imageLoader);
         mMessagesList.setAdapter(messageMessagesListAdapter);
 
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        groupImageIv = toolbar.findViewById(R.id.iv_group_image);
+        groupTitleTv = toolbar.findViewById(R.id.tv_group_name);
 
         channelType = getIntent().getStringExtra("channelType");
         channelId = getIntent().getStringExtra("channelId");
@@ -116,6 +132,7 @@ public class ConversationActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         getChannelDetails();
+
     }
 
     @Override
@@ -124,46 +141,6 @@ public class ConversationActivity extends AppCompatActivity {
         removeConnectionListener();
         removeTextWatcher();
         super.onPause();
-    }
-
-    private MessageHolders createMessageHolders() {
-        ContentCheckerAction contentChecker = new ContentCheckerAction();
-
-        MessageHolders holders = new MessageHolders()
-                .registerContentType(
-                        CONTENT_TYPE_TYPING,
-                        IncomingTypingMessageViewHolder.class,
-                        R.layout.layout_item_incoming_typing_message,
-                        //we dont need this but this is required in the argument
-                        IncomingTypingMessageViewHolder.class,
-                        R.layout.layout_item_incoming_typing_message,
-                        contentChecker);
-
-        holders.registerContentType(
-                CONTENT_TYPE_ACTION,
-                IncomingActionMessageViewHolder.class,
-                R.layout.layout_incoming_action,
-                OutcomingActionMessageViewHolder.class,
-                R.layout.layout_outcoming_action,
-                contentChecker);
-
-        holders.registerContentType(
-                CONTENT_TYPE_TEXT,
-                IncomingTextMessageViewHolder.class,
-                R.layout.layout_item_incoming_text_message,
-                OutcomingTextMessageViewHolder.class,
-                R.layout.layout_item_outcoming_text_message,
-                contentChecker);
-
-        holders.registerContentType(
-                CONTENT_TYPE_IMAGE,
-                IncomingImageMessageViewHolder.class,
-                R.layout.layout_item_incoming_image_message,
-                OutcomingImageMessageViewHolder.class,
-                R.layout.layout_item_outcoming_image_message,
-                contentChecker);
-
-        return holders;
     }
 
     private void getChannelDetails() {
@@ -249,11 +226,29 @@ public class ConversationActivity extends AppCompatActivity {
 
     private void groupInit(final GroupChannel groupChannel) {
         g = groupChannel;
+        g.markAsRead();
+        if (g.getParticipantsList().size() <= 2 && g.isDistinct()) {
+            isOneToOneConversation = true;
+        }
         addConnectionListener(g);
         setInputListener(g);
         addTextWatcher(g);
         addChannelListener(g);
 
+        if (isOneToOneConversation) {
+            Map<String, Participant> participantMap = g.getParticipantsList();
+            for (Map.Entry<String, Participant> entry : participantMap.entrySet()) {
+                if (!entry.getKey().equals(LocalStorage.getInstance().getUserId())) {
+                    otherParticipant = entry.getValue();
+                }
+            }
+            populateToobar(otherParticipant.getAvatarUrl(), otherParticipant.getDisplayName());
+        } else {
+            populateToobar(g.getAvatarUrl(), g.getName());
+        }
+        OnTitleClickListener titleClickListener = new OnTitleClickListener();
+        groupTitleTv.setOnClickListener(titleClickListener);
+        groupImageIv.setOnClickListener(titleClickListener);
         PreviousMessageListQuery previousMessageListQuery = g.createPreviousMessageListQuery();
         previousMessageListQuery.load(10, true, new PreviousMessageListQuery.ResultListener() {
             @Override
@@ -266,11 +261,34 @@ public class ConversationActivity extends AppCompatActivity {
                     ConversationMessage conversationMessage = new ConversationMessage(message);
                     conversationMessages.add(conversationMessage);
                 }
+                messageMessagesListAdapter.clear();
                 messageMessagesListAdapter.addToEnd(conversationMessages, false);
-
-
             }
         });
+    }
+
+    private void populateToobar(String imageUrl, String title) {
+        Picasso.with(this).load(imageUrl)
+                .placeholder(R.drawable.icon_default_contact)
+                .error(R.drawable.icon_default_contact)
+                .into(groupImageIv, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        Bitmap imageBitmap = ((BitmapDrawable) groupImageIv.getDrawable()).getBitmap();
+                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                        imageDrawable.setCircular(true);
+                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                        groupImageIv.setImageDrawable(imageDrawable);
+                    }
+
+                    @Override
+                    public void onError() {
+                        groupImageIv.setImageResource(R.mipmap.ic_launcher_round);
+                    }
+                });
+
+        groupTitleTv.setText(title);
+
     }
 
     private void addConnectionListener(final GroupChannel groupChannel) {
@@ -300,6 +318,7 @@ public class ConversationActivity extends AppCompatActivity {
                     @Override
                     public void onSent(Message message, ChatCampException e) {
 //                        input.setText("");
+                        groupChannel.markAsRead();
                     }
                 });
 
@@ -317,7 +336,7 @@ public class ConversationActivity extends AppCompatActivity {
                         return;
                     }
                 }
-               chooseFile();
+                chooseFile();
             }
         });
     }
@@ -331,6 +350,17 @@ public class ConversationActivity extends AppCompatActivity {
     private void addTextWatcher(final GroupChannel groupChannel) {
         textWatcher = new MessageTextWatcher(groupChannel);
         input.getInputEditText().addTextChangedListener(textWatcher);
+        input.getInputEditText().setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    if (g != null) {
+                        g.markAsRead();
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     private void addChannelListener(GroupChannel groupChannel) {
@@ -404,6 +434,27 @@ public class ConversationActivity extends AppCompatActivity {
             public void onOpenChannelTypingStatusChanged(OpenChannel groupChannel) {
 
             }
+
+            //
+            @Override
+            public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
+                Map<Integer, Long> readReceipt = groupChannel.getReadReceipt();
+                if (readReceipt.size() == groupChannel.getParticipantsList().size()) {
+                    Long lastRead = 0L;
+                    for (Map.Entry<Integer, Long> entry : readReceipt.entrySet()) {
+                        if (lastRead == 0L || entry.getValue() < lastRead) {
+                            lastRead = entry.getValue();
+                        }
+                    }
+                    holder.setLastTimeRead(lastRead * 1000);
+                    messageMessagesListAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onOpenChannelReadStatusUpdated(OpenChannel groupChannel) {
+
+            }
         });
     }
 
@@ -417,25 +468,6 @@ public class ConversationActivity extends AppCompatActivity {
 
     private void removeChannelListener() {
         ChatCamp.removeChannelListener(CHANNEL_LISTENER);
-    }
-
-    public class ContentCheckerAction implements MessageHolders.ContentChecker<ConversationMessage> {
-
-        @Override
-        public boolean hasContentFor(ConversationMessage message, byte type) {
-            if (type == CONTENT_TYPE_TYPING) {
-                return message.getId().contains(TYPING_TEXT_ID);
-            } else if (type == CONTENT_TYPE_ACTION) {
-                return message.getMessage().getType().equals("text")
-                        && message.getMessage().getCustomType().equals("action_link");
-            } else if (type == CONTENT_TYPE_TEXT) {
-                return message.getMessage().getType().equals("text");
-            } else if (type == CONTENT_TYPE_IMAGE) {
-                return message.getMessage().getType().equals("attachment");
-            }
-            return false;
-        }
-
     }
 
     class MessageTextWatcher implements TextWatcher {
@@ -468,7 +500,7 @@ public class ConversationActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             // TODO Auto-generated method stub
             switch (requestCode) {
                 case PICKFILE_RESULT_CODE:
@@ -504,6 +536,7 @@ public class ConversationActivity extends AppCompatActivity {
                         @Override
                         public void onUploadSuccess() {
                             progressBar.setVisibility(View.GONE);
+                            g.markAsRead();
                             Snackbar.make(progressBar, "Image Uploaded Successfully", Snackbar.LENGTH_LONG).show();
                         }
 
@@ -524,6 +557,25 @@ public class ConversationActivity extends AppCompatActivity {
                                            int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
             chooseFile();
+        }
+    }
+
+    class OnTitleClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            if (isOneToOneConversation) {
+                Intent intent = new Intent(ConversationActivity.this, UserProfileActivity.class);
+                if (otherParticipant != null) {
+                    intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, otherParticipant.getId());
+                    intent.putExtra(UserProfileActivity.KEY_GROUP_ID, g.getId());
+                }
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(ConversationActivity.this, GroupDetailActivity.class);
+                intent.putExtra(KEY_GROUP_ID, g.getId());
+                startActivity(intent);
+            }
         }
     }
 }
