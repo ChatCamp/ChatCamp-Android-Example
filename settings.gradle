@@ -1,5 +1,3 @@
-include ':app', ':chatkit'//, ':chatcamp'
+include ':app', ':chatkit'
 
-//project(':chatcamp').projectDir = new File(settingsDir, '../iflychat-android-sdk/chatcamp')
-//project(':chatkit').projectDir = new File(settingsDir, '../chatkit/chatkit')
 

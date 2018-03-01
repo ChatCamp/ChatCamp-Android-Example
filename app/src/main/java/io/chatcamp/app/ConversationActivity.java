@@ -227,7 +227,7 @@ public class ConversationActivity extends AppCompatActivity {
     private void groupInit(final GroupChannel groupChannel) {
         g = groupChannel;
         g.markAsRead();
-        if (g.getParticipantsList().size() <= 2 && g.isDistinct()) {
+        if (g.getParticipants().size() <= 2 && g.isDistinct()) {
             isOneToOneConversation = true;
         }
         addConnectionListener(g);
@@ -236,10 +236,10 @@ public class ConversationActivity extends AppCompatActivity {
         addChannelListener(g);
 
         if (isOneToOneConversation) {
-            Map<String, Participant> participantMap = g.getParticipantsList();
-            for (Map.Entry<String, Participant> entry : participantMap.entrySet()) {
-                if (!entry.getKey().equals(LocalStorage.getInstance().getUserId())) {
-                    otherParticipant = entry.getValue();
+            List<Participant> participants = g.getParticipants();
+            for (Participant participant : participants) {
+                if (!participant.getId().equals(LocalStorage.getInstance().getUserId())) {
+                    otherParticipant = participant;
                 }
             }
             populateToobar(otherParticipant.getAvatarUrl(), otherParticipant.getDisplayName());
@@ -439,7 +439,7 @@ public class ConversationActivity extends AppCompatActivity {
             @Override
             public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
                 Map<Integer, Long> readReceipt = groupChannel.getReadReceipt();
-                if (readReceipt.size() == groupChannel.getParticipantsList().size()) {
+                if (readReceipt.size() == groupChannel.getParticipants().size()) {
                     Long lastRead = 0L;
                     for (Map.Entry<Integer, Long> entry : readReceipt.entrySet()) {
                         if (lastRead == 0L || entry.getValue() < lastRead) {

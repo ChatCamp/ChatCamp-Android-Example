@@ -4,8 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,7 +13,6 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -23,16 +20,13 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
-import java.security.cert.CollectionCertStoreParameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import io.chatcamp.app.R;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.Participant;
-import io.chatcamp.sdk.User;
 
 public class GroupDetailActivity extends AppCompatActivity implements GroupDetailAdapter.OnParticipantClickedListener {
     public  static final String KEY_GROUP_ID = "key_group_id";
@@ -75,10 +69,9 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
         collapsingToolbarLayout.setTitle(groupChannel.getName());
         Picasso.with(this).load(groupChannel.getAvatarUrl())
                 .placeholder(R.drawable.icon_default_contact).error(R.drawable.icon_default_contact).into(toolbarIv);
-        String[] participantIds = groupChannel.getAcceptedParticipants();
         List<ParticipantView> participantList = new ArrayList<>();
-        for(Map.Entry<String, Participant> entry : groupChannel.getParticipantsList().entrySet()) {
-            participantList.add(new ParticipantView(entry.getValue()));
+        for(Participant participant : groupChannel.getParticipants()) {
+            participantList.add(new ParticipantView(participant));
         }
         adapter.clear();
         adapter.addAll(participantList);
