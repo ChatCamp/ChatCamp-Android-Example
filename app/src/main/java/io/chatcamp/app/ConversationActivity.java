@@ -95,7 +95,9 @@ public class ConversationActivity extends AppCompatActivity {
         imageLoader = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
-                Picasso.with(ConversationActivity.this).load(url).placeholder(R.drawable.icon_default_contact).into(imageView);
+                Picasso.with(ConversationActivity.this).load(url)
+                        .placeholder(R.drawable.icon_default_contact)
+                        .error(R.drawable.icon_default_contact).into(imageView);
             }
         };
 
