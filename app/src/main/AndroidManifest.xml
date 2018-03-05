@@ -68,7 +68,7 @@
             android:name=".webview.WebViewActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ImagePreviewActivity"
+            android:name=".MediaPreviewActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <meta-data

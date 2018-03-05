@@ -8,18 +8,25 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
+
+import io.chatcamp.app.webview.FilePath;
 
 /**
  * Created by shubhamdhabhai on 15/02/18.
  */
 
-public class ImagePreviewActivity extends AppCompatActivity {
+public class MediaPreviewActivity extends AppCompatActivity {
 
     public static final String  IMAGE_URI = "image_uri";
 
     private ImageView imageView;
+    private VideoView videoView;
+    private FrameLayout frameLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -29,6 +36,8 @@ public class ImagePreviewActivity extends AppCompatActivity {
         final Intent intent = getIntent();
         final String uri = intent.getStringExtra(IMAGE_URI);
         imageView = (ImageView)findViewById(R.id.preview_image_view);
+        videoView = findViewById(R.id.preview_video_view);
+        frameLayout = findViewById(R.id.fl_container_video);
         TextView sendButton = findViewById(R.id.tv_send);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,7 +48,17 @@ public class ImagePreviewActivity extends AppCompatActivity {
                 finish();
             }
         });
-        imageView.setImageURI(Uri.parse(uri));
-        imageView.setClickable(true);
+        if(getContentResolver().getType(Uri.parse(uri)).contains("image")) {
+            frameLayout.setVisibility(View.GONE);
+            imageView.setVisibility(View.VISIBLE);
+            imageView.setImageURI(Uri.parse(uri));
+        } else if(getContentResolver().getType(Uri.parse(uri)).contains("video")) {
+            imageView.setVisibility(View.GONE);
+            frameLayout.setVisibility(View.VISIBLE);
+            videoView.setVideoPath((FilePath.getPath(this, Uri.parse(uri))));
+            MediaController mediaController = new MediaController(this);
+            videoView.setMediaController(mediaController);
+            videoView.start();
+        }
     }
 }
