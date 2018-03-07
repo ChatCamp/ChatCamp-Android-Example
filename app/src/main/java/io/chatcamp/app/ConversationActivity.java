@@ -1,14 +1,20 @@
 package io.chatcamp.app;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.FileProvider;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
@@ -18,10 +24,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,7 +45,10 @@ import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +74,11 @@ public class ConversationActivity extends AppCompatActivity {
     public static final String CHANNEL_LISTENER = "group_channel_listener";
     private static final int PICK_MEDIA_RESULT_CODE = 111;
     private static final int PICKFILE_RESULT_CODE = 120;
+    private static final int CAPTURE_MEDIA_RESULT_CODE = 121;
     private static final int PREVIEW_FILE_RESULT_CODE = 112;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA = 113;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_DOCUMENT = 114;
+    private static final int PERMISSIONS_REQUEST_CAMERA = 115;
     private static final String DOCUMENT = "document";
     private static final String MEDIA = "media";
     private MessagesList mMessagesList;
@@ -84,10 +100,7 @@ public class ConversationActivity extends AppCompatActivity {
     private boolean isOneToOneConversation;
     private Participant otherParticipant = null;
     private MessageHolders holder;
-    private LinearLayout attachLl;
-    private LinearLayout documentLl;
-    private LinearLayout galleryLl;
-    private LinearLayout cameraLl;
+    private String currentPhotoPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,24 +111,6 @@ public class ConversationActivity extends AppCompatActivity {
         mMessagesList = findViewById(R.id.messagesList);
         input = findViewById(R.id.edit_conversation_input);
         progressBar = findViewById(R.id.progress_bar);
-        attachLl = findViewById(R.id.ll_attach_container);
-        documentLl = findViewById(R.id.ll_document);
-        galleryLl = findViewById(R.id.ll_gallery);
-        cameraLl = findViewById(R.id.ll_camera);
-        documentLl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkReadPermission(DOCUMENT);
-            }
-        });
-        galleryLl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                checkReadPermission(MEDIA);
-            }
-        });
-
-
         imageLoader = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
@@ -150,6 +145,20 @@ public class ConversationActivity extends AppCompatActivity {
 
         channelType = getIntent().getStringExtra("channelType");
         channelId = getIntent().getStringExtra("channelId");
+    }
+
+    private void checkCameraPermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                            PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_CAMERA);
+                return;
+            }
+        }
+        openCamera();
     }
 
     @Override
@@ -352,12 +361,44 @@ public class ConversationActivity extends AppCompatActivity {
         input.setAttachmentsListener(new MessageInput.AttachmentsListener() {
             @Override
             public void onAddAttachments() {
-                if (attachLl.getVisibility() == View.VISIBLE) {
-                    attachLl.setVisibility(View.GONE);
+                LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                // inflate the custom popup layout
+                final View inflatedView = layoutInflater.inflate(R.layout.layout_attachment, null, false);
+                LinearLayout galleryLl = inflatedView.findViewById(R.id.ll_gallery);
+                LinearLayout cameraLl = inflatedView.findViewById(R.id.ll_camera);
+                LinearLayout documentLl = inflatedView.findViewById(R.id.ll_document);
+                documentLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        checkReadPermission(DOCUMENT);
+                    }
+                });
+                galleryLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        checkReadPermission(MEDIA);
+                    }
+                });
+                cameraLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        checkCameraPermission();
+                    }
+                });
+                // get device size
+                Display display = getWindowManager().getDefaultDisplay();
+                final Point size = new Point();
+                display.getSize(size);
+                PopupWindow popupWindow = new PopupWindow(inflatedView, size.x - 50, (WindowManager.LayoutParams.WRAP_CONTENT), true);
+                popupWindow.setFocusable(true);
+                popupWindow.setBackgroundDrawable(new ColorDrawable());//This has no meaning than dismissal of the Pop Up Noni!!
+                popupWindow.setOutsideTouchable(true);
+                if(Build.VERSION.SDK_INT > 19) {
+                    popupWindow.showAsDropDown(input, Gravity.TOP | Gravity.LEFT,  0, 0);
                 } else {
-                    attachLl.setVisibility(View.VISIBLE);
+                    popupWindow.showAsDropDown(input, 0, 0);
                 }
-                //checkReadPermission("image");
             }
         });
     }
@@ -366,7 +407,7 @@ public class ConversationActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED) {
-                if(type.equalsIgnoreCase(DOCUMENT)) {
+                if (type.equalsIgnoreCase(DOCUMENT)) {
                     requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_DOCUMENT);
                 } else {
@@ -385,7 +426,7 @@ public class ConversationActivity extends AppCompatActivity {
             intent.setType("application/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             startActivityForResult(Intent.createChooser(intent, "Select files"), PICKFILE_RESULT_CODE);
-        } else if(type.equalsIgnoreCase(MEDIA)){
+        } else if (type.equalsIgnoreCase(MEDIA)) {
             if (Build.VERSION.SDK_INT < 19) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/* video/*");
@@ -394,7 +435,7 @@ public class ConversationActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] {"image/*", "video/*"});
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"image/*", "video/*"});
                 startActivityForResult(intent, PICK_MEDIA_RESULT_CODE);
             }
         }
@@ -523,6 +564,109 @@ public class ConversationActivity extends AppCompatActivity {
         ChatCamp.removeChannelListener(CHANNEL_LISTENER);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
+        if (resultCode == RESULT_OK) {
+            // TODO Auto-generated method stub
+            switch (requestCode) {
+                case PICK_MEDIA_RESULT_CODE:
+                    if (resultCode == RESULT_OK) {
+                        Uri uri = dataFile.getData();
+                        Intent intent = new Intent(ConversationActivity.this, MediaPreviewActivity.class);
+                        intent.putExtra(MediaPreviewActivity.IMAGE_URI, uri.toString());
+                        startActivityForResult(intent, PREVIEW_FILE_RESULT_CODE);
+                    }
+                    break;
+                case PREVIEW_FILE_RESULT_CODE:
+                    String uriMedia = dataFile.getExtras().getString(MediaPreviewActivity.IMAGE_URI);
+                    uploadFile(Uri.parse(uriMedia));
+
+                    break;
+                case PICKFILE_RESULT_CODE:
+                    Uri uriFile = dataFile.getData();
+                    uploadFile(uriFile);
+                    break;
+                case CAPTURE_MEDIA_RESULT_CODE:
+                    Uri uri;
+                    if (dataFile == null) {
+                        uri = Uri.parse(currentPhotoPath);
+                    } else {
+                        uri = dataFile.getData();
+                    }
+                    uploadFile(uri);
+                    break;
+
+            }
+        }
+    }
+
+    private void uploadFile(Uri uri) {
+        String path = FilePath.getPath(this, uri);
+        String fileName = "";
+        String contentType = "";
+        if (path == null) {
+            path = uri.toString();
+            fileName = new File(path).getName();
+            contentType = "image/*";
+        } else {
+            fileName = FilePath.getFileName(ConversationActivity.this, uri);
+            contentType = getContentResolver().getType(uri);
+        }
+        progressBar.setProgress(0);
+        progressBar.setVisibility(View.VISIBLE);
+        g.sendAttachment(new File(path), fileName, contentType
+                , new GroupChannel.UploadAttachmentListener() {
+                    @Override
+                    public void onUploadProgress(int progress) {
+                        progressBar.setProgress(progress);
+                    }
+
+                    @Override
+                    public void onUploadSuccess() {
+                        progressBar.setVisibility(View.GONE);
+                        g.markAsRead();
+                        Snackbar.make(progressBar, "File Uploaded Successfully", Snackbar.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onUploadFailed(Throwable error) {
+                        progressBar.setVisibility(View.GONE);
+                        Snackbar.make(progressBar, "Failed to upload File", Snackbar.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_DOCUMENT) {
+            chooseFile(DOCUMENT);
+        } else if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA) {
+            chooseFile(MEDIA);
+        } else {
+            openCamera();
+        }
+    }
+
+    private void openCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            File file = createImageFile();
+            Uri photoURI = FileProvider.getUriForFile(this,
+                    "io.chatcamp.app.fileprovider",
+                    file);
+
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+            Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+            Intent chooserIntent = Intent.createChooser(takePictureIntent, "Capture Image or Video");
+            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{takeVideoIntent});
+            startActivityForResult(chooserIntent, CAPTURE_MEDIA_RESULT_CODE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     class MessageTextWatcher implements TextWatcher {
 
         private final GroupChannel groupChannel;
@@ -551,69 +695,6 @@ public class ConversationActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        if (resultCode == RESULT_OK) {
-            // TODO Auto-generated method stub
-            switch (requestCode) {
-                case PICK_MEDIA_RESULT_CODE:
-                    if (resultCode == RESULT_OK) {
-                        Uri uri = dataFile.getData();
-                        Intent intent = new Intent(ConversationActivity.this, MediaPreviewActivity.class);
-                        intent.putExtra(MediaPreviewActivity.IMAGE_URI, uri.toString());
-                        startActivityForResult(intent, PREVIEW_FILE_RESULT_CODE);
-                    }
-                    break;
-                case PREVIEW_FILE_RESULT_CODE:
-                    String uriMedia = dataFile.getExtras().getString(MediaPreviewActivity.IMAGE_URI);
-                    uploadFile(Uri.parse(uriMedia));
-
-                    break;
-                case PICKFILE_RESULT_CODE:
-                    Uri uriFile = dataFile.getData();
-                    uploadFile(uriFile);
-                    break;
-
-            }
-        }
-    }
-
-    private void uploadFile(Uri uri) {
-        String path = FilePath.getPath(this, uri);
-        progressBar.setProgress(0);
-        progressBar.setVisibility(View.VISIBLE);
-        g.sendAttachment(new File(path), FilePath.getFileName(ConversationActivity.this, uri),
-                getContentResolver().getType(uri),new GroupChannel.UploadAttachmentListener() {
-            @Override
-            public void onUploadProgress(int progress) {
-                progressBar.setProgress(progress);
-            }
-
-            @Override
-            public void onUploadSuccess() {
-                progressBar.setVisibility(View.GONE);
-                g.markAsRead();
-                Snackbar.make(progressBar, "File Uploaded Successfully", Snackbar.LENGTH_LONG).show();
-            }
-
-            @Override
-            public void onUploadFailed(Throwable error) {
-                progressBar.setVisibility(View.GONE);
-                Snackbar.make(progressBar, "Failed to upload File", Snackbar.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
-        if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_DOCUMENT) {
-            chooseFile(DOCUMENT);
-        } else {
-            chooseFile(MEDIA);
-        }
-    }
-
     class OnTitleClickListener implements View.OnClickListener {
 
         @Override
@@ -631,5 +712,21 @@ public class ConversationActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
     }
 }
