@@ -35,6 +35,14 @@ public interface MessageContentType extends IMessage {
         String getImageUrl();
     }
 
+    interface Video extends IMessage {
+        String getVideoUrl();
+    }
+
+    interface Document extends IMessage {
+        String getDocumentUrl();
+    }
+
     // other default types will be here
 
 }

@@ -1,6 +1,7 @@
 package io.chatcamp.app;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,13 +41,19 @@ import android.widget.Toast;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
+import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -129,10 +137,25 @@ public class ConversationActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        holder.setOnVideoItemClickedListener(new MessageHolders.OnVideoItemClickedListener() {
+            @Override
+            public void onVideoItemClicked(String url) {
+                Intent intent = new Intent(ConversationActivity.this, MediaPreviewActivity.class);
+                intent.putExtra(MediaPreviewActivity.VIDEO_URI, url);
+                startActivity(intent);
+            }
+        });
+        holder.setOnDocumentItemClickedListener(new MessageHolders.OnDocumentItemClickedListener() {
+            @Override
+            public void onDocumentItemClicked(MessageContentType.Document message) {
+                //Toast.makeText(getApplicationContext(), "Clicked", Toast.LENGTH_LONG).show();
+                downloadAndOpenDocument(message);
+
+            }
+        });
 
         messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holder, imageLoader);
         mMessagesList.setAdapter(messageMessagesListAdapter);
-
 
         // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
@@ -394,8 +417,8 @@ public class ConversationActivity extends AppCompatActivity {
                 popupWindow.setFocusable(true);
                 popupWindow.setBackgroundDrawable(new ColorDrawable());//This has no meaning than dismissal of the Pop Up Noni!!
                 popupWindow.setOutsideTouchable(true);
-                if(Build.VERSION.SDK_INT > 19) {
-                    popupWindow.showAsDropDown(input, Gravity.TOP | Gravity.LEFT,  0, 0);
+                if (Build.VERSION.SDK_INT > 19) {
+                    popupWindow.showAsDropDown(input, Gravity.TOP | Gravity.LEFT, 0, 0);
                 } else {
                     popupWindow.showAsDropDown(input, 0, 0);
                 }
@@ -728,5 +751,98 @@ public class ConversationActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
         return image;
+    }
+
+
+    void downloadAndOpenDocument(final MessageContentType.Document message) {
+        new Thread(new Runnable() {
+            public void run() {
+                Uri path = Uri.fromFile(downloadFile(message.getDocumentUrl()));
+                try {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    if (message instanceof ConversationMessage) {
+                        intent.setDataAndType(path, ((ConversationMessage) message).getMessage().getAttachment().getType());
+                    } else {
+                        intent.setDataAndType(path, "application/*");
+                    }
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+
+                }
+            }
+        }).start();
+
+    }
+
+    File downloadFile(String downloadFilePath) {
+        File file = null;
+        try {
+            File SDCardRoot = Environment.getExternalStorageDirectory();
+            File file1 = new File(downloadFilePath);
+            // create a new file, to save the downloaded file
+            file = new File(SDCardRoot, file1.getName());
+            if(file.exists()) {
+                return file;
+            }
+
+            URL url = new URL(downloadFilePath);
+            HttpURLConnection urlConnection = (HttpURLConnection) url
+                    .openConnection();
+
+            urlConnection.setRequestMethod("GET");
+//            urlConnection.setDoOutput(true);
+//
+            // connect
+            urlConnection.connect();
+
+            // set the path where we want to save the file
+
+
+            FileOutputStream fileOutput = new FileOutputStream(file);
+
+            // Stream used for reading the data from the internet
+            InputStream inputStream = urlConnection.getInputStream();
+
+            // this is the total size of the file which we are
+            // downloading
+            int totalsize = urlConnection.getContentLength();
+            int downloadedSize = 0;
+
+            // create a buffer...
+            byte[] buffer = new byte[1024 * 1024];
+            int bufferLength = 0;
+
+            while ((bufferLength = inputStream.read(buffer)) > 0) {
+                fileOutput.write(buffer, 0, bufferLength);
+                downloadedSize += bufferLength;
+                final float per = ((float) downloadedSize / totalsize) * 100;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.VISIBLE);
+                        progressBar.setProgress((int)per);
+                    }
+                });
+
+            }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                    progressBar.setProgress(0);
+                }
+            });
+
+            // close the output stream when complete //
+            fileOutput.close();
+
+        } catch (final MalformedURLException e) {
+            Log.e("document", e.getMessage());
+        } catch (final IOException e) {
+            Log.e("document", e.getMessage());
+        } catch (final Exception e) {
+            Log.e("document", e.getMessage());
+        }
+        return file;
     }
 }

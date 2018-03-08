@@ -16,7 +16,8 @@ import io.chatcamp.sdk.Message;
  * Created by ChatCamp Team on 05/02/18.
  */
 
-public class ConversationMessage implements MessageContentType, MessageContentType.Image {
+public class ConversationMessage implements MessageContentType,
+        MessageContentType.Image, MessageContentType.Video, MessageContentType.Document {
 
     public static final String TYPING_TEXT_ID = "chatcamp_typing_id";
 
@@ -93,7 +94,14 @@ public class ConversationMessage implements MessageContentType, MessageContentTy
         } else if (message.getType().equals("text")) {
             return MessageType.VIEW_TYPE_TEXT_MESSAGE_CHATCAMP;
         } else if (message.getType().equals("attachment")) {
-            return MessageType.VIEW_TYPE_IMAGE_MESSAGE_CHATCAMP;
+            if(message.getAttachment().isImage()) {
+                return MessageType.VIEW_TYPE_IMAGE_MESSAGE_CHATCAMP;
+            } else if(message.getAttachment().isVideo()){
+                return MessageType.VIEW_TYPE_VIDEO_MESSAGE_CHATCAMP;
+            }
+            else if(message.getAttachment().isDocument()) {
+                return MessageType.VIEW_TYPE_DOCUMENT_MESSAGE_CHATCAMP;
+            }
         }
         return MessageType.VIEW_TYPE_TYPING_MESSAGE_CHAT_CAMP;
     }
@@ -103,6 +111,20 @@ public class ConversationMessage implements MessageContentType, MessageContentTy
             System.out.println("URL" + message.getAttachment().getUrl());
         }
         return message.getType().equals("attachment") && message.getAttachment().isImage() ? message.getAttachment().getUrl() : null;
+    }
+
+    public String getVideoUrl() {
+        if (message.getType().equals("attachment")) {
+            System.out.println("URL" + message.getAttachment().getUrl());
+        }
+        return message.getType().equals("attachment") && message.getAttachment().isVideo() ? message.getAttachment().getUrl() : null;
+    }
+
+    public String getDocumentUrl() {
+        if (message.getType().equals("attachment")) {
+            System.out.println("URL" + message.getAttachment().getUrl());
+        }
+        return message.getType().equals("attachment") && message.getAttachment().isDocument() ? message.getAttachment().getUrl() : null;
     }
 
     public Message getMessage() {
