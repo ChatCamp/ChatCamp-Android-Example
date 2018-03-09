@@ -403,15 +403,12 @@ public class ConversationActivity extends AppCompatActivity {
                 popupWindow.setFocusable(true);
                 popupWindow.setBackgroundDrawable(new ColorDrawable());//This has no meaning than dismissal of the Pop Up Noni!!
                 popupWindow.setOutsideTouchable(true);
-                if (Build.VERSION.SDK_INT > 19) {
-                    popupWindow.showAsDropDown(input, Gravity.TOP | Gravity.LEFT, 0, 0);
-                } else {
-                    popupWindow.showAsDropDown(input, 0, 0);
-                }
+
+                popupWindow.showAtLocation(input, Gravity.BOTTOM, 0, 2 * input.getHeight());
                 documentLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(popupWindow != null) {
+                        if (popupWindow != null) {
                             popupWindow.dismiss();
                         }
                         checkReadPermission(DOCUMENT);
@@ -420,7 +417,7 @@ public class ConversationActivity extends AppCompatActivity {
                 galleryLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(popupWindow != null) {
+                        if (popupWindow != null) {
                             popupWindow.dismiss();
                         }
                         checkReadPermission(MEDIA);
@@ -429,7 +426,7 @@ public class ConversationActivity extends AppCompatActivity {
                 cameraLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(popupWindow != null) {
+                        if (popupWindow != null) {
                             popupWindow.dismiss();
                         }
                         checkCameraPermission();
@@ -624,7 +621,7 @@ public class ConversationActivity extends AppCompatActivity {
                     break;
                 case CAPTURE_MEDIA_RESULT_CODE:
                     Uri uri;
-                    if (dataFile == null) {
+                    if (dataFile == null || dataFile.getData() == null) {
                         uri = Uri.parse(currentPhotoPath);
                     } else {
                         uri = dataFile.getData();
@@ -695,6 +692,7 @@ public class ConversationActivity extends AppCompatActivity {
                     file);
 
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+            takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
             Intent chooserIntent = Intent.createChooser(takePictureIntent, "Capture Image or Video");
             chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{takeVideoIntent});
@@ -769,7 +767,7 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
 
-    void downloadAndOpenDocument(final MessageContentType.Document message) {
+    private void downloadAndOpenDocument(final MessageContentType.Document message) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                     PackageManager.PERMISSION_GRANTED) {
@@ -781,7 +779,10 @@ public class ConversationActivity extends AppCompatActivity {
         }
         new Thread(new Runnable() {
             public void run() {
-                Uri path = Uri.fromFile(downloadFile(message.getDocumentUrl()));
+                Uri path = FileProvider.getUriForFile(ConversationActivity.this,
+                        "io.chatcamp.app.fileprovider",
+                        downloadFile(message.getDocumentUrl()));
+//                Uri path = Uri.fromFile(downloadFile(message.getDocumentUrl()));
                 try {
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     if (message instanceof ConversationMessage) {
@@ -789,6 +790,7 @@ public class ConversationActivity extends AppCompatActivity {
                     } else {
                         intent.setDataAndType(path, "application/*");
                     }
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(intent);
                 } catch (ActivityNotFoundException e) {
 
@@ -798,11 +800,11 @@ public class ConversationActivity extends AppCompatActivity {
 
     }
 
-    File downloadFile(String downloadFilePath) {
+    private File downloadFile(String downloadFilePath) {
 
         File file = null;
         try {
-            File SDCardRoot = Environment.getExternalStorageDirectory();
+            File SDCardRoot = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
             File file1 = new File(downloadFilePath);
             // create a new file, to save the downloaded file
             file = new File(SDCardRoot, file1.getName());
