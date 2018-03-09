@@ -87,6 +87,7 @@ public class ConversationActivity extends AppCompatActivity {
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA = 113;
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_DOCUMENT = 114;
     private static final int PERMISSIONS_REQUEST_CAMERA = 115;
+    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 116;
     private static final String DOCUMENT = "document";
     private static final String MEDIA = "media";
     private MessagesList mMessagesList;
@@ -109,6 +110,7 @@ public class ConversationActivity extends AppCompatActivity {
     private Participant otherParticipant = null;
     private MessageHolders holder;
     private String currentPhotoPath;
+    private MessageContentType.Document document;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +134,7 @@ public class ConversationActivity extends AppCompatActivity {
         holder.setOnActionItemClickedListener(new MessageHolders.OnActionItemClickedListener() {
             @Override
             public void onActionItemClicked(String url) {
+                g.markAsRead();
                 Intent intent = new Intent(BaseApplication.getInstance(), WebViewActivity.class);
                 intent.putExtra(WebViewActivity.URL, url);
                 startActivity(intent);
@@ -140,6 +143,7 @@ public class ConversationActivity extends AppCompatActivity {
         holder.setOnVideoItemClickedListener(new MessageHolders.OnVideoItemClickedListener() {
             @Override
             public void onVideoItemClicked(String url) {
+                g.markAsRead();
                 Intent intent = new Intent(ConversationActivity.this, MediaPreviewActivity.class);
                 intent.putExtra(MediaPreviewActivity.VIDEO_URI, url);
                 startActivity(intent);
@@ -148,7 +152,7 @@ public class ConversationActivity extends AppCompatActivity {
         holder.setOnDocumentItemClickedListener(new MessageHolders.OnDocumentItemClickedListener() {
             @Override
             public void onDocumentItemClicked(MessageContentType.Document message) {
-                //Toast.makeText(getApplicationContext(), "Clicked", Toast.LENGTH_LONG).show();
+                g.markAsRead();
                 downloadAndOpenDocument(message);
 
             }
@@ -173,7 +177,7 @@ public class ConversationActivity extends AppCompatActivity {
     private void checkCameraPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.CAMERA)
-                    != PackageManager.PERMISSION_GRANTED &&
+                    != PackageManager.PERMISSION_GRANTED ||
                     checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                             PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -391,29 +395,11 @@ public class ConversationActivity extends AppCompatActivity {
                 LinearLayout galleryLl = inflatedView.findViewById(R.id.ll_gallery);
                 LinearLayout cameraLl = inflatedView.findViewById(R.id.ll_camera);
                 LinearLayout documentLl = inflatedView.findViewById(R.id.ll_document);
-                documentLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        checkReadPermission(DOCUMENT);
-                    }
-                });
-                galleryLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        checkReadPermission(MEDIA);
-                    }
-                });
-                cameraLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        checkCameraPermission();
-                    }
-                });
                 // get device size
                 Display display = getWindowManager().getDefaultDisplay();
                 final Point size = new Point();
                 display.getSize(size);
-                PopupWindow popupWindow = new PopupWindow(inflatedView, size.x - 50, (WindowManager.LayoutParams.WRAP_CONTENT), true);
+                final PopupWindow popupWindow = new PopupWindow(inflatedView, size.x - 50, (WindowManager.LayoutParams.WRAP_CONTENT), true);
                 popupWindow.setFocusable(true);
                 popupWindow.setBackgroundDrawable(new ColorDrawable());//This has no meaning than dismissal of the Pop Up Noni!!
                 popupWindow.setOutsideTouchable(true);
@@ -422,6 +408,33 @@ public class ConversationActivity extends AppCompatActivity {
                 } else {
                     popupWindow.showAsDropDown(input, 0, 0);
                 }
+                documentLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(popupWindow != null) {
+                            popupWindow.dismiss();
+                        }
+                        checkReadPermission(DOCUMENT);
+                    }
+                });
+                galleryLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(popupWindow != null) {
+                            popupWindow.dismiss();
+                        }
+                        checkReadPermission(MEDIA);
+                    }
+                });
+                cameraLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(popupWindow != null) {
+                            popupWindow.dismiss();
+                        }
+                        checkCameraPermission();
+                    }
+                });
             }
         });
     }
@@ -666,6 +679,8 @@ public class ConversationActivity extends AppCompatActivity {
             chooseFile(DOCUMENT);
         } else if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA) {
             chooseFile(MEDIA);
+        } else if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE) {
+            downloadAndOpenDocument(document);
         } else {
             openCamera();
         }
@@ -755,6 +770,15 @@ public class ConversationActivity extends AppCompatActivity {
 
 
     void downloadAndOpenDocument(final MessageContentType.Document message) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                document = message;
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                return;
+            }
+        }
         new Thread(new Runnable() {
             public void run() {
                 Uri path = Uri.fromFile(downloadFile(message.getDocumentUrl()));
@@ -775,13 +799,14 @@ public class ConversationActivity extends AppCompatActivity {
     }
 
     File downloadFile(String downloadFilePath) {
+
         File file = null;
         try {
             File SDCardRoot = Environment.getExternalStorageDirectory();
             File file1 = new File(downloadFilePath);
             // create a new file, to save the downloaded file
             file = new File(SDCardRoot, file1.getName());
-            if(file.exists()) {
+            if (file.exists()) {
                 return file;
             }
 
@@ -820,7 +845,7 @@ public class ConversationActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         progressBar.setVisibility(View.VISIBLE);
-                        progressBar.setProgress((int)per);
+                        progressBar.setProgress((int) per);
                     }
                 });
 
