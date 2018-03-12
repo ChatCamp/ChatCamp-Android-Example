@@ -490,7 +490,7 @@ public class ConversationActivity extends AppCompatActivity {
         });
     }
 
-    private void addChannelListener(GroupChannel groupChannel) {
+    private void addChannelListener(final GroupChannel groupChannel) {
         ChatCamp.addChannelListener(CHANNEL_LISTENER, new ChatCamp.ChannelListener() {
             @Override
             public void onOpenChannelMessageReceived(OpenChannel openChannel, Message message) {
@@ -501,10 +501,12 @@ public class ConversationActivity extends AppCompatActivity {
 
             @Override
             public void onGroupChannelMessageReceived(GroupChannel channel, Message message) {
-                final Message m = message;
-                final ConversationMessage conversationMessage = new ConversationMessage(m);
-                messageMessagesListAdapter.addToStart(conversationMessage, true);
-                Toast.makeText(getApplicationContext(), m.getText(), Toast.LENGTH_SHORT).show();
+                if(channel.getId().equals(groupChannel.getId())) {
+                    final Message m = message;
+                    final ConversationMessage conversationMessage = new ConversationMessage(m);
+                    messageMessagesListAdapter.addToStart(conversationMessage, true);
+                    Toast.makeText(getApplicationContext(), m.getText(), Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
