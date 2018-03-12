@@ -64,13 +64,24 @@
         android:layout_alignStart="@id/image_container"
         android:layout_alignTop="@id/image_container" />
 
+    <TextView
+        android:id="@+id/tv_file_name"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image_container"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        android:textSize="@dimen/chat_time_text"
+        android:layout_alignStart="@id/image_container"
+        android:layout_alignLeft="@id/image_container" />
+
     <LinearLayout
         android:id="@+id/ll_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@id/image_container"
         android:layout_alignRight="@id/image_container"
-        android:layout_below="@id/image_container"
+        android:layout_below="@id/tv_file_name"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/margin_x"

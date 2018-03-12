@@ -59,4 +59,6 @@ public interface IMessage {
     int getMessageType();
 
     IActionMessage getActionMessage();
+
+    String getFileName();
 }

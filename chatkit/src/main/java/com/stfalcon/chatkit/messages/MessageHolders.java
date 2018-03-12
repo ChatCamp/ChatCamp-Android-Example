@@ -1202,6 +1202,7 @@ public class MessageHolders {
         protected TextView time;
         protected ImageView userAvatar;
         protected ImageView readIv;
+        protected TextView fileNameTv;
 
 
         public BaseIncomingMessageViewHolder(View itemView) {
@@ -1209,7 +1210,7 @@ public class MessageHolders {
             time = (TextView) itemView.findViewById(R.id.messageTime);
             userAvatar = (ImageView) itemView.findViewById(R.id.messageUserAvatar);
             readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
-
+            fileNameTv = itemView.findViewById(R.id.tv_file_name);
         }
 
         @Override
@@ -1223,6 +1224,9 @@ public class MessageHolders {
                 } else {
                     readIv.setImageResource(R.drawable.single_tick);
                 }
+            }
+            if(fileNameTv != null) {
+                fileNameTv.setText(message.getFileName());
             }
 
             if (userAvatar != null) {
@@ -1259,11 +1263,13 @@ public class MessageHolders {
 
         protected TextView time;
         protected ImageView readIv;
+        protected TextView fileNameTv;
 
         public BaseOutcomingMessageViewHolder(View itemView) {
             super(itemView);
             time = (TextView) itemView.findViewById(R.id.messageTime);
             readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
+            fileNameTv = itemView.findViewById(R.id.tv_file_name);
         }
 
         @Override
@@ -1277,6 +1283,9 @@ public class MessageHolders {
                 } else {
                     readIv.setImageResource(R.drawable.single_tick);
                 }
+            }
+            if(fileNameTv != null) {
+                fileNameTv.setText(message.getFileName());
             }
         }
 

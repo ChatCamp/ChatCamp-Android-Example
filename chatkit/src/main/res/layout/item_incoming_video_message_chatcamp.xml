@@ -61,13 +61,24 @@
         android:layout_alignStart="@id/rl_container_image"
         android:layout_alignTop="@id/rl_container_image" />
 
+    <TextView
+        android:id="@+id/tv_file_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/rl_container_image"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        android:textSize="@dimen/chat_time_text"
+        android:layout_alignStart="@id/rl_container_image"
+        android:layout_alignLeft="@id/rl_container_image" />
+
     <LinearLayout
         android:id="@+id/ll_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@id/rl_container_image"
         android:layout_alignRight="@id/rl_container_image"
-        android:layout_below="@id/rl_container_image"
+        android:layout_below="@id/tv_file_name"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/margin_x"

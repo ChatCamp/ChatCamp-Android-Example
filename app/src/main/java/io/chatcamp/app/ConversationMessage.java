@@ -146,4 +146,11 @@ public class ConversationMessage implements MessageContentType,
         return actionMessage;
     }
 
+    public String getFileName() {
+        if(message.getAttachment() != null) {
+            return message.getAttachment().getName();
+        }
+        return null;
+    }
+
 }
