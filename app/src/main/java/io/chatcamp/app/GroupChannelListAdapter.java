@@ -30,7 +30,7 @@ import io.chatcamp.sdk.Participant;
 public class GroupChannelListAdapter extends RecyclerView.Adapter<GroupChannelListAdapter.ViewHolder> {
 
     public interface RecyclerViewClickListener {
-        void onClick(View view, int position);
+        void onClick(View view, GroupChannel position);
     }
 
     private List<GroupChannel> mDataset;
@@ -41,6 +41,16 @@ public class GroupChannelListAdapter extends RecyclerView.Adapter<GroupChannelLi
         mDataset = myDataset;
         mListener = listener;
         this.context = context;
+    }
+
+    public void clear() {
+        mDataset.clear();
+        notifyDataSetChanged();
+    }
+
+    public void addAll(List<GroupChannel> data) {
+        mDataset = data;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -86,17 +96,24 @@ public class GroupChannelListAdapter extends RecyclerView.Adapter<GroupChannelLi
             lastMessageTv = v.findViewById(R.id.tv_last_message);
             unreadMessageTv = v.findViewById(R.id.tv_unread_message);
             mListener = listener;
-            v.setOnClickListener(this);
         }
 
         public void bind(GroupChannel groupChannel) {
+            itemView.setTag(groupChannel);
+            itemView.setOnClickListener(this);
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             if (groupChannel.getLastMessage() != null) {
                 Date date = new Date(groupChannel.getLastMessage().getInsertedAt() * 1000);
                 timeTv.setText(format.format(date));
                 if (groupChannel.getLastMessage().getType().equalsIgnoreCase("text")) {
                     lastMessageTv.setText(groupChannel.getLastMessage().getText());
+                } else {
+                    lastMessageTv.setText("");
                 }
+            }
+            else {
+                lastMessageTv.setText("");
+                timeTv.setText("");
             }
             if (groupChannel.getUnreadMessageCount() > 0) {
                 unreadMessageTv.setVisibility(View.VISIBLE);
@@ -149,7 +166,7 @@ public class GroupChannelListAdapter extends RecyclerView.Adapter<GroupChannelLi
 
         @Override
         public void onClick(View view) {
-            mListener.onClick(view, getAdapterPosition()); // call the onClick in the OnItemClickListener
+            mListener.onClick(view, (GroupChannel) view.getTag()); // call the onClick in the OnItemClickListener
         }
     }
 

@@ -15,14 +15,16 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import io.chatcamp.app.setting.SettingActivity;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
 import io.chatcamp.sdk.OpenChannel;
 import io.chatcamp.sdk.OpenChannelListQuery;
-
-import java.util.List;
 
 public class ListActivity extends AppCompatActivity {
 
@@ -33,6 +35,7 @@ public class ListActivity extends AppCompatActivity {
     private TextView mTextMessage;
     private GroupChannelListQuery.ParticipantState groupFilter;
     private FloatingActionButton mChannelCreate;
+    private Timer timer;
 
     private TabLayout.OnTabSelectedListener mTabLayoutOnClickListener = new TabLayout.OnTabSelectedListener() {
         @Override
@@ -101,6 +104,7 @@ public class ListActivity extends AppCompatActivity {
             startActivity(intent);
         }
     };
+    private BottomNavigationView navigation;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,12 +120,19 @@ public class ListActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mTextMessage = (TextView) findViewById(R.id.message);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         mChannelCreate = (FloatingActionButton) findViewById(R.id.floating_button_create);
         mChannelCreate.setOnClickListener(mChannelCreateClickListener);
         mTabLayout.addOnTabSelectedListener(mTabLayoutOnClickListener);
         handleNavigationOpenChannels();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        timer = new Timer();
+        timer.schedule(new UpdateListTask(), 10000, 4000);
     }
 
     private void handleNavigationGroupChannels() {
@@ -144,8 +155,7 @@ public class ListActivity extends AppCompatActivity {
 
                 mAdapter = new GroupChannelListAdapter(ListActivity.this, g, new GroupChannelListAdapter.RecyclerViewClickListener() {
                     @Override
-                    public void onClick(View view, int position) {
-                        GroupChannel groupChannelElement = g.get(position);
+                    public void onClick(View view, GroupChannel groupChannelElement) {
                         Toast.makeText(getApplicationContext(), "Element " + groupChannelElement.getName(), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
                         intent.putExtra("channelType", "group");
@@ -155,7 +165,6 @@ public class ListActivity extends AppCompatActivity {
                     }
                 });
                 mRecyclerView.setAdapter(mAdapter);
-
 
 
 //                final String groupChannelId = groupChannelList.get(0).getId();
@@ -196,4 +205,33 @@ public class ListActivity extends AppCompatActivity {
         });
     }
 
+
+    class UpdateListTask extends TimerTask {
+        @Override
+        public void run() {
+            if (navigation.getSelectedItemId() == R.id.navigation_group_channels) {
+
+                GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
+                groupChannelListQuery.setParticipantState(groupFilter);
+                groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
+                    @Override
+                    public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
+                        final List<GroupChannel> g = groupChannelList;
+                        if(mAdapter instanceof GroupChannelListAdapter) {
+                            ((GroupChannelListAdapter)mAdapter).clear();
+                            ((GroupChannelListAdapter)mAdapter).addAll(g);
+
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        timer.cancel();
+        timer = null;
+        super.onStop();
+    }
 }
