@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -639,6 +640,7 @@ public class ConversationActivity extends AppCompatActivity {
         String path = FilePath.getPath(this, uri);
         String fileName = "";
         String contentType = "";
+        File file;
         if (path == null) {
             path = uri.toString();
             fileName = new File(path).getName();
@@ -647,9 +649,24 @@ public class ConversationActivity extends AppCompatActivity {
             fileName = FilePath.getFileName(ConversationActivity.this, uri);
             contentType = getContentResolver().getType(uri);
         }
+        if(contentType.contains("image")) {
+            file = new File (path);
+            try {
+                File compressedFile = createImageFile();
+                Bitmap bitmap = decodeSampledBitmapFromFile(path, 1280, 800);
+                bitmap.compress (Bitmap.CompressFormat.JPEG, 100, new FileOutputStream (compressedFile));
+                file  = compressedFile;
+            }
+            catch (Throwable t) {
+                Log.e("ERROR", "Error compressing file." + t.toString ());
+                t.printStackTrace ();
+            }
+        } else {
+            file = new File(path);
+        }
         progressBar.setProgress(0);
         progressBar.setVisibility(View.VISIBLE);
-        g.sendAttachment(new File(path), fileName, contentType
+        g.sendAttachment(file, fileName, contentType
                 , new GroupChannel.UploadAttachmentListener() {
                     @Override
                     public void onUploadProgress(int progress) {
@@ -873,5 +890,30 @@ public class ConversationActivity extends AppCompatActivity {
             Log.e("document", e.getMessage());
         }
         return file;
+    }
+
+    public Bitmap decodeSampledBitmapFromFile(String path, int reqHeight,
+                                                     int reqWidth) {
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        int inSampleSize = 1;
+
+        if (height > reqHeight) {
+            inSampleSize = Math.round((float) height / (float) reqHeight);
+        }
+        int expectedWidth = width / inSampleSize;
+
+        if (expectedWidth > reqWidth) {
+            inSampleSize = Math.round((float) width / (float) reqWidth);
+        }
+        options.inSampleSize = inSampleSize;
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
     }
 }
