@@ -9,6 +9,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.OpenChannel;
@@ -31,7 +32,7 @@ public class ChannelCreateActivity extends AppCompatActivity {
             if (mSpinner.getSelectedItemPosition() == 0 && mChannelName.getText().toString().length() > 0) {
                 OpenChannel.create(mChannelName.getText().toString(), new OpenChannel.CreateListener() {
                     @Override
-                    public void onResult(OpenChannel openChannel, ChatCampException e) {
+                    public void onResult(BaseChannel openChannel, ChatCampException e) {
                         Intent intent = new Intent(getApplicationContext(), ListActivity.class);
                         startActivity(intent);
                     }
@@ -40,7 +41,7 @@ public class ChannelCreateActivity extends AppCompatActivity {
                 String[] participants = mChannelParticipants.getText().toString().split(",");
                 GroupChannel.create(mChannelName.getText().toString(), participants, mSwitchDistinct.isChecked(), new GroupChannel.CreateListener() {
                     @Override
-                    public void onResult(GroupChannel groupChannel, ChatCampException e) {
+                    public void onResult(BaseChannel groupChannel, ChatCampException e) {
                         Intent intent = new Intent(getApplicationContext(), ListActivity.class);
                         startActivity(intent);
                     }
