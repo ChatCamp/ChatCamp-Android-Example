@@ -59,7 +59,7 @@ public class OpenChannelListAdapter extends RecyclerView.Adapter<OpenChannelList
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-        TextView mText = (TextView) holder.mTextView.findViewById(R.id.firstLine);
+        TextView mText = (TextView) holder.mTextView.findViewById(R.id.tv_title);
         mText.setText(mDataset.get(position).getName());
 
     }

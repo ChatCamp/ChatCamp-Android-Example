@@ -1,5 +1,6 @@
 package com.stfalcon.chatkit.messages;
 
+import android.os.Message;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
@@ -54,6 +55,10 @@ public class MessageHolders {
     private HolderConfig<MessageContentType.Image> outcomingImageConfigChatCamp;
     private HolderConfig<IMessage> incomingActionConfigChatCamp;
     private HolderConfig<IMessage> outcomingActionConfigChatCamp;
+    private HolderConfig<MessageContentType.Video> incomingVideoConfigChatCamp;
+    private HolderConfig<MessageContentType.Video> outcomingVideoConfigChatCamp;
+    private HolderConfig<MessageContentType.Document> incomingDocumentConfigChatCamp;
+    private HolderConfig<MessageContentType.Document> outcomingDocumentConfigChatCamp;
 
     private List<ContentTypeConfig> customContentTypes = new ArrayList<>();
     private ContentChecker contentChecker;
@@ -68,10 +73,28 @@ public class MessageHolders {
         onActionItemClickedListener = onItemClicked;
     }
 
+    public void setOnVideoItemClickedListener(OnVideoItemClickedListener onItemClicked) {
+         onVideoItemClickedListener = onItemClicked;
+    }
+
+    public void setOnDocumentItemClickedListener(OnDocumentItemClickedListener onItemClicked) {
+        onDocumentItemClickedListener = onItemClicked;
+    }
+
     private static OnActionItemClickedListener onActionItemClickedListener;
+    private static OnVideoItemClickedListener onVideoItemClickedListener;
+    private static OnDocumentItemClickedListener onDocumentItemClickedListener;
 
     public interface OnActionItemClickedListener {
         void onActionItemClicked(String url);
+    }
+
+    public interface OnVideoItemClickedListener {
+        void onVideoItemClicked(String url);
+    }
+
+    public interface OnDocumentItemClickedListener {
+        void onDocumentItemClicked(MessageContentType.Document message);
     }
 
     public MessageHolders() {
@@ -90,6 +113,10 @@ public class MessageHolders {
         this.outcomingImageConfigChatCamp = new HolderConfig<>(ChatcampDefaultOutcomingImageMessageViewHolder.class, R.layout.item_outcoming_image_message_chatcamp);
         this.incomingActionConfigChatCamp = new HolderConfig<>(ChatcampDefaultIncomingActionMessageViewHolder.class, R.layout.item_incoming_action_message_chatcamp);
         this.outcomingActionConfigChatCamp = new HolderConfig<>(ChatcampDefaultOutcomingActionMessageViewHolder.class, R.layout.item_outcoming_action_message_chatcamp);
+        this.incomingVideoConfigChatCamp = new HolderConfig<>(ChatcampDefaultIncomingVideoMessageViewHolder.class, R.layout.item_incoming_video_message_chatcamp);
+        this.outcomingVideoConfigChatCamp = new HolderConfig<>(ChatcampDefaultOutcomingVideoMessageViewHolder.class, R.layout.item_outcoming_video_message_chatcamp);
+        this.incomingDocumentConfigChatCamp = new HolderConfig<>(ChatcampDefaultIncomingDocumentMessageViewHolder.class, R.layout.item_incoming_document_message_chatcamp);
+        this.outcomingDocumentConfigChatCamp = new HolderConfig<>(ChatcampDefaultOutcomingDocumentMessageViewHolder.class, R.layout.item_outcoming_document_message_chatcamp);
     }
 
     /**
@@ -382,6 +409,14 @@ public class MessageHolders {
                 return getHolder(parent, incomingActionConfigChatCamp, messagesListStyle);
             case -MessageType.VIEW_TYPE_ACTION_MESSAGE_CHATCAMP:
                 return getHolder(parent, outcomingActionConfigChatCamp, messagesListStyle);
+            case MessageType.VIEW_TYPE_VIDEO_MESSAGE_CHATCAMP:
+                return getHolder(parent, incomingVideoConfigChatCamp, messagesListStyle);
+            case -MessageType.VIEW_TYPE_VIDEO_MESSAGE_CHATCAMP:
+                return getHolder(parent, outcomingVideoConfigChatCamp, messagesListStyle);
+            case MessageType.VIEW_TYPE_DOCUMENT_MESSAGE_CHATCAMP:
+                return getHolder(parent, incomingDocumentConfigChatCamp, messagesListStyle);
+            case -MessageType.VIEW_TYPE_DOCUMENT_MESSAGE_CHATCAMP:
+                return getHolder(parent, outcomingDocumentConfigChatCamp, messagesListStyle);
             default:
                 for (ContentTypeConfig typeConfig : customContentTypes) {
                     if (Math.abs(typeConfig.type) == Math.abs(viewType)) {
@@ -774,6 +809,151 @@ public class MessageHolders {
         }
     }
 
+    public static class ChatCampIncomingVideoMessageViewHolder<MESSAGE extends MessageContentType.Video>
+            extends MessageHolders.BaseIncomingMessageViewHolder<MESSAGE> {
+        TextView timeTv;
+        TextView usernameTv;
+        RoundedImageView roundedImageView;
+
+        public ChatCampIncomingVideoMessageViewHolder(View itemView) {
+            super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
+            timeTv = itemView.findViewById(R.id.tv_message_time);
+            roundedImageView = itemView.findViewById(R.id.image);
+            if (roundedImageView != null && roundedImageView instanceof RoundedImageView) {
+                ((RoundedImageView) roundedImageView).setCorners(
+                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+                        0,
+                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius
+                );
+            }
+        }
+
+        @Override
+        public void onBind(final MESSAGE message) {
+            super.onBind(message);
+            timeTv.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
+            usernameTv.setText(message.getUser().getName());
+            roundedImageView.setImageResource(R.drawable.ic_video_placeholder);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(onVideoItemClickedListener != null) {
+                        onVideoItemClickedListener.onVideoItemClicked(message.getVideoUrl());
+                    }
+                }
+            });
+
+        }
+    }
+
+    public static class ChatCampOutcomingVideoMessageViewHolder<MESSAGE extends MessageContentType.Video>
+            extends MessageHolders.BaseOutcomingMessageViewHolder<MESSAGE> {
+
+        TextView usernameTv;
+        ImageView avatarIv;
+        TextView timeTv;
+        RoundedImageView roundedImageView;
+
+        public ChatCampOutcomingVideoMessageViewHolder(View itemView) {
+            super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
+            avatarIv = itemView.findViewById(R.id.messageUserAvatar);
+            timeTv = itemView.findViewById(R.id.tv_message_time);
+            roundedImageView = itemView.findViewById(R.id.image);
+            if (roundedImageView != null && roundedImageView instanceof RoundedImageView) {
+                ((RoundedImageView) roundedImageView).setCorners(
+                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+                        0,
+                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius
+                );
+            }
+        }
+
+        @Override
+        public void onBind(final MESSAGE message) {
+            super.onBind(message);
+            usernameTv.setText(message.getUser().getName());
+            timeTv.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
+            imageLoader.loadImage(avatarIv, message.getUser().getAvatar());
+            roundedImageView.setImageResource(R.drawable.ic_video_placeholder);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(onVideoItemClickedListener != null) {
+                        onVideoItemClickedListener.onVideoItemClicked(message.getVideoUrl());
+                    }
+                }
+            });
+        }
+    }
+
+    public static class ChatCampIncomingDocumentMessageViewHolder<MESSAGE extends MessageContentType.Document>
+            extends MessageHolders.BaseIncomingMessageViewHolder<MESSAGE> {
+        TextView timeTv;
+        TextView usernameTv;
+        RoundedImageView roundedImageView;
+
+        public ChatCampIncomingDocumentMessageViewHolder(View itemView) {
+            super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
+            timeTv = itemView.findViewById(R.id.tv_message_time);
+            roundedImageView = itemView.findViewById(R.id.image);
+        }
+
+        @Override
+        public void onBind(final MESSAGE message) {
+            super.onBind(message);
+            timeTv.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
+            usernameTv.setText(message.getUser().getName());
+            roundedImageView.setImageResource(R.drawable.ic_document_chat);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(onDocumentItemClickedListener != null) {
+                        onDocumentItemClickedListener.onDocumentItemClicked(message);
+                    }
+                }
+            });
+
+        }
+    }
+
+    public static class ChatCampOutcomingDocumentMessageViewHolder<MESSAGE extends MessageContentType.Document>
+            extends MessageHolders.BaseOutcomingMessageViewHolder<MESSAGE> {
+
+        TextView usernameTv;
+        ImageView avatarIv;
+        TextView timeTv;
+        RoundedImageView roundedImageView;
+
+        public ChatCampOutcomingDocumentMessageViewHolder(View itemView) {
+            super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
+            avatarIv = itemView.findViewById(R.id.messageUserAvatar);
+            timeTv = itemView.findViewById(R.id.tv_message_time);
+            roundedImageView = itemView.findViewById(R.id.image);
+        }
+
+        @Override
+        public void onBind(final MESSAGE message) {
+            super.onBind(message);
+            usernameTv.setText(message.getUser().getName());
+            timeTv.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
+            imageLoader.loadImage(avatarIv, message.getUser().getAvatar());
+            roundedImageView.setImageResource(R.drawable.ic_document_chat);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(onDocumentItemClickedListener != null) {
+                        onDocumentItemClickedListener.onDocumentItemClicked(message);
+                    }
+                }
+            });
+        }
+    }
 
     /**
      * Default view holder implementation for incoming text message
@@ -1022,6 +1202,7 @@ public class MessageHolders {
         protected TextView time;
         protected ImageView userAvatar;
         protected ImageView readIv;
+        protected TextView fileNameTv;
 
 
         public BaseIncomingMessageViewHolder(View itemView) {
@@ -1029,7 +1210,7 @@ public class MessageHolders {
             time = (TextView) itemView.findViewById(R.id.messageTime);
             userAvatar = (ImageView) itemView.findViewById(R.id.messageUserAvatar);
             readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
-
+            fileNameTv = itemView.findViewById(R.id.tv_file_name);
         }
 
         @Override
@@ -1043,6 +1224,9 @@ public class MessageHolders {
                 } else {
                     readIv.setImageResource(R.drawable.single_tick);
                 }
+            }
+            if(fileNameTv != null) {
+                fileNameTv.setText(message.getFileName());
             }
 
             if (userAvatar != null) {
@@ -1079,11 +1263,13 @@ public class MessageHolders {
 
         protected TextView time;
         protected ImageView readIv;
+        protected TextView fileNameTv;
 
         public BaseOutcomingMessageViewHolder(View itemView) {
             super(itemView);
             time = (TextView) itemView.findViewById(R.id.messageTime);
             readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
+            fileNameTv = itemView.findViewById(R.id.tv_file_name);
         }
 
         @Override
@@ -1097,6 +1283,9 @@ public class MessageHolders {
                 } else {
                     readIv.setImageResource(R.drawable.single_tick);
                 }
+            }
+            if(fileNameTv != null) {
+                fileNameTv.setText(message.getFileName());
             }
         }
 
@@ -1207,6 +1396,38 @@ public class MessageHolders {
         }
     }
 
+
+    private static class ChatcampDefaultOutcomingVideoMessageViewHolder
+            extends ChatCampOutcomingVideoMessageViewHolder<MessageContentType.Video> {
+
+        public ChatcampDefaultOutcomingVideoMessageViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    private static class ChatcampDefaultIncomingVideoMessageViewHolder
+            extends ChatCampIncomingVideoMessageViewHolder<MessageContentType.Video> {
+
+        public ChatcampDefaultIncomingVideoMessageViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    private static class ChatcampDefaultIncomingDocumentMessageViewHolder
+            extends ChatCampIncomingDocumentMessageViewHolder<MessageContentType.Document> {
+
+        public ChatcampDefaultIncomingDocumentMessageViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    private static class ChatcampDefaultOutcomingDocumentMessageViewHolder
+            extends ChatCampOutcomingDocumentMessageViewHolder<MessageContentType.Document> {
+
+        public ChatcampDefaultOutcomingDocumentMessageViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
     private static class ContentTypeConfig<TYPE extends MessageContentType> {
 
         private byte type;
@@ -1232,4 +1453,34 @@ public class MessageHolders {
             this.layout = layout;
         }
     }
+
+    // This is used for getting thumbnail from video
+    // taking too much time so it is not worth it. We can do it in an async task but that will take time in separate thread
+//    private static Bitmap retriveVideoFrameFromVideo(String videoPath)
+//            throws Throwable {
+//
+//        Bitmap bitmap = null;
+//        MediaMetadataRetriever mediaMetadataRetriever = null;
+//        try {
+//            mediaMetadataRetriever = new MediaMetadataRetriever();
+//            if (Build.VERSION.SDK_INT >= 14)
+//                mediaMetadataRetriever.setDataSource(videoPath, new HashMap<String, String>());
+//            else
+//                mediaMetadataRetriever.setDataSource(videoPath);
+//
+//            bitmap = mediaMetadataRetriever.getFrameAtTime(1, MediaMetadataRetriever.OPTION_CLOSEST);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            throw new Throwable(
+//                    "Exception in retriveVideoFrameFromVideo(String videoPath)"
+//                            + e.getMessage());
+//
+//        } finally {
+//            if (mediaMetadataRetriever != null) {
+//                mediaMetadataRetriever.release();
+//            }
+//        }
+//        return bitmap;
+//    }
+
 }
