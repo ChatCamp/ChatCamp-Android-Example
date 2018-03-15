@@ -62,6 +62,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import io.chatcamp.app.database.ChatCampDatabaseHelper;
 import io.chatcamp.app.webview.FilePath;
 import io.chatcamp.app.webview.WebViewActivity;
 import io.chatcamp.sdk.ChatCamp;
@@ -112,6 +113,8 @@ public class ConversationActivity extends AppCompatActivity {
     private MessageHolders holder;
     private String currentPhotoPath;
     private MessageContentType.Document document;
+    private ChatCampDatabaseHelper databaseHelper;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +125,7 @@ public class ConversationActivity extends AppCompatActivity {
         mMessagesList = findViewById(R.id.messagesList);
         input = findViewById(R.id.edit_conversation_input);
         progressBar = findViewById(R.id.progress_bar);
+        databaseHelper = new ChatCampDatabaseHelper(this);
         imageLoader = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
@@ -173,6 +177,7 @@ public class ConversationActivity extends AppCompatActivity {
 
         channelType = getIntent().getStringExtra("channelType");
         channelId = getIntent().getStringExtra("channelId");
+        messageMessagesListAdapter.addToEnd(databaseHelper.getMessages(channelId), false);
     }
 
     private void checkCameraPermission() {
@@ -311,7 +316,7 @@ public class ConversationActivity extends AppCompatActivity {
         groupTitleTv.setOnClickListener(titleClickListener);
         groupImageIv.setOnClickListener(titleClickListener);
         PreviousMessageListQuery previousMessageListQuery = g.createPreviousMessageListQuery();
-        previousMessageListQuery.load(10, true, new PreviousMessageListQuery.ResultListener() {
+        previousMessageListQuery.load(20, true, new PreviousMessageListQuery.ResultListener() {
             @Override
             public void onResult(List<Message> messageList, ChatCampException e) {
                 final List<Message> m = messageList;
@@ -322,6 +327,7 @@ public class ConversationActivity extends AppCompatActivity {
                     ConversationMessage conversationMessage = new ConversationMessage(message);
                     conversationMessages.add(conversationMessage);
                 }
+                databaseHelper.addMessages(conversationMessages, g.getId());
                 messageMessagesListAdapter.clear();
                 messageMessagesListAdapter.addToEnd(conversationMessages, false);
             }
@@ -505,6 +511,7 @@ public class ConversationActivity extends AppCompatActivity {
                 if(channel.getId().equals(groupChannel.getId())) {
                     final Message m = message;
                     final ConversationMessage conversationMessage = new ConversationMessage(m);
+                    databaseHelper.addMessage(conversationMessage, channel.getId());
                     messageMessagesListAdapter.addToStart(conversationMessage, true);
                     Toast.makeText(getApplicationContext(), m.getText(), Toast.LENGTH_SHORT).show();
                 }
@@ -915,5 +922,11 @@ public class ConversationActivity extends AppCompatActivity {
         options.inSampleSize = inSampleSize;
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeFile(path, options);
+    }
+
+    @Override
+    protected void onDestroy() {
+        databaseHelper.close();
+        super.onDestroy();
     }
 }
