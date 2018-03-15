@@ -38,7 +38,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.android.support:design:26.+'
     implementation 'com.google.firebase:firebase-messaging:11.6.2'
-    implementation 'io.chatcamp.sdk:chatcamp-android-sdk:0.1.20'
+    implementation 'io.chatcamp.sdk:chatcamp-android-sdk:0.1.21'
     //Picasso
     compile "com.squareup.picasso:picasso:$picassoVersion"
     //ImageViews
