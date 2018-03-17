@@ -47,6 +47,7 @@ import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
+import com.stfalcon.chatkit.messages.MessagesListAdapter.OnLoadMoreListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,7 +79,7 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import static io.chatcamp.app.ConversationMessage.TYPING_TEXT_ID;
 import static io.chatcamp.app.GroupDetailActivity.KEY_GROUP_ID;
 
-public class ConversationActivity extends AppCompatActivity {
+public class ConversationActivity extends AppCompatActivity implements OnLoadMoreListener{
 
     public static final String GROUP_CONNECTION_LISTENER = "group_channel_connection";
     public static final String CHANNEL_LISTENER = "group_channel_listener";
@@ -114,13 +115,15 @@ public class ConversationActivity extends AppCompatActivity {
     private String currentPhotoPath;
     private MessageContentType.Document document;
     private ChatCampDatabaseHelper databaseHelper;
-
+    private String previousMessageId;
+    private PreviousMessageListQuery previousMessageListQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
+        addConnectionListener();
         mRecyclerView = findViewById(R.id.rv_conversation);
         mMessagesList = findViewById(R.id.messagesList);
         input = findViewById(R.id.edit_conversation_input);
@@ -164,6 +167,7 @@ public class ConversationActivity extends AppCompatActivity {
         });
 
         messageMessagesListAdapter = new MessagesListAdapter<>(LocalStorage.getInstance().getUserId(), holder, imageLoader);
+        messageMessagesListAdapter.setLoadMoreListener(this);
         mMessagesList.setAdapter(messageMessagesListAdapter);
 
         // use a linear layout manager
@@ -235,27 +239,8 @@ public class ConversationActivity extends AppCompatActivity {
                     openChannel.join(new OpenChannel.JoinListener() {
                         @Override
                         public void onResult(ChatCampException e) {
-                            PreviousMessageListQuery previousMessageListQuery = o.createPreviousMessageListQuery();
-                            previousMessageListQuery.load(20, true, new PreviousMessageListQuery.ResultListener() {
-                                @Override
-                                public void onResult(List<Message> messageList, ChatCampException e) {
-                                    final List<Message> m = messageList;
-                                    System.out.println("MESSSAGE HISTORY:");
-                                    System.out.println(m);
-
-                                    mAdapter = new ConversationMessageListAdapter(m, new ConversationMessageListAdapter.RecyclerViewClickListener() {
-                                        @Override
-                                        public void onClick(View view, int position) {
-                                            Message messageElement = m.get(position);
-                                            Toast.makeText(getApplicationContext(), "Element " + messageElement.getText(), Toast.LENGTH_SHORT).show();
-
-
-                                        }
-                                    });
-                                    mRecyclerView.setAdapter(mAdapter);
-
-                                }
-                            });
+                            previousMessageListQuery = o.createPreviousMessageListQuery();
+                            loadMessages();
                         }
                     });
                 }
@@ -296,7 +281,6 @@ public class ConversationActivity extends AppCompatActivity {
         if (g.getParticipants().size() <= 2 && g.isDistinct()) {
             isOneToOneConversation = true;
         }
-        addConnectionListener(g);
         setInputListener(g);
         addTextWatcher(g);
         addChannelListener(g);
@@ -315,23 +299,44 @@ public class ConversationActivity extends AppCompatActivity {
         OnTitleClickListener titleClickListener = new OnTitleClickListener();
         groupTitleTv.setOnClickListener(titleClickListener);
         groupImageIv.setOnClickListener(titleClickListener);
-        PreviousMessageListQuery previousMessageListQuery = g.createPreviousMessageListQuery();
-        previousMessageListQuery.load(20, true, new PreviousMessageListQuery.ResultListener() {
-            @Override
-            public void onResult(List<Message> messageList, ChatCampException e) {
-                final List<Message> m = messageList;
-                System.out.println("MESSSAGE HISTORY:");
-                System.out.println(m);
-                List<ConversationMessage> conversationMessages = new ArrayList<ConversationMessage>();
-                for (Message message : messageList) {
-                    ConversationMessage conversationMessage = new ConversationMessage(message);
-                    conversationMessages.add(conversationMessage);
+        previousMessageListQuery = g.createPreviousMessageListQuery();
+        loadMessages();
+    }
+
+    private void loadMessages() {
+        Log.e("Conve", "Load Message Called");
+        if(previousMessageListQuery != null) {
+            previousMessageListQuery.load(20, previousMessageId, true, new PreviousMessageListQuery.ResultListener() {
+                @Override
+                public void onResult(List<Message> messageList, ChatCampException e) {
+                    mMessagesList.setLoading(false);
+                    final List<Message> m = messageList;
+                    System.out.println("MESSSAGE HISTORY:");
+                    System.out.println(m);
+                    List<ConversationMessage> conversationMessages = new ArrayList<ConversationMessage>();
+                    for (Message message : messageList) {
+                        ConversationMessage conversationMessage = new ConversationMessage(message);
+                        conversationMessages.add(conversationMessage);
+                    }
+
+                    if (TextUtils.isEmpty(previousMessageId)) {
+                        databaseHelper.addMessages(conversationMessages, g.getId());
+                        messageMessagesListAdapter.clear();
+                    }
+                    Log.e("Conve", "before Message Called " + previousMessageId);
+
+                    if (conversationMessages.size() > 0 ) {
+                        if(TextUtils.isEmpty(previousMessageId) ||
+                                !previousMessageId.equals(conversationMessages.get(conversationMessages.size() - 1)
+                                                .getMessage().getId())) {
+                            previousMessageId = conversationMessages.get(conversationMessages.size() - 1).getMessage().getId();
+                            messageMessagesListAdapter.addToEnd(conversationMessages, false);
+                            Log.e("Conve", "loading message Message Called " + previousMessageId);
+                        }
+                    }
                 }
-                databaseHelper.addMessages(conversationMessages, g.getId());
-                messageMessagesListAdapter.clear();
-                messageMessagesListAdapter.addToEnd(conversationMessages, false);
-            }
-        });
+            });
+        }
     }
 
     private void populateToobar(String imageUrl, String title) {
@@ -358,20 +363,12 @@ public class ConversationActivity extends AppCompatActivity {
 
     }
 
-    private void addConnectionListener(final GroupChannel groupChannel) {
+    private void addConnectionListener() {
         ChatCamp.addConnectionListener(GROUP_CONNECTION_LISTENER, new ChatCamp.ConnectionListener() {
             @Override
             public void onConnectionChanged(boolean b) {
                 if (b) {
-                    groupChannel.sync(new GroupChannel.SyncListener() {
-                        @Override
-                        public void onResult(ChatCampException e) {
-                            if (mMessagesList != null) {
-                                Snackbar.make(mMessagesList, "Group sync successful",
-                                        Snackbar.LENGTH_LONG).show();
-                            }
-                        }
-                    });
+                    getChannelDetails();
                 }
             }
         });
@@ -727,6 +724,12 @@ public class ConversationActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onLoadMore(int page, int totalItemsCount) {
+        Log.e("Conve", "Load More called");
+        loadMessages();
     }
 
     class MessageTextWatcher implements TextWatcher {
