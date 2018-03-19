@@ -96,9 +96,6 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
     private MessagesList mMessagesList;
     private MessagesListAdapter<ConversationMessage> messageMessagesListAdapter;
     private ImageLoader imageLoader;
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
     private GroupChannelListQuery.ParticipantState groupFilter;
     private String channelType;
     private String channelId;
@@ -124,7 +121,6 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
         setContentView(R.layout.activity_conversation);
 
         addConnectionListener();
-        mRecyclerView = findViewById(R.id.rv_conversation);
         mMessagesList = findViewById(R.id.messagesList);
         input = findViewById(R.id.edit_conversation_input);
         progressBar = findViewById(R.id.progress_bar);
@@ -135,6 +131,13 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 Picasso.with(ConversationActivity.this).load(url)
                         .placeholder(R.drawable.icon_default_contact)
                         .error(R.drawable.icon_default_contact).into(imageView);
+            }
+
+            @Override
+            public void loadImageWithPlaceholder(ImageView imageView, String url) {
+                Picasso.with(ConversationActivity.this).load(url)
+                        .placeholder(R.drawable.ic_image_placeholder)
+                        .error(R.drawable.ic_image_placeholder).into(imageView);
             }
         };
 
@@ -171,7 +174,6 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
         mMessagesList.setAdapter(messageMessagesListAdapter);
 
         // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

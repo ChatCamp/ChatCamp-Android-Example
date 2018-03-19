@@ -1,5 +1,6 @@
 package com.stfalcon.chatkit.messages;
 
+import android.content.res.ColorStateList;
 import android.os.Message;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -619,9 +620,11 @@ public class MessageHolders {
         private final TextView actionShippingCost;
         private final ImageView actionImage;
         private final TextView actionText;
+        private final TextView usernameTv;
 
         public ChatCampIncomingActionMessageViewHolder(View itemView) {
             super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
             actionImage = itemView.findViewById(R.id.iv_action_image);
             actionText = itemView.findViewById(R.id.messageText);
             actionTitle = itemView.findViewById(R.id.tv_action_title);
@@ -635,7 +638,8 @@ public class MessageHolders {
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
-                imageLoader.loadImage(actionImage, actionMessage.getImageURL());
+                usernameTv.setText(message.getUser().getName());
+                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
                 actionTitle.setText(actionMessage.getName());
                 actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
                 actionDescription.setText(actionMessage.getShortDescription());
@@ -664,9 +668,11 @@ public class MessageHolders {
         private final TextView actionShippingCost;
         private final ImageView actionImage;
         private final TextView actionText;
+        private final TextView usernameTv;
 
         public ChatCampOutcomingActionMessageViewHolder(View itemView) {
             super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
             actionImage = itemView.findViewById(R.id.iv_action_image);
             actionText = itemView.findViewById(R.id.messageText);
             actionTitle = itemView.findViewById(R.id.tv_action_title);
@@ -680,7 +686,8 @@ public class MessageHolders {
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
-                imageLoader.loadImage(actionImage, actionMessage.getImageURL());
+                usernameTv.setText(message.getUser().getName());
+                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
                 actionTitle.setText(actionMessage.getName());
                 actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
                 actionDescription.setText(actionMessage.getShortDescription());
@@ -760,8 +767,8 @@ public class MessageHolders {
                 ((RoundedImageView) roundedImageView).setCorners(
                         com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
                         com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
-                        0,
-                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius
+                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+                        0
                 );
             }
         }
@@ -771,7 +778,7 @@ public class MessageHolders {
             super.onBind(message);
             timeTv.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
             usernameTv.setText(message.getUser().getName());
-            imageLoader.loadImage(roundedImageView, message.getImageUrl());
+            imageLoader.loadImageWithPlaceholder(roundedImageView, message.getImageUrl());
         }
     }
 
@@ -805,7 +812,7 @@ public class MessageHolders {
             usernameTv.setText(message.getUser().getName());
             timeTv.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
             imageLoader.loadImage(avatarIv, message.getUser().getAvatar());
-            imageLoader.loadImage(roundedImageView, message.getImageUrl());
+            imageLoader.loadImageWithPlaceholder(roundedImageView, message.getImageUrl());
         }
     }
 
@@ -813,21 +820,21 @@ public class MessageHolders {
             extends MessageHolders.BaseIncomingMessageViewHolder<MESSAGE> {
         TextView timeTv;
         TextView usernameTv;
-        RoundedImageView roundedImageView;
+        ImageView roundedImageView;
 
         public ChatCampIncomingVideoMessageViewHolder(View itemView) {
             super(itemView);
             usernameTv = itemView.findViewById(R.id.tv_username);
             timeTv = itemView.findViewById(R.id.tv_message_time);
             roundedImageView = itemView.findViewById(R.id.image);
-            if (roundedImageView != null && roundedImageView instanceof RoundedImageView) {
-                ((RoundedImageView) roundedImageView).setCorners(
-                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
-                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
-                        0,
-                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius
-                );
-            }
+//            if (roundedImageView != null && roundedImageView instanceof RoundedImageView) {
+//                ((RoundedImageView) roundedImageView).setCorners(
+//                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+//                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+//                        0,
+//                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius
+//                );
+//            }
         }
 
         @Override
@@ -854,7 +861,7 @@ public class MessageHolders {
         TextView usernameTv;
         ImageView avatarIv;
         TextView timeTv;
-        RoundedImageView roundedImageView;
+        ImageView roundedImageView;
 
         public ChatCampOutcomingVideoMessageViewHolder(View itemView) {
             super(itemView);
@@ -862,14 +869,14 @@ public class MessageHolders {
             avatarIv = itemView.findViewById(R.id.messageUserAvatar);
             timeTv = itemView.findViewById(R.id.tv_message_time);
             roundedImageView = itemView.findViewById(R.id.image);
-            if (roundedImageView != null && roundedImageView instanceof RoundedImageView) {
-                ((RoundedImageView) roundedImageView).setCorners(
-                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
-                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
-                        0,
-                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius
-                );
-            }
+//            if (roundedImageView != null && roundedImageView instanceof RoundedImageView) {
+//                ((RoundedImageView) roundedImageView).setCorners(
+//                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+//                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius,
+//                        0,
+//                        com.stfalcon.chatkit.R.dimen.message_bubble_corners_radius
+//                );
+//            }
         }
 
         @Override
@@ -1211,6 +1218,14 @@ public class MessageHolders {
             userAvatar = (ImageView) itemView.findViewById(R.id.messageUserAvatar);
             readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
             fileNameTv = itemView.findViewById(R.id.tv_file_name);
+            if (userAvatar != null && userAvatar instanceof RoundedImageView) {
+                ((RoundedImageView) userAvatar).setCorners(
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius
+                );
+            }
         }
 
         @Override
@@ -1241,12 +1256,6 @@ public class MessageHolders {
 
         @Override
         public void applyStyle(MessagesListStyle style) {
-            if (time != null) {
-                time.setTextColor(style.getIncomingTimeTextColor());
-                time.setTextSize(TypedValue.COMPLEX_UNIT_PX, style.getIncomingTimeTextSize());
-                time.setTypeface(time.getTypeface(), style.getIncomingTimeTextStyle());
-            }
-
             if (userAvatar != null) {
                 userAvatar.getLayoutParams().width = style.getIncomingAvatarWidth();
                 userAvatar.getLayoutParams().height = style.getIncomingAvatarHeight();
@@ -1264,18 +1273,31 @@ public class MessageHolders {
         protected TextView time;
         protected ImageView readIv;
         protected TextView fileNameTv;
+        ImageView avatarIv;
 
         public BaseOutcomingMessageViewHolder(View itemView) {
             super(itemView);
             time = (TextView) itemView.findViewById(R.id.messageTime);
             readIv = (ImageView) itemView.findViewById(R.id.iv_tick);
             fileNameTv = itemView.findViewById(R.id.tv_file_name);
+            avatarIv = itemView.findViewById(R.id.messageUserAvatar);
+            if (avatarIv != null && avatarIv instanceof RoundedImageView) {
+                ((RoundedImageView) avatarIv).setCorners(
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius,
+                        com.stfalcon.chatkit.R.dimen.message_avatar_corners_radius
+                );
+            }
         }
 
         @Override
         public void onBind(MESSAGE message) {
             if (time != null) {
                 time.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
+            }
+            if(avatarIv != null) {
+                imageLoader.loadImageWithPlaceholder(avatarIv, message.getUser().getAvatar());
             }
             if(readIv != null) {
                 if(lastTimeRead >= message.getCreatedAt().getTime()) {
@@ -1291,11 +1313,7 @@ public class MessageHolders {
 
         @Override
         public void applyStyle(MessagesListStyle style) {
-            if (time != null) {
-                time.setTextColor(style.getOutcomingTimeTextColor());
-                time.setTextSize(TypedValue.COMPLEX_UNIT_PX, style.getOutcomingTimeTextSize());
-                time.setTypeface(time.getTypeface(), style.getOutcomingTimeTextStyle());
-            }
+
         }
     }
 

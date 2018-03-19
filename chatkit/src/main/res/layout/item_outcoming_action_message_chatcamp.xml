@@ -21,20 +21,21 @@
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/chat_user_name"
-        android:layout_alignParentTop="true"
         android:layout_alignLeft="@+id/bubble"
-        android:layout_alignStart="@+id/bubble"/>
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/bubble"
+        android:layout_marginBottom="@dimen/avatar_name_margin_bottom"
+        android:textSize="@dimen/chat_user_name" />
 
     <com.google.android.flexbox.FlexboxLayout
         android:id="@id/bubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/tv_username"
         android:layout_marginLeft="@dimen/message_outcoming_bubble_margin_left"
         android:layout_marginStart="@dimen/message_outcoming_bubble_margin_left"
         android:layout_toLeftOf="@id/messageUserAvatar"
         android:layout_toStartOf="@id/messageUserAvatar"
-        android:layout_below="@id/tv_username"
         app:alignContent="flex_end"
         app:alignItems="center"
         app:flexDirection="column"
@@ -54,11 +55,10 @@
         android:id="@+id/cv_action_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/messageUserAvatar"
-        android:layout_toStartOf="@id/messageUserAvatar"
         android:layout_below="@id/bubble"
         android:layout_marginTop="@dimen/margin_x"
-        android:layout_marginBottom="@dimen/margin_x"
+        android:layout_toLeftOf="@id/messageUserAvatar"
+        android:layout_toStartOf="@id/messageUserAvatar"
         android:background="@color/white"
         android:elevation="5dp"
         app:cardCornerRadius="5dp">
@@ -78,8 +78,13 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginBottom="@dimen/margin_x"
                 android:background="@color/gray_dark_transparent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_action_title"
@@ -87,9 +92,10 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/margin_x"
                 android:paddingRight="@dimen/margin_x"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="@dimen/normal_text"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:layout_marginTop="@dimen/margin_x"/>
 
             <TextView
                 android:id="@+id/tv_action_code"
@@ -98,7 +104,7 @@
                 android:layout_marginBottom="@dimen/margin_x"
                 android:paddingLeft="@dimen/margin_x"
                 android:paddingRight="@dimen/margin_x"
-                android:textColor="@color/light_text"
+                android:textColor="@color/white"
                 android:textSize="@dimen/default_text" />
 
             <TextView
@@ -108,14 +114,14 @@
                 android:layout_marginBottom="@dimen/margin_x"
                 android:paddingLeft="@dimen/margin_x"
                 android:paddingRight="@dimen/margin_x"
-                android:textColor="@color/dark_text"
+                android:textColor="@color/white"
                 android:textSize="@dimen/default_text" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginBottom="@dimen/margin_x"
-                android:background="@color/gray_transparent" />
+                android:background="@color/white" />
 
             <TextView
                 android:id="@+id/tv_action_shipping_cost"
@@ -124,34 +130,36 @@
                 android:layout_marginBottom="@dimen/margin_x"
                 android:paddingLeft="@dimen/margin_x"
                 android:paddingRight="@dimen/margin_x"
-                android:textColor="@color/light_text"
+                android:textColor="@color/white"
                 android:textSize="@dimen/default_text" />
+        </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/cv_action_container"
+        android:layout_alignRight="@id/cv_action_container"
         android:layout_below="@id/cv_action_container"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:textSize="@dimen/chat_time_text"
-        android:layout_alignRight="@id/cv_action_container"
-        android:layout_alignEnd="@id/cv_action_container">
+        android:layout_marginTop="@dimen/time_margin_top"
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/tv_message_time"
+            android:id="@+id/messageTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/chat_time_text"
+            android:layout_marginEnd="4dp"
             android:layout_marginRight="4dp"
-            android:layout_marginEnd="4dp"/>
+            android:textSize="@dimen/chat_time_text" />
 
         <ImageView
             android:id="@+id/iv_tick"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:src="@drawable/single_tick"
-            android:layout_gravity="center_vertical"/>
+            android:layout_width="@dimen/ic_tick_width"
+            android:layout_height="@dimen/ic_tick_width"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/single_tick" />
     </LinearLayout>
 </RelativeLayout>

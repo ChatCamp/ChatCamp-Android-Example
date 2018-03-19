@@ -28,4 +28,8 @@
     <color name="dialog_unread_text">@color/white</color>
     <color name="dialog_unread_bubble">@color/dark_mint</color>
 
+    <color name="material_indigo_100">#f0f1f5</color>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="action_incoming_bg">#efefef</color>
+
 </resources>

@@ -20,5 +20,5 @@
     <color name="brown">#4e342e</color>
     <color name="light_text">#a2a2a2</color>
     <color name="dark_text">#616161</color>
-
+    <color name="material_indigo_100">#c5cae9</color>
 </resources>
