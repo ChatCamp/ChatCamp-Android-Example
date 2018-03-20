@@ -88,12 +88,8 @@ public class ConversationMessage implements MessageContentType,
     public int getMessageType() {
         if (id.contains(TYPING_TEXT_ID)) {
             return MessageType.VIEW_TYPE_TYPING_MESSAGE_CHAT_CAMP;
-        } else if (message.getType().equals("text")
-                && message.getCustomType().equals("action_link")) {
-            return MessageType.VIEW_TYPE_ACTION_MESSAGE_CHATCAMP;
-        } else if (message.getType().equals("text")) {
-            return MessageType.VIEW_TYPE_TEXT_MESSAGE_CHATCAMP;
-        } else if (message.getType().equals("attachment")) {
+        }
+        else if (message.getType().equals("attachment")) {
             if(message.getAttachment().isImage()) {
                 return MessageType.VIEW_TYPE_IMAGE_MESSAGE_CHATCAMP;
             } else if(message.getAttachment().isVideo()){
@@ -101,9 +97,16 @@ public class ConversationMessage implements MessageContentType,
             }
             else if(message.getAttachment().isDocument()) {
                 return MessageType.VIEW_TYPE_DOCUMENT_MESSAGE_CHATCAMP;
+            } else {
+               return MessageType.VIEW_TYPE_TEXT_MESSAGE_CHATCAMP;
             }
+        } else if (message.getType().equals("text")
+                && message.getCustomType().equals("action_link")) {
+            return MessageType.VIEW_TYPE_ACTION_MESSAGE_CHATCAMP;
+        } else if (message.getType().equals("text")) {
+            return MessageType.VIEW_TYPE_TEXT_MESSAGE_CHATCAMP;
         }
-        return MessageType.VIEW_TYPE_TYPING_MESSAGE_CHAT_CAMP;
+        return MessageType.VIEW_TYPE_TEXT_MESSAGE_CHATCAMP;
     }
 
     public String getImageUrl() {

@@ -25,6 +25,9 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -206,6 +209,21 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
         removeConnectionListener();
         removeTextWatcher();
         super.onPause();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = new MenuInflater(this);
+        inflater.inflate(R.menu.menu_conversation, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_conversation) {
+            titleClicked();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void getChannelDetails() {
@@ -747,18 +765,22 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
         @Override
         public void onClick(View view) {
-            if (isOneToOneConversation) {
-                Intent intent = new Intent(ConversationActivity.this, UserProfileActivity.class);
-                if (otherParticipant != null) {
-                    intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, otherParticipant.getId());
-                    intent.putExtra(UserProfileActivity.KEY_GROUP_ID, g.getId());
-                }
-                startActivity(intent);
-            } else {
-                Intent intent = new Intent(ConversationActivity.this, GroupDetailActivity.class);
-                intent.putExtra(KEY_GROUP_ID, g.getId());
-                startActivity(intent);
+         titleClicked();
+        }
+    }
+
+    private void titleClicked() {
+        if (isOneToOneConversation) {
+            Intent intent = new Intent(ConversationActivity.this, UserProfileActivity.class);
+            if (otherParticipant != null) {
+                intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, otherParticipant.getId());
+                intent.putExtra(UserProfileActivity.KEY_GROUP_ID, g.getId());
             }
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(ConversationActivity.this, GroupDetailActivity.class);
+            intent.putExtra(KEY_GROUP_ID, g.getId());
+            startActivity(intent);
         }
     }
 

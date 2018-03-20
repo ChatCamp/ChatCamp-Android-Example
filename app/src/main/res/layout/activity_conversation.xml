@@ -29,8 +29,8 @@
 
                 <ImageView
                     android:id="@+id/iv_group_image"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:layout_gravity="center_vertical" />
 
                 <TextView
@@ -41,7 +41,7 @@
                     android:layout_marginLeft="@dimen/margin_x"
                     android:layout_marginStart="@dimen/margin_x"
                     android:textColor="@android:color/white"
-                    android:textSize="18dp" />
+                    android:textSize="16dp" />
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
 
@@ -59,7 +59,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:textAutoLink="all"
-            android:layout_above="@+id/divider"/>
+            android:layout_above="@+id/divider"
+            app:incomingBubblePaddingBottom="4dp"
+            app:incomingBubblePaddingTop="4dp"
+            app:outcomingBubblePaddingBottom="4dp"
+            app:outcomingBubblePaddingTop="4dp"
+            app:incomingTextSize="14sp"
+            app:outcomingTextSize="14sp"/>
 
         <View
             android:id="@+id/divider"
@@ -68,7 +74,8 @@
             android:layout_above="@+id/edit_conversation_input"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:background="@color/gray_light" />
+            android:background="@color/gray_light"
+            android:layout_marginBottom="4dp"/>
 
         <me.zhanghai.android.materialprogressbar.MaterialProgressBar
             android:id="@+id/progress_bar"
@@ -78,19 +85,28 @@
             android:layout_above="@+id/edit_conversation_input"
             android:indeterminate="false"
             android:progress="0"
-            android:visibility="gone"
-            app:mpb_progressStyle="horizontal" />
+            app:mpb_progressStyle="horizontal"
+            app:mpb_progressTint="@color/green"
+            app:mpb_progressBackgroundTint="@color/green_light"
+           android:visibility="gone" />
 
         <com.stfalcon.chatkit.messages.MessageInput
             android:id="@+id/edit_conversation_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:paddingTop="1dp"
+            android:paddingLeft="8dp"
+            android:paddingBottom="1dp"
+            android:paddingRight="8dp"
             app:attachmentButtonBackground="@drawable/bg_circular"
             app:attachmentButtonIcon="@drawable/ic_attachment_app"
             app:inputButtonBackground="@color/transparent"
             app:inputButtonIcon="@drawable/ic_send_app"
             app:inputHint="@string/hint_enter_a_message"
-            app:showAttachmentButton="true" />
+            app:showAttachmentButton="true"
+            app:inputTextSize="14sp"
+            app:attachmentButtonWidth="30dp"
+            app:attachmentButtonHeight="30dp" />
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>
