@@ -31,5 +31,7 @@
     <color name="material_indigo_100">#f0f1f5</color>
     <color name="colorPrimary">#3F51B5</color>
     <color name="action_incoming_bg">#efefef</color>
+    <color name="action_confirm">#00838f</color>
+    <color name="bg_divider">#b9b9b9</color>
 
 </resources>
