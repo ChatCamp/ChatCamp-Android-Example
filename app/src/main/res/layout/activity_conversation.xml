@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/parent_layout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -47,37 +48,49 @@
     </android.support.design.widget.AppBarLayout>
 
 
-    <com.stfalcon.chatkit.messages.MessagesList
-        android:id="@+id/messagesList"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/edit_conversation_input"
-        app:textAutoLink="all" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@+id/edit_conversation_input"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@color/gray_light" />
-
-    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
-        android:id="@+id/progress_bar"
-        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/edit_conversation_input"
-        android:indeterminate="false"
-        android:progress="0"
-        android:visibility="gone"
-        app:mpb_progressStyle="horizontal" />
+        android:orientation="vertical"
+        android:layout_marginTop="?attr/actionBarSize">
 
-    <com.stfalcon.chatkit.messages.MessageInput
-        android:id="@+id/edit_conversation_input"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        app:inputHint="@string/hint_enter_a_message"
-        app:showAttachmentButton="true" />
-</RelativeLayout>
+        <com.stfalcon.chatkit.messages.MessagesList
+            android:id="@+id/messagesList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:textAutoLink="all"
+            android:layout_above="@+id/divider"/>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_above="@+id/edit_conversation_input"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:background="@color/gray_light" />
+
+        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            android:id="@+id/progress_bar"
+            style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/edit_conversation_input"
+            android:indeterminate="false"
+            android:progress="0"
+            android:visibility="gone"
+            app:mpb_progressStyle="horizontal" />
+
+        <com.stfalcon.chatkit.messages.MessageInput
+            android:id="@+id/edit_conversation_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:attachmentButtonBackground="@drawable/bg_circular"
+            app:attachmentButtonIcon="@drawable/ic_attachment_app"
+            app:inputButtonBackground="@color/transparent"
+            app:inputButtonIcon="@drawable/ic_send_app"
+            app:inputHint="@string/hint_enter_a_message"
+            app:showAttachmentButton="true" />
+    </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

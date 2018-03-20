@@ -7,35 +7,28 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Display;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,7 +72,7 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import static io.chatcamp.app.ConversationMessage.TYPING_TEXT_ID;
 import static io.chatcamp.app.GroupDetailActivity.KEY_GROUP_ID;
 
-public class ConversationActivity extends AppCompatActivity implements OnLoadMoreListener{
+public class ConversationActivity extends AppCompatActivity implements OnLoadMoreListener {
 
     public static final String GROUP_CONNECTION_LISTENER = "group_channel_connection";
     public static final String CHANNEL_LISTENER = "group_channel_listener";
@@ -307,7 +300,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
     private void loadMessages() {
         Log.e("Conve", "Load Message Called");
-        if(previousMessageListQuery != null) {
+        if (previousMessageListQuery != null) {
             previousMessageListQuery.load(20, previousMessageId, true, new PreviousMessageListQuery.ResultListener() {
                 @Override
                 public void onResult(List<Message> messageList, ChatCampException e) {
@@ -327,10 +320,10 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                     }
                     Log.e("Conve", "before Message Called " + previousMessageId);
 
-                    if (conversationMessages.size() > 0 ) {
-                        if(TextUtils.isEmpty(previousMessageId) ||
+                    if (conversationMessages.size() > 0) {
+                        if (TextUtils.isEmpty(previousMessageId) ||
                                 !previousMessageId.equals(conversationMessages.get(conversationMessages.size() - 1)
-                                                .getMessage().getId())) {
+                                        .getMessage().getId())) {
                             previousMessageId = conversationMessages.get(conversationMessages.size() - 1).getMessage().getId();
                             messageMessagesListAdapter.addToEnd(conversationMessages, false);
                             Log.e("Conve", "loading message Message Called " + previousMessageId);
@@ -401,40 +394,29 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 LinearLayout galleryLl = inflatedView.findViewById(R.id.ll_gallery);
                 LinearLayout cameraLl = inflatedView.findViewById(R.id.ll_camera);
                 LinearLayout documentLl = inflatedView.findViewById(R.id.ll_document);
-                // get device size
-                Display display = getWindowManager().getDefaultDisplay();
-                final Point size = new Point();
-                display.getSize(size);
-                final PopupWindow popupWindow = new PopupWindow(inflatedView, size.x - 50, (WindowManager.LayoutParams.WRAP_CONTENT), true);
-                popupWindow.setFocusable(true);
-                popupWindow.setBackgroundDrawable(new ColorDrawable());//This has no meaning than dismissal of the Pop Up Noni!!
-                popupWindow.setOutsideTouchable(true);
 
-                popupWindow.showAtLocation(input, Gravity.BOTTOM, 0, 2 * input.getHeight());
+                final BottomSheetDialog dialog = new BottomSheetDialog(ConversationActivity.this);
+                dialog.setContentView(inflatedView);
+                dialog.show();
+                // get device size
                 documentLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (popupWindow != null) {
-                            popupWindow.dismiss();
-                        }
+                        dialog.hide();
                         checkReadPermission(DOCUMENT);
                     }
                 });
                 galleryLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (popupWindow != null) {
-                            popupWindow.dismiss();
-                        }
+                        dialog.hide();
                         checkReadPermission(MEDIA);
                     }
                 });
                 cameraLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (popupWindow != null) {
-                            popupWindow.dismiss();
-                        }
+                        dialog.hide();
                         checkCameraPermission();
                     }
                 });
@@ -507,7 +489,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
             @Override
             public void onGroupChannelMessageReceived(GroupChannel channel, Message message) {
-                if(channel.getId().equals(groupChannel.getId())) {
+                if (channel.getId().equals(groupChannel.getId())) {
                     final Message m = message;
                     final ConversationMessage conversationMessage = new ConversationMessage(m);
                     databaseHelper.addMessage(conversationMessage, channel.getId());
@@ -655,17 +637,16 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
             fileName = FilePath.getFileName(ConversationActivity.this, uri);
             contentType = getContentResolver().getType(uri);
         }
-        if(contentType.contains("image")) {
-            file = new File (path);
+        if (contentType.contains("image")) {
+            file = new File(path);
             try {
                 File compressedFile = createImageFile();
                 Bitmap bitmap = decodeSampledBitmapFromFile(path, 1280, 800);
-                bitmap.compress (Bitmap.CompressFormat.JPEG, 100, new FileOutputStream (compressedFile));
-                file  = compressedFile;
-            }
-            catch (Throwable t) {
-                Log.e("ERROR", "Error compressing file." + t.toString ());
-                t.printStackTrace ();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(compressedFile));
+                file = compressedFile;
+            } catch (Throwable t) {
+                Log.e("ERROR", "Error compressing file." + t.toString());
+                t.printStackTrace();
             }
         } else {
             file = new File(path);
@@ -905,7 +886,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
     }
 
     public Bitmap decodeSampledBitmapFromFile(String path, int reqHeight,
-                                                     int reqWidth) {
+                                              int reqWidth) {
 
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
