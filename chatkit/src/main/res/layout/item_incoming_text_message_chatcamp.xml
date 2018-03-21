@@ -60,7 +60,7 @@
         android:layout_marginTop="@dimen/time_margin_top">
 
         <TextView
-            android:id="@+id/tv_message_time"
+            android:id="@+id/messageTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/chat_time_text"

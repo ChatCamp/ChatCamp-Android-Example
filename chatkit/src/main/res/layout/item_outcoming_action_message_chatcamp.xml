@@ -7,16 +7,6 @@
     android:layout_marginRight="16dp"
     android:layout_marginTop="8dp">
 
-    <com.stfalcon.chatkit.utils.ShapeImageView
-        android:id="@+id/messageUserAvatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp" />
-
     <TextView
         android:id="@+id/tv_username"
         android:layout_width="wrap_content"
@@ -27,12 +17,21 @@
         android:layout_marginBottom="@dimen/avatar_name_margin_bottom"
         android:textSize="@dimen/chat_user_name" />
 
+    <com.stfalcon.chatkit.utils.ShapeImageView
+        android:id="@+id/messageUserAvatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_alignBottom="@id/ll_time"/>
+
     <com.google.android.flexbox.FlexboxLayout
         android:id="@id/bubble"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/cv_action_container"
-        android:layout_alignStart="@+id/cv_action_container"
+        android:layout_toLeftOf="@id/messageUserAvatar"
         android:layout_below="@id/tv_username"
         app:alignContent="flex_end"
         app:alignItems="center"
@@ -49,100 +48,13 @@
 
     </com.google.android.flexbox.FlexboxLayout>
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/cv_action_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/bubble"
-        android:layout_marginLeft="@dimen/message_incoming_bubble_margin_right"
-        android:layout_marginStart="@dimen/message_incoming_bubble_margin_right"
-        android:layout_marginTop="@dimen/margin_x"
-        android:layout_toLeftOf="@id/messageUserAvatar"
-        android:layout_toStartOf="@id/messageUserAvatar"
-        android:elevation="5dp"
-        app:cardCornerRadius="5dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:id="@+id/iv_action_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_action_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_x"
-                    android:paddingLeft="@dimen/margin_x"
-                    android:paddingRight="@dimen/margin_x"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/normal_text"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_action_code"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/margin_x"
-                    android:paddingLeft="@dimen/margin_x"
-                    android:paddingRight="@dimen/margin_x"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/default_text" />
-
-                <TextView
-                    android:id="@+id/tv_action_description"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/margin_x"
-                    android:paddingLeft="@dimen/margin_x"
-                    android:paddingRight="@dimen/margin_x"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/default_text" />
-
-                <TextView
-                    android:id="@+id/tv_action_shipping_cost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/margin_x"
-                    android:paddingLeft="@dimen/margin_x"
-                    android:paddingRight="@dimen/margin_x"
-                    android:textColor="@color/dialog_message_text"
-                    android:textSize="@dimen/default_text" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/bg_divider" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:padding="10dp"
-                    android:text="ORDER"
-                    android:textColor="@color/action_confirm" />
-            </LinearLayout>
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-
     <LinearLayout
+        android:id="@+id/ll_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/cv_action_container"
-        android:layout_alignRight="@id/cv_action_container"
-        android:layout_below="@id/cv_action_container"
+        android:layout_alignEnd="@id/bubble"
+        android:layout_alignRight="@id/bubble"
+        android:layout_below="@id/bubble"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/time_margin_top"
@@ -163,4 +75,35 @@
             android:layout_gravity="center_vertical"
             android:src="@drawable/single_tick" />
     </LinearLayout>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/cv_action_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_time"
+        android:layout_marginLeft="@dimen/message_incoming_bubble_margin_right"
+        android:layout_marginStart="@dimen/message_incoming_bubble_margin_right"
+        android:layout_marginTop="@dimen/margin_x"
+        android:layout_marginBottom="12dp"
+        android:layout_marginRight="@dimen/message_incoming_bubble_margin_right"
+        android:layout_marginEnd="@dimen/message_incoming_bubble_margin_right"
+        app:cardCornerRadius="@dimen/card_radius"
+        app:elevation="@dimen/card_elevation"
+        >
+
+
+    </android.support.v7.widget.CardView>
+
+
+    <FrameLayout
+        android:id="@+id/fl_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_x"
+        android:layout_marginTop="@dimen/margin_x"
+        android:layout_below="@id/ll_time"
+        android:visibility="gone">
+
+        <include layout="@layout/layout_action_list"/>
+    </FrameLayout>
 </RelativeLayout>

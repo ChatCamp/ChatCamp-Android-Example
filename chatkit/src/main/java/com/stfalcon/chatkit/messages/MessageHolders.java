@@ -1,21 +1,29 @@
 package com.stfalcon.chatkit.messages;
 
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.os.Build;
 import android.os.Message;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.support.v7.widget.CardView;
 
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
@@ -621,6 +629,9 @@ public class MessageHolders {
         private final ImageView actionImage;
         private final TextView actionText;
         private final TextView usernameTv;
+        private final RecyclerView recyclerView;
+        private final CardView cardView;
+        private final FrameLayout listContainer;
 
         public ChatCampIncomingActionMessageViewHolder(View itemView) {
             super(itemView);
@@ -631,6 +642,9 @@ public class MessageHolders {
             actionCode = itemView.findViewById(R.id.tv_action_code);
             actionDescription = itemView.findViewById(R.id.tv_action_description);
             actionShippingCost = itemView.findViewById(R.id.tv_action_shipping_cost);
+            recyclerView = itemView.findViewById(R.id.recycler_view);
+            cardView = itemView.findViewById(R.id.cv_action_container);
+            listContainer = itemView.findViewById(R.id.fl_list_container);
         }
 
         @Override
@@ -639,24 +653,39 @@ public class MessageHolders {
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
                 usernameTv.setText(message.getUser().getName());
-                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
-                actionTitle.setText(actionMessage.getName());
-                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
-                actionDescription.setText(actionMessage.getShortDescription());
-                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
-                if (TextUtils.isEmpty(message.getText())) {
-                    actionText.setVisibility(View.GONE);
-                } else {
-                    actionText.setText(message.getText());
+                if(recyclerView != null) {
+                    listContainer.setVisibility(View.VISIBLE);
+                    cardView.setVisibility(View.GONE);
+                    RecyclerView.LayoutManager manager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
+                    recyclerView.setLayoutManager(manager);
+                    List<Object> objects = new ArrayList<>();
+                    objects.add(1);
+                    objects.add(1);
+                    objects.add(1);
+                    objects.add(1);
+                    objects.add(1);
+                    ActionListAdapter adapter = new ActionListAdapter(objects);
+                    recyclerView.setAdapter(adapter);
                 }
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(onActionItemClickedListener != null) {
-                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
-                        }
-                    }
-                });            }
+//                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
+//                actionTitle.setText(actionMessage.getName());
+//                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
+//                actionDescription.setText(actionMessage.getShortDescription());
+//                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
+//                if (TextUtils.isEmpty(message.getText())) {
+//                    actionText.setVisibility(View.GONE);
+//                } else {
+//                    actionText.setText(message.getText());
+//                }
+//                itemView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        if(onActionItemClickedListener != null) {
+//                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
+//                        }
+//                    }
+//                });
+      }
         }
     }
 
@@ -669,6 +698,9 @@ public class MessageHolders {
         private final ImageView actionImage;
         private final TextView actionText;
         private final TextView usernameTv;
+        private final RecyclerView recyclerView;
+        private final CardView cardView;
+        private final FrameLayout listContainer;
 
         public ChatCampOutcomingActionMessageViewHolder(View itemView) {
             super(itemView);
@@ -679,6 +711,9 @@ public class MessageHolders {
             actionCode = itemView.findViewById(R.id.tv_action_code);
             actionDescription = itemView.findViewById(R.id.tv_action_description);
             actionShippingCost = itemView.findViewById(R.id.tv_action_shipping_cost);
+            recyclerView = itemView.findViewById(R.id.recycler_view);
+            cardView = itemView.findViewById(R.id.cv_action_container);
+            listContainer = itemView.findViewById(R.id.fl_list_container);
         }
 
         @Override
@@ -687,24 +722,38 @@ public class MessageHolders {
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
                 usernameTv.setText(message.getUser().getName());
-                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
-                actionTitle.setText(actionMessage.getName());
-                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
-                actionDescription.setText(actionMessage.getShortDescription());
-                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
-                if (TextUtils.isEmpty(message.getText())) {
-                    actionText.setVisibility(View.GONE);
-                } else {
-                    actionText.setText(message.getText());
+                if(recyclerView != null) {
+                    listContainer.setVisibility(View.VISIBLE);
+                    cardView.setVisibility(View.GONE);
+                    RecyclerView.LayoutManager manager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
+                    recyclerView.setLayoutManager(manager);
+                    List<Object> objects = new ArrayList<>();
+                    objects.add(1);
+                    objects.add(1);
+                    objects.add(1);
+                    objects.add(1);
+                    objects.add(1);
+                    ActionListAdapter adapter = new ActionListAdapter(objects);
+                    recyclerView.setAdapter(adapter);
                 }
-                itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(onActionItemClickedListener != null) {
-                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
-                        }
-                    }
-                });
+//                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
+//                actionTitle.setText(actionMessage.getName());
+//                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
+//                actionDescription.setText(actionMessage.getShortDescription());
+//                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
+//                if (TextUtils.isEmpty(message.getText())) {
+//                    actionText.setVisibility(View.GONE);
+//                } else {
+//                    actionText.setText(message.getText());
+//                }
+//                itemView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        if(onActionItemClickedListener != null) {
+//                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
+//                        }
+//                    }
+//                });
             }
         }
     }
@@ -718,13 +767,11 @@ public class MessageHolders {
         public ChatCampIncomingTextMessageViewHolder(View itemView) {
             super(itemView);
             usernameTv = itemView.findViewById(R.id.tv_username);
-            timeTv = itemView.findViewById(R.id.tv_message_time);
         }
 
         @Override
         public void onBind(MESSAGE message) {
             super.onBind(message);
-            timeTv.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
             usernameTv.setText(message.getUser().getName());
         }
     }
@@ -1500,5 +1547,78 @@ public class MessageHolders {
 //        }
 //        return bitmap;
 //    }
+
+    public static class ActionListAdapter extends RecyclerView.Adapter {
+
+        private static final int VIEW_TYPE_EMPTY = 0;
+        private static final int VIEW_TYPE_ITEM = 1;
+
+        List<Object> list;
+
+        public ActionListAdapter(List<Object> objects) {
+            list = objects;
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            if(viewType == VIEW_TYPE_EMPTY) {
+                return new EmptyViewHolder(LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.layout_action_list_empty_item, parent, false));
+            } else {
+                return new ItemViewHolder(LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.layout_action_list_item, parent,false));
+            }
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            if(getItemViewType(position) == VIEW_TYPE_EMPTY) {
+                ((EmptyViewHolder)holder).bind();
+            } else {
+                ((ItemViewHolder)holder).bind();
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return list.size() + 1;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if(position == 0) {
+                return VIEW_TYPE_EMPTY;
+            } else {
+                return VIEW_TYPE_ITEM;
+            }
+        }
+
+        public class EmptyViewHolder extends RecyclerView.ViewHolder {
+
+            public EmptyViewHolder(View itemView) {
+                super(itemView);
+            }
+
+            public void bind() {
+
+            }
+        }
+
+        public class ItemViewHolder extends RecyclerView.ViewHolder {
+
+            public ItemViewHolder(View itemView) {
+                super(itemView);
+            }
+
+            public void bind() {
+
+            }
+        }
+    }
+
+    public static float dp2Px(float dp) {
+        DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
+        return dp * dm.density;
+    }
 
 }
