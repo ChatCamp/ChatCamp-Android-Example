@@ -1581,12 +1581,12 @@ public class MessageHolders {
 
         @Override
         public int getItemCount() {
-            return list.size() + 1;
+            return list.size() + 2;
         }
 
         @Override
         public int getItemViewType(int position) {
-            if(position == 0) {
+            if(position == 0 || position == getItemCount() - 1) {
                 return VIEW_TYPE_EMPTY;
             } else {
                 return VIEW_TYPE_ITEM;
