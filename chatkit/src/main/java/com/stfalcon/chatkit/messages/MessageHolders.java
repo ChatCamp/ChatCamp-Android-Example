@@ -1,15 +1,16 @@
 package com.stfalcon.chatkit.messages;
 
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
-import android.os.Build;
-import android.os.Message;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.text.Spannable;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
@@ -21,19 +22,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.support.v7.widget.CardView;
 
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.commons.ViewHolder;
+import com.stfalcon.chatkit.commons.models.IActionContent;
 import com.stfalcon.chatkit.commons.models.IActionMessage;
+import com.stfalcon.chatkit.commons.models.IActionSubContent;
 import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.utils.DateFormatter;
 import com.stfalcon.chatkit.utils.RoundedImageView;
 import com.wang.avi.AVLoadingIndicatorView;
+
+import org.apmem.tools.layouts.FlowLayout;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -83,7 +87,7 @@ public class MessageHolders {
     }
 
     public void setOnVideoItemClickedListener(OnVideoItemClickedListener onItemClicked) {
-         onVideoItemClickedListener = onItemClicked;
+        onVideoItemClickedListener = onItemClicked;
     }
 
     public void setOnDocumentItemClickedListener(OnDocumentItemClickedListener onItemClicked) {
@@ -622,12 +626,6 @@ public class MessageHolders {
 
     public static class ChatCampIncomingActionMessageViewHolder<MESSAGE extends IMessage>
             extends IncomingTextMessageViewHolder<MESSAGE> {
-        private final TextView actionTitle;
-        private final TextView actionCode;
-        private final TextView actionDescription;
-        private final TextView actionShippingCost;
-        private final ImageView actionImage;
-        private final TextView actionText;
         private final TextView usernameTv;
         private final RecyclerView recyclerView;
         private final CardView cardView;
@@ -636,12 +634,6 @@ public class MessageHolders {
         public ChatCampIncomingActionMessageViewHolder(View itemView) {
             super(itemView);
             usernameTv = itemView.findViewById(R.id.tv_username);
-            actionImage = itemView.findViewById(R.id.iv_action_image);
-            actionText = itemView.findViewById(R.id.messageText);
-            actionTitle = itemView.findViewById(R.id.tv_action_title);
-            actionCode = itemView.findViewById(R.id.tv_action_code);
-            actionDescription = itemView.findViewById(R.id.tv_action_description);
-            actionShippingCost = itemView.findViewById(R.id.tv_action_shipping_cost);
             recyclerView = itemView.findViewById(R.id.recycler_view);
             cardView = itemView.findViewById(R.id.cv_action_container);
             listContainer = itemView.findViewById(R.id.fl_list_container);
@@ -653,50 +645,232 @@ public class MessageHolders {
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
                 usernameTv.setText(message.getUser().getName());
-                if(recyclerView != null) {
-                    listContainer.setVisibility(View.VISIBLE);
-                    cardView.setVisibility(View.GONE);
-                    RecyclerView.LayoutManager manager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
-                    recyclerView.setLayoutManager(manager);
-                    List<Object> objects = new ArrayList<>();
-                    objects.add(1);
-                    objects.add(1);
-                    objects.add(1);
-                    objects.add(1);
-                    objects.add(1);
-                    ActionListAdapter adapter = new ActionListAdapter(objects);
-                    recyclerView.setAdapter(adapter);
+                List<IActionContent> actionContents = actionMessage.getActionContents();
+                if (actionContents != null && actionContents.size() > 0) {
+                    if (actionContents.size() > 1) {
+                        // show list layout
+                        listContainer.setVisibility(View.VISIBLE);
+                        cardView.setVisibility(View.GONE);
+                        if (recyclerView != null) {
+                            listContainer.setVisibility(View.VISIBLE);
+                            cardView.setVisibility(View.GONE);
+                            RecyclerView.LayoutManager manager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
+                            recyclerView.setLayoutManager(manager);
+                            ActionListAdapter adapter = new ActionListAdapter(actionContents);
+                            recyclerView.setAdapter(adapter);
+                        }
+
+                    } else {
+                        listContainer.setVisibility(View.GONE);
+                        cardView.setVisibility(View.VISIBLE);
+                        IActionContent actionContent = actionContents.get(0);
+                        populateActionContent(actionContent, cardView);
+                        // show single card view
+
+                    }
                 }
-//                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
-//                actionTitle.setText(actionMessage.getName());
-//                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
-//                actionDescription.setText(actionMessage.getShortDescription());
-//                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
-//                if (TextUtils.isEmpty(message.getText())) {
-//                    actionText.setVisibility(View.GONE);
-//                } else {
-//                    actionText.setText(message.getText());
-//                }
-//                itemView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        if(onActionItemClickedListener != null) {
-//                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
-//                        }
-//                    }
-//                });
-      }
+            }
+
+        }
+
+        public void populateActionContent(IActionContent actionContent, ViewGroup cardView) {
+            if (actionContent != null) {
+                View actionContentView = LayoutInflater.from(cardView.getContext()).inflate(R.layout.layout_action_content, cardView, false);
+                ImageView actionContentImage = actionContentView.findViewById(R.id.iv_action_content_image);
+                TextView actionContentTitle = actionContentView.findViewById(R.id.tv_action_content_title);
+                View actionTitleDivider = actionContentView.findViewById(R.id.action_content_title_divider);
+                LinearLayout actionSubcontentContainer = actionContentView.findViewById(R.id.ll_action_subcontent_container);
+                LinearLayout actionActionContainer = actionContentView.findViewById(R.id.ll_action_action_container);
+                if (TextUtils.isEmpty(actionContent.getTitle())) {
+                    actionContentTitle.setVisibility(View.GONE);
+                } else {
+                    actionContentTitle.setVisibility(View.VISIBLE);
+                    Spanned sp = Html.fromHtml(actionContent.getTitle());
+                    actionContentTitle.setText(sp);
+                }
+                if (TextUtils.isEmpty(actionContent.getImageUrl())) {
+                    actionContentImage.setVisibility(View.GONE);
+                    actionContentTitle.setTextColor(ContextCompat.getColor(actionContentView.getContext(), R.color.black));
+                } else {
+                    actionContentImage.setVisibility(View.VISIBLE);
+                    imageLoader.loadImageWithPlaceholder(actionContentImage, actionContent.getImageUrl());
+                }
+                if (actionContentTitle.getVisibility() == View.VISIBLE && actionContentImage.getVisibility() == View.GONE) {
+                    actionTitleDivider.setVisibility(View.VISIBLE);
+                } else {
+                    actionTitleDivider.setVisibility(View.GONE);
+                }
+
+                populateSubContent(actionContent, actionSubcontentContainer);
+                populateActions(actionContent, actionActionContainer);
+                cardView.addView(actionContentView);
+            }
+
+        }
+
+        private void populateActions(IActionContent actionContent, LinearLayout actionActionContainer) {
+            List<String> actionActionList = actionContent.getActions();
+            if (actionActionList != null && actionActionList.size() > 0) {
+                for (int i = 0; i < actionActionList.size(); ++i) {
+                    if (!TextUtils.isEmpty(actionActionList.get(i))) {
+                        LinearLayout actionLayout = (LinearLayout) LayoutInflater.from(actionActionContainer.getContext())
+                                .inflate(R.layout.layout_action_content_action, actionActionContainer, false);
+                        TextView actionName = actionLayout.findViewById(R.id.tv_action_name);
+                        Spanned sp = Html.fromHtml(actionActionList.get(i));
+                        actionName.setText(sp);
+                        actionActionContainer.addView(actionLayout);
+                    }
+                }
+            }
+
+        }
+
+        private void populateSubContent(IActionContent actionContent, LinearLayout actionSubcontentContainer) {
+            List<IActionSubContent> subContents = actionContent.getContents();
+            if (subContents != null && subContents.size() > 0) {
+                for (int i = 0; i < subContents.size(); ++i) {
+                    IActionSubContent subContent = subContents.get(i);
+                    if (subContent != null) {
+                        LinearLayout subContentLayout = (LinearLayout) LayoutInflater.from(actionSubcontentContainer.getContext())
+                                .inflate(R.layout.layout_action_subcontent, actionSubcontentContainer, false);
+                        ImageView subcontentIv = subContentLayout.findViewById(R.id.iv_action_subcontent_image);
+                        TextView subcontentHeadingTv = subContentLayout.findViewById(R.id.tv_action_subcontent_heading);
+                        LinearLayout subContentContentContainer = subContentLayout.findViewById(R.id.ll_action_subcontent_content_container);
+                        FlowLayout subContentActionContainer = subContentLayout.findViewById(R.id.ll_action_subcontent_action_container);
+                        if (!TextUtils.isEmpty(subContent.getHeading())) {
+                            subcontentHeadingTv.setVisibility(View.VISIBLE);
+                            Spanned sp = Html.fromHtml(subContent.getHeading());
+                            subcontentHeadingTv.setText(sp);
+                        } else {
+                            subcontentHeadingTv.setVisibility(View.GONE);
+                        }
+
+                        if (!TextUtils.isEmpty(subContent.getImageUrl())) {
+                            subcontentIv.setVisibility(View.VISIBLE);
+                            imageLoader.loadImageWithPlaceholder(subcontentIv, subContent.getImageUrl());
+                        } else {
+                            subcontentIv.setVisibility(View.GONE);
+                        }
+
+                        populateSubContentContent(subContent, subContentContentContainer);
+                        populateSubContentActions(subContent, subContentActionContainer);
+                        actionSubcontentContainer.addView(subContentLayout);
+                    }
+                }
+            }
+        }
+
+        private void populateSubContentContent(IActionSubContent subContent, LinearLayout subContentContentContainer) {
+            List<String> subContentContentList = subContent.getContents();
+            if (subContentContentList != null && subContentContentList.size() > 0) {
+                for (int i = 0; i < subContentContentList.size(); ++i) {
+                    String content = subContentContentList.get(i);
+                    if (!TextUtils.isEmpty(content)) {
+                        LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentContentContainer.getContext())
+                                .inflate(R.layout.layout_action_subcontent_content, subContentContentContainer, false);
+                        TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_content);
+                        Spanned sp = Html.fromHtml(content);
+                        actionSubcontentContentTv.setText(sp);
+                        subContentContentContainer.addView(actionSubcontentContent);
+                    }
+                }
+            }
+        }
+
+        private static void populateSubContentActions(IActionSubContent subContent, FlowLayout subContentActionContainer) {
+            List<String> subcontentActionList = subContent.getActions();
+            if (subcontentActionList != null && subcontentActionList.size() > 0) {
+                for (int i = 0; i < subcontentActionList.size(); ++i) {
+                    String action = subcontentActionList.get(i);
+                    if (!TextUtils.isEmpty(action)) {
+                        LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentActionContainer.getContext())
+                                .inflate(R.layout.layout_action_subcontent_action, subContentActionContainer, false);
+                        TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_action);
+                        Spanned sp = Html.fromHtml(action);
+                        actionSubcontentContentTv.setText(sp);
+                        subContentActionContainer.addView(actionSubcontentContent);
+                    }
+                }
+            }
+        }
+
+
+        public class ActionListAdapter extends RecyclerView.Adapter {
+
+            private static final int VIEW_TYPE_EMPTY = 0;
+            private static final int VIEW_TYPE_ITEM = 1;
+
+            List<IActionContent> list;
+
+            public ActionListAdapter(List<IActionContent> objects) {
+                list = objects;
+            }
+
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                if (viewType == VIEW_TYPE_EMPTY) {
+                    return new EmptyViewHolder(LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.layout_action_list_empty_item, parent, false));
+                } else {
+                    return new ItemViewHolder(LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.layout_action_list_item, parent, false));
+                }
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                if (getItemViewType(position) == VIEW_TYPE_EMPTY) {
+                    ((EmptyViewHolder) holder).bind();
+                } else {
+                    ((ItemViewHolder) holder).bind(list.get(position - 1));
+                }
+            }
+
+            @Override
+            public int getItemCount() {
+                return list.size() + 2;
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                if (position == 0 || position == getItemCount() - 1) {
+                    return VIEW_TYPE_EMPTY;
+                } else {
+                    return VIEW_TYPE_ITEM;
+                }
+            }
+
+            public class EmptyViewHolder extends RecyclerView.ViewHolder {
+
+                public EmptyViewHolder(View itemView) {
+                    super(itemView);
+                }
+
+                public void bind() {
+
+                }
+            }
+
+            public class ItemViewHolder extends RecyclerView.ViewHolder {
+                LinearLayout container;
+
+                public ItemViewHolder(View itemView) {
+                    super(itemView);
+                    container = itemView.findViewById(R.id.container);
+                }
+
+                public void bind(IActionContent actionContent) {
+                    populateActionContent(actionContent, container);
+                }
+            }
         }
     }
 
     public static class ChatCampOutcomingActionMessageViewHolder<MESSAGE extends IMessage>
             extends OutcomingTextMessageViewHolder<MESSAGE> {
-        private final TextView actionTitle;
-        private final TextView actionCode;
-        private final TextView actionDescription;
-        private final TextView actionShippingCost;
-        private final ImageView actionImage;
-        private final TextView actionText;
+
+        //TODO combine the view holder for incoming and outcoming as everythig is same(except the colors of bubble an may be in future name), the layout can be different.
+        // Other wise we have to copy paster a lot of code
         private final TextView usernameTv;
         private final RecyclerView recyclerView;
         private final CardView cardView;
@@ -705,12 +879,6 @@ public class MessageHolders {
         public ChatCampOutcomingActionMessageViewHolder(View itemView) {
             super(itemView);
             usernameTv = itemView.findViewById(R.id.tv_username);
-            actionImage = itemView.findViewById(R.id.iv_action_image);
-            actionText = itemView.findViewById(R.id.messageText);
-            actionTitle = itemView.findViewById(R.id.tv_action_title);
-            actionCode = itemView.findViewById(R.id.tv_action_code);
-            actionDescription = itemView.findViewById(R.id.tv_action_description);
-            actionShippingCost = itemView.findViewById(R.id.tv_action_shipping_cost);
             recyclerView = itemView.findViewById(R.id.recycler_view);
             cardView = itemView.findViewById(R.id.cv_action_container);
             listContainer = itemView.findViewById(R.id.fl_list_container);
@@ -722,38 +890,223 @@ public class MessageHolders {
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
                 usernameTv.setText(message.getUser().getName());
-                if(recyclerView != null) {
-                    listContainer.setVisibility(View.VISIBLE);
-                    cardView.setVisibility(View.GONE);
-                    RecyclerView.LayoutManager manager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
-                    recyclerView.setLayoutManager(manager);
-                    List<Object> objects = new ArrayList<>();
-                    objects.add(1);
-                    objects.add(1);
-                    objects.add(1);
-                    objects.add(1);
-                    objects.add(1);
-                    ActionListAdapter adapter = new ActionListAdapter(objects);
-                    recyclerView.setAdapter(adapter);
+                List<IActionContent> actionContents = actionMessage.getActionContents();
+                if (actionContents != null && actionContents.size() > 0) {
+                    if (actionContents.size() > 1) {
+                        // show list layout
+                        listContainer.setVisibility(View.VISIBLE);
+                        cardView.setVisibility(View.GONE);
+                        if (recyclerView != null) {
+                            listContainer.setVisibility(View.VISIBLE);
+                            cardView.setVisibility(View.GONE);
+                            RecyclerView.LayoutManager manager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
+                            recyclerView.setLayoutManager(manager);
+                            ActionListAdapter adapter = new ActionListAdapter(actionContents);
+                            recyclerView.setAdapter(adapter);
+                        }
+
+                    } else {
+                        listContainer.setVisibility(View.GONE);
+                        cardView.setVisibility(View.VISIBLE);
+                        IActionContent actionContent = actionContents.get(0);
+                        populateActionContent(actionContent, cardView);
+                        // show single card view
+
+                    }
                 }
-//                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
-//                actionTitle.setText(actionMessage.getName());
-//                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
-//                actionDescription.setText(actionMessage.getShortDescription());
-//                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
-//                if (TextUtils.isEmpty(message.getText())) {
-//                    actionText.setVisibility(View.GONE);
-//                } else {
-//                    actionText.setText(message.getText());
-//                }
-//                itemView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        if(onActionItemClickedListener != null) {
-//                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
-//                        }
-//                    }
-//                });
+            }
+
+        }
+
+        public void populateActionContent(IActionContent actionContent, ViewGroup cardView) {
+            if (actionContent != null) {
+                View actionContentView = LayoutInflater.from(cardView.getContext()).inflate(R.layout.layout_action_content, cardView, false);
+                ImageView actionContentImage = actionContentView.findViewById(R.id.iv_action_content_image);
+                TextView actionContentTitle = actionContentView.findViewById(R.id.tv_action_content_title);
+                View actionTitleDivider = actionContentView.findViewById(R.id.action_content_title_divider);
+                LinearLayout actionSubcontentContainer = actionContentView.findViewById(R.id.ll_action_subcontent_container);
+                LinearLayout actionActionContainer = actionContentView.findViewById(R.id.ll_action_action_container);
+                if (TextUtils.isEmpty(actionContent.getTitle())) {
+                    actionContentTitle.setVisibility(View.GONE);
+                } else {
+                    actionContentTitle.setVisibility(View.VISIBLE);
+                    Spanned sp = Html.fromHtml(actionContent.getTitle());
+                    actionContentTitle.setText(sp);
+                }
+                if (TextUtils.isEmpty(actionContent.getImageUrl())) {
+                    actionContentImage.setVisibility(View.GONE);
+                    actionContentTitle.setTextColor(ContextCompat.getColor(actionContentView.getContext(), R.color.black));
+                } else {
+                    actionContentImage.setVisibility(View.VISIBLE);
+                    imageLoader.loadImageWithPlaceholder(actionContentImage, actionContent.getImageUrl());
+                }
+                if (actionContentTitle.getVisibility() == View.VISIBLE && actionContentImage.getVisibility() == View.GONE) {
+                    actionTitleDivider.setVisibility(View.VISIBLE);
+                } else {
+                    actionTitleDivider.setVisibility(View.GONE);
+                }
+
+                populateSubContent(actionContent, actionSubcontentContainer);
+                populateActions(actionContent, actionActionContainer);
+                cardView.addView(actionContentView);
+            }
+
+        }
+
+        private void populateActions(IActionContent actionContent, LinearLayout actionActionContainer) {
+            List<String> actionActionList = actionContent.getActions();
+            if (actionActionList != null && actionActionList.size() > 0) {
+                for (int i = 0; i < actionActionList.size(); ++i) {
+                    if (!TextUtils.isEmpty(actionActionList.get(i))) {
+                        LinearLayout actionLayout = (LinearLayout) LayoutInflater.from(actionActionContainer.getContext())
+                                .inflate(R.layout.layout_action_content_action, actionActionContainer, false);
+                        TextView actionName = actionLayout.findViewById(R.id.tv_action_name);
+                        Spanned sp = Html.fromHtml(actionActionList.get(i));
+                        actionName.setText(sp);
+                        actionActionContainer.addView(actionLayout);
+                    }
+                }
+            }
+
+        }
+
+        private void populateSubContent(IActionContent actionContent, LinearLayout actionSubcontentContainer) {
+            List<IActionSubContent> subContents = actionContent.getContents();
+            if (subContents != null && subContents.size() > 0) {
+                for (int i = 0; i < subContents.size(); ++i) {
+                    IActionSubContent subContent = subContents.get(i);
+                    if (subContent != null) {
+                        LinearLayout subContentLayout = (LinearLayout) LayoutInflater.from(actionSubcontentContainer.getContext())
+                                .inflate(R.layout.layout_action_subcontent, actionSubcontentContainer, false);
+                        ImageView subcontentIv = subContentLayout.findViewById(R.id.iv_action_subcontent_image);
+                        TextView subcontentHeadingTv = subContentLayout.findViewById(R.id.tv_action_subcontent_heading);
+                        LinearLayout subContentContentContainer = subContentLayout.findViewById(R.id.ll_action_subcontent_content_container);
+                        FlowLayout subContentActionContainer = subContentLayout.findViewById(R.id.ll_action_subcontent_action_container);
+                        if (!TextUtils.isEmpty(subContent.getHeading())) {
+                            subcontentHeadingTv.setVisibility(View.VISIBLE);
+                            Spanned sp = Html.fromHtml(subContent.getHeading());
+                            subcontentHeadingTv.setText(sp);
+                        } else {
+                            subcontentHeadingTv.setVisibility(View.GONE);
+                        }
+
+                        if (!TextUtils.isEmpty(subContent.getImageUrl())) {
+                            subcontentIv.setVisibility(View.VISIBLE);
+                            imageLoader.loadImageWithPlaceholder(subcontentIv, subContent.getImageUrl());
+                        } else {
+                            subcontentIv.setVisibility(View.GONE);
+                        }
+
+                        populateSubContentContent(subContent, subContentContentContainer);
+                        populateSubContentActions(subContent, subContentActionContainer);
+                        actionSubcontentContainer.addView(subContentLayout);
+                    }
+                }
+            }
+        }
+
+        private void populateSubContentContent(IActionSubContent subContent, LinearLayout subContentContentContainer) {
+            List<String> subContentContentList = subContent.getContents();
+            if (subContentContentList != null && subContentContentList.size() > 0) {
+                for (int i = 0; i < subContentContentList.size(); ++i) {
+                    String content = subContentContentList.get(i);
+                    if (!TextUtils.isEmpty(content)) {
+                        LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentContentContainer.getContext())
+                                .inflate(R.layout.layout_action_subcontent_content, subContentContentContainer, false);
+                        TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_content);
+                        Spanned sp = Html.fromHtml(content);
+                        actionSubcontentContentTv.setText(sp);
+                        subContentContentContainer.addView(actionSubcontentContent);
+                    }
+                }
+            }
+        }
+
+        private static void populateSubContentActions(IActionSubContent subContent, FlowLayout subContentActionContainer) {
+            List<String> subcontentActionList = subContent.getActions();
+            if (subcontentActionList != null && subcontentActionList.size() > 0) {
+                for (int i = 0; i < subcontentActionList.size(); ++i) {
+                    String action = subcontentActionList.get(i);
+                    if (!TextUtils.isEmpty(action)) {
+                        LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentActionContainer.getContext())
+                                .inflate(R.layout.layout_action_subcontent_action, subContentActionContainer, false);
+                        TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_action);
+                        Spanned sp = Html.fromHtml(action);
+                        actionSubcontentContentTv.setText(sp);
+                        subContentActionContainer.addView(actionSubcontentContent);
+                    }
+                }
+            }
+        }
+
+
+        public class ActionListAdapter extends RecyclerView.Adapter {
+
+            private static final int VIEW_TYPE_EMPTY = 0;
+            private static final int VIEW_TYPE_ITEM = 1;
+
+            List<IActionContent> list;
+
+            public ActionListAdapter(List<IActionContent> objects) {
+                list = objects;
+            }
+
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                if (viewType == VIEW_TYPE_EMPTY) {
+                    return new EmptyViewHolder(LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.layout_action_list_empty_item, parent, false));
+                } else {
+                    return new ItemViewHolder(LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.layout_action_list_item, parent, false));
+                }
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                if (getItemViewType(position) == VIEW_TYPE_EMPTY) {
+                    ((EmptyViewHolder) holder).bind();
+                } else {
+                    ((ItemViewHolder) holder).bind(list.get(position - 1));
+                }
+            }
+
+            @Override
+            public int getItemCount() {
+                return list.size() + 2;
+            }
+
+            @Override
+            public int getItemViewType(int position) {
+                if (position == 0 || position == getItemCount() - 1) {
+                    return VIEW_TYPE_EMPTY;
+                } else {
+                    return VIEW_TYPE_ITEM;
+                }
+            }
+
+            public class EmptyViewHolder extends RecyclerView.ViewHolder {
+
+                public EmptyViewHolder(View itemView) {
+                    super(itemView);
+                }
+
+                public void bind() {
+
+                }
+            }
+
+            public class ItemViewHolder extends RecyclerView.ViewHolder {
+                LinearLayout container;
+
+                public ItemViewHolder(View itemView) {
+                    super(itemView);
+                    container = itemView.findViewById(R.id.container);
+                }
+
+                public void bind(IActionContent actionContent) {
+                    populateActionContent(actionContent, container);
+                }
             }
         }
     }
@@ -893,7 +1246,7 @@ public class MessageHolders {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(onVideoItemClickedListener != null) {
+                    if (onVideoItemClickedListener != null) {
                         onVideoItemClickedListener.onVideoItemClicked(message.getVideoUrl());
                     }
                 }
@@ -936,7 +1289,7 @@ public class MessageHolders {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(onVideoItemClickedListener != null) {
+                    if (onVideoItemClickedListener != null) {
                         onVideoItemClickedListener.onVideoItemClicked(message.getVideoUrl());
                     }
                 }
@@ -966,7 +1319,7 @@ public class MessageHolders {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(onDocumentItemClickedListener != null) {
+                    if (onDocumentItemClickedListener != null) {
                         onDocumentItemClickedListener.onDocumentItemClicked(message);
                     }
                 }
@@ -1001,7 +1354,7 @@ public class MessageHolders {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(onDocumentItemClickedListener != null) {
+                    if (onDocumentItemClickedListener != null) {
                         onDocumentItemClickedListener.onDocumentItemClicked(message);
                     }
                 }
@@ -1280,14 +1633,14 @@ public class MessageHolders {
             if (time != null) {
                 time.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
             }
-            if(readIv != null) {
-                if(lastTimeRead >= message.getCreatedAt().getTime()) {
+            if (readIv != null) {
+                if (lastTimeRead >= message.getCreatedAt().getTime()) {
                     readIv.setImageResource(R.drawable.double_tick);
                 } else {
                     readIv.setImageResource(R.drawable.single_tick);
                 }
             }
-            if(fileNameTv != null) {
+            if (fileNameTv != null) {
                 fileNameTv.setText(message.getFileName());
             }
 
@@ -1343,17 +1696,17 @@ public class MessageHolders {
             if (time != null) {
                 time.setText(DateFormatter.format(message.getCreatedAt(), DateFormatter.Template.TIME));
             }
-            if(avatarIv != null) {
+            if (avatarIv != null) {
                 imageLoader.loadImageWithPlaceholder(avatarIv, message.getUser().getAvatar());
             }
-            if(readIv != null) {
-                if(lastTimeRead >= message.getCreatedAt().getTime()) {
+            if (readIv != null) {
+                if (lastTimeRead >= message.getCreatedAt().getTime()) {
                     readIv.setImageResource(R.drawable.double_tick);
                 } else {
                     readIv.setImageResource(R.drawable.single_tick);
                 }
             }
-            if(fileNameTv != null) {
+            if (fileNameTv != null) {
                 fileNameTv.setText(message.getFileName());
             }
         }
@@ -1493,6 +1846,7 @@ public class MessageHolders {
             super(itemView);
         }
     }
+
     private static class ContentTypeConfig<TYPE extends MessageContentType> {
 
         private byte type;
@@ -1548,73 +1902,6 @@ public class MessageHolders {
 //        return bitmap;
 //    }
 
-    public static class ActionListAdapter extends RecyclerView.Adapter {
-
-        private static final int VIEW_TYPE_EMPTY = 0;
-        private static final int VIEW_TYPE_ITEM = 1;
-
-        List<Object> list;
-
-        public ActionListAdapter(List<Object> objects) {
-            list = objects;
-        }
-
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if(viewType == VIEW_TYPE_EMPTY) {
-                return new EmptyViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.layout_action_list_empty_item, parent, false));
-            } else {
-                return new ItemViewHolder(LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.layout_action_list_item, parent,false));
-            }
-        }
-
-        @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-            if(getItemViewType(position) == VIEW_TYPE_EMPTY) {
-                ((EmptyViewHolder)holder).bind();
-            } else {
-                ((ItemViewHolder)holder).bind();
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return list.size() + 2;
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            if(position == 0 || position == getItemCount() - 1) {
-                return VIEW_TYPE_EMPTY;
-            } else {
-                return VIEW_TYPE_ITEM;
-            }
-        }
-
-        public class EmptyViewHolder extends RecyclerView.ViewHolder {
-
-            public EmptyViewHolder(View itemView) {
-                super(itemView);
-            }
-
-            public void bind() {
-
-            }
-        }
-
-        public class ItemViewHolder extends RecyclerView.ViewHolder {
-
-            public ItemViewHolder(View itemView) {
-                super(itemView);
-            }
-
-            public void bind() {
-
-            }
-        }
-    }
 
     public static float dp2Px(float dp) {
         DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
