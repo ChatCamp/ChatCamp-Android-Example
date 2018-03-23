@@ -641,6 +641,7 @@ public class MessageHolders {
 
         @Override
         public void onBind(MESSAGE message) {
+            this.setIsRecyclable(false);
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
@@ -870,7 +871,7 @@ public class MessageHolders {
             extends OutcomingTextMessageViewHolder<MESSAGE> {
 
         //TODO combine the view holder for incoming and outcoming as everythig is same(except the colors of bubble an may be in future name), the layout can be different.
-        // Other wise we have to copy paster a lot of code
+        // Other wise we have to copy paste a lot of code
         private final TextView usernameTv;
         private final RecyclerView recyclerView;
         private final CardView cardView;
@@ -886,6 +887,7 @@ public class MessageHolders {
 
         @Override
         public void onBind(MESSAGE message) {
+            this.setIsRecyclable(false);
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
