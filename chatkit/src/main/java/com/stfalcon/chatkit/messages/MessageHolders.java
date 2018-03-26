@@ -641,7 +641,6 @@ public class MessageHolders {
 
         @Override
         public void onBind(MESSAGE message) {
-            this.setIsRecyclable(false);
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
@@ -675,6 +674,7 @@ public class MessageHolders {
         }
 
         public void populateActionContent(IActionContent actionContent, ViewGroup cardView) {
+            cardView.removeAllViews();
             if (actionContent != null) {
                 View actionContentView = LayoutInflater.from(cardView.getContext()).inflate(R.layout.layout_action_content, cardView, false);
                 ImageView actionContentImage = actionContentView.findViewById(R.id.iv_action_content_image);
@@ -887,7 +887,6 @@ public class MessageHolders {
 
         @Override
         public void onBind(MESSAGE message) {
-            this.setIsRecyclable(false);
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
             if (actionMessage != null) {
@@ -921,6 +920,7 @@ public class MessageHolders {
         }
 
         public void populateActionContent(IActionContent actionContent, ViewGroup cardView) {
+            cardView.removeAllViews();
             if (actionContent != null) {
                 View actionContentView = LayoutInflater.from(cardView.getContext()).inflate(R.layout.layout_action_content, cardView, false);
                 ImageView actionContentImage = actionContentView.findViewById(R.id.iv_action_content_image);
