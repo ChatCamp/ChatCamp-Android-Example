@@ -574,10 +574,10 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
             //
             @Override
             public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
-                Map<Integer, Long> readReceipt = groupChannel.getReadReceipt();
+                Map<String, Long> readReceipt = groupChannel.getReadReceipt();
                 if (readReceipt.size() == groupChannel.getParticipants().size()) {
                     Long lastRead = 0L;
-                    for (Map.Entry<Integer, Long> entry : readReceipt.entrySet()) {
+                    for (Map.Entry<String, Long> entry : readReceipt.entrySet()) {
                         if (lastRead == 0L || entry.getValue() < lastRead) {
                             lastRead = entry.getValue();
                         }
