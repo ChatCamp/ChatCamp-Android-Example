@@ -31,6 +31,7 @@ import com.stfalcon.chatkit.commons.models.IMessage;
  */
 public class MessagesList extends RecyclerView {
     private MessagesListStyle messagesListStyle;
+    private RecyclerScrollMoreListener recyclerScrollMoreListener;
 
     public MessagesList(Context context) {
         super(context);
@@ -85,13 +86,17 @@ public class MessagesList extends RecyclerView {
         setLayoutManager(layoutManager);
         adapter.setLayoutManager(layoutManager);
         adapter.setStyle(messagesListStyle);
-
-        addOnScrollListener(new RecyclerScrollMoreListener(layoutManager, adapter));
+        recyclerScrollMoreListener = new RecyclerScrollMoreListener(layoutManager, adapter);
+        addOnScrollListener(recyclerScrollMoreListener);
         super.setAdapter(adapter);
     }
 
     @SuppressWarnings("ResourceType")
     private void parseStyle(Context context, AttributeSet attrs) {
         messagesListStyle = MessagesListStyle.parse(context, attrs);
+    }
+
+    public void setLoading(boolean loading) {
+        recyclerScrollMoreListener.setLoading(loading);
     }
 }
