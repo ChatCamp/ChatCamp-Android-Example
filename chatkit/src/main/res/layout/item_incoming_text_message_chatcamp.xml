@@ -15,7 +15,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignStart="@id/bubble"
         android:textSize="@dimen/chat_user_name"
-        app:layout_alignSelf="flex_start" />
+        app:layout_alignSelf="flex_start"
+        android:layout_marginBottom="@dimen/avatar_name_margin_bottom"/>
 
     <com.stfalcon.chatkit.utils.ShapeImageView
         android:id="@id/messageUserAvatar"
@@ -50,17 +51,16 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/bubble"
-        android:layout_alignStart="@id/bubble"
         android:layout_below="@id/bubble"
         android:orientation="horizontal"
-        app:layout_alignSelf="flex_end"
+        android:layout_alignEnd="@id/bubble"
+        android:layout_alignRight="@id/bubble"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="@dimen/margin_x">
+        android:layout_marginTop="@dimen/time_margin_top">
 
         <TextView
-            android:id="@+id/tv_message_time"
+            android:id="@+id/messageTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/chat_time_text"
@@ -69,8 +69,8 @@
 
         <ImageView
             android:id="@+id/iv_tick"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
+            android:layout_width="@dimen/ic_tick_width"
+            android:layout_height="@dimen/ic_tick_width"
             android:src="@drawable/single_tick"
             android:layout_gravity="center_vertical"/>
     </LinearLayout>

@@ -14,7 +14,8 @@
         android:textSize="@dimen/chat_user_name"
         android:layout_alignParentTop="true"
         android:layout_alignLeft="@id/image"
-        android:layout_alignStart="@id/image"/>
+        android:layout_alignStart="@id/image"
+        android:layout_marginBottom="@dimen/avatar_name_margin_bottom"/>
 
     <com.stfalcon.chatkit.utils.ShapeImageView
         android:id="@id/messageUserAvatar"
@@ -26,14 +27,15 @@
 
     <com.stfalcon.chatkit.utils.RoundedImageView
         android:id="@id/image"
-        android:layout_width="wrap_content"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:layout_marginEnd="@dimen/message_incoming_bubble_margin_right"
         android:layout_marginRight="@dimen/message_incoming_bubble_margin_right"
         android:layout_below="@id/tv_username"
         android:layout_toEndOf="@id/messageUserAvatar"
-        android:layout_toRightOf="@id/messageUserAvatar"/>
+        android:layout_toRightOf="@id/messageUserAvatar"
+        android:scaleType="centerInside"/>
 
     <View
         android:id="@id/imageOverlay"
@@ -68,7 +70,7 @@
         android:layout_below="@id/tv_file_name"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="@dimen/margin_x">
+        android:layout_marginTop="@dimen/time_margin_top">
 
         <TextView
             android:id="@+id/tv_message_time"
@@ -80,8 +82,8 @@
 
         <ImageView
             android:id="@+id/iv_tick"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
+            android:layout_width="@dimen/ic_tick_width"
+            android:layout_height="@dimen/ic_tick_width"
             android:src="@drawable/single_tick"
             android:layout_gravity="center_vertical"/>
     </LinearLayout>
