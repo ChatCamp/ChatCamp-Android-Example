@@ -14,7 +14,8 @@ public class ChatCampDatabaseContract {
     public static class MessageEntry implements BaseColumns {
         public static final String TABLE_NAME = "table_message";
         public static final String COLUMN_NAME_MESSAGE = "message";
-        public static final String COLUMN_NAME_GROUP_ID = "group_id";
+        public static final String COLUMN_NAME_CHANNEL_ID = "channel_id";
+        public static final String COLUMN_NAME_CHANNEL_TYPE = "channel_type";
         public static final String COLUMN_NAME_TIME_STAMP = "time";
 
     }

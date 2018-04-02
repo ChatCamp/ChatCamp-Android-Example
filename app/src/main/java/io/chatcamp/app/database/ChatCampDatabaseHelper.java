@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.app.ConversationMessage;
+import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.Message;
 
 import static io.chatcamp.app.database.ChatCampDatabaseContract.DATABASE_NAME;
@@ -30,8 +31,9 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String CREATE_MESSAGE_TABLE = "CREATE TABLE IF NOT EXISTS " + MessageEntry.TABLE_NAME + "("
-                + MessageEntry._ID + " INTEGER PRIMARY KEY," + MessageEntry.COLUMN_NAME_GROUP_ID + " TEXT,"
-                + MessageEntry.COLUMN_NAME_MESSAGE + " TEXT," + MessageEntry.COLUMN_NAME_TIME_STAMP + " INTEGER" + ")";
+                + MessageEntry._ID + " INTEGER PRIMARY KEY," + MessageEntry.COLUMN_NAME_CHANNEL_ID + " TEXT,"
+                + MessageEntry.COLUMN_NAME_MESSAGE + " TEXT," + MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " TEXT,"
+                + MessageEntry.COLUMN_NAME_TIME_STAMP + " INTEGER" + ")";
         sqLiteDatabase.execSQL(CREATE_MESSAGE_TABLE);
     }
 
@@ -44,36 +46,41 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public void addMessages(List<ConversationMessage> conversationMessages, String groupId) {
+    public void addMessages(List<ConversationMessage> conversationMessages, String channelId, BaseChannel.ChannelType channelType) {
         SQLiteDatabase sqliteDatabase = this.getWritableDatabase();
-        sqliteDatabase.delete(MessageEntry.TABLE_NAME, MessageEntry.COLUMN_NAME_GROUP_ID + " =?", new String[]{groupId});
+        sqliteDatabase.delete(MessageEntry.TABLE_NAME, MessageEntry.COLUMN_NAME_CHANNEL_ID + " =? AND "
+                + MessageEntry.COLUMN_NAME_CHANNEL_TYPE + "=?", new String[]{channelId, channelType.name()});
 
         for (int i = 0; i < conversationMessages.size(); ++i) {
             ContentValues values = new ContentValues();
             values.put(MessageEntry.COLUMN_NAME_MESSAGE, conversationMessages.get(i).getMessage().serialize()); // serialized message
-            values.put(MessageEntry.COLUMN_NAME_GROUP_ID, groupId); // Group ID
+            values.put(MessageEntry.COLUMN_NAME_CHANNEL_ID, channelId); // Group ID
+            values.put(MessageEntry.COLUMN_NAME_CHANNEL_TYPE, channelType.name()); // Group Type
             values.put(MessageEntry.COLUMN_NAME_TIME_STAMP, conversationMessages.get(i).getMessage().getInsertedAt()); // Time of message inserted
             sqliteDatabase.insert(MessageEntry.TABLE_NAME, null, values);
         }
-//        Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_A, null);
-//        long value = cursor.getLong(0);
     }
 
-    public void addMessage(ConversationMessage conversationMessage, String groupId) {
+    public void addMessage(ConversationMessage conversationMessage, String channelId, BaseChannel.ChannelType channelType) {
         SQLiteDatabase sqliteDatabase = this.getWritableDatabase();
-        sqliteDatabase.execSQL("DELETE FROM " + MessageEntry.TABLE_NAME + " WHERE "+ MessageEntry._ID+" NOT IN (SELECT "+ MessageEntry._ID + " FROM "+ MessageEntry.TABLE_NAME+" ORDER BY "+ MessageEntry.COLUMN_NAME_TIME_STAMP +
+        sqliteDatabase.execSQL("DELETE FROM " + MessageEntry.TABLE_NAME + " WHERE "
+                + MessageEntry.COLUMN_NAME_CHANNEL_ID + " = '" + channelId + "' AND "
+                + MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = '" + channelType.name() +  "' AND "
+                + MessageEntry._ID + " NOT IN (SELECT " + MessageEntry._ID + " FROM " + MessageEntry.TABLE_NAME + " WHERE "
+                + MessageEntry.COLUMN_NAME_CHANNEL_ID + " = '" + channelId + "' AND "
+                + MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = '" + channelType.name() +  "' AND "
+                + MessageEntry._ID + " ORDER BY " + MessageEntry.COLUMN_NAME_TIME_STAMP +
                 "  DESC LIMIT 19)");
-//        sqliteDatabase.execSQL("DELETE FROM " + MessageEntry.TABLE_NAME + " WHERE " +
-//                MessageEntry.COLUMN_NAME_GROUP_ID + "='" + groupId + "' ORDER BY " + MessageEntry.COLUMN_NAME_TIME_STAMP + " ASC LIMIT -1 OFFSET 19");
 
         ContentValues values = new ContentValues();
         values.put(MessageEntry.COLUMN_NAME_MESSAGE, conversationMessage.getMessage().serialize()); // serialized message
-        values.put(MessageEntry.COLUMN_NAME_GROUP_ID, groupId); // Group ID
+        values.put(MessageEntry.COLUMN_NAME_CHANNEL_ID, channelId); // Group ID
+        values.put(MessageEntry.COLUMN_NAME_CHANNEL_TYPE, channelType.name()); // Group ID
         values.put(MessageEntry.COLUMN_NAME_TIME_STAMP, conversationMessage.getMessage().getInsertedAt()); // Time of message inserted
         sqliteDatabase.insert(MessageEntry.TABLE_NAME, null, values);
     }
 
-    public List<ConversationMessage> getMessages(String groupId) {
+    public List<ConversationMessage> getMessages(String channelId, BaseChannel.ChannelType channelType) {
         SQLiteDatabase db = this.getReadableDatabase();
 
 // Define a projection that specifies which columns from the database
@@ -81,10 +88,10 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
         String[] projection = {
                 BaseColumns._ID,
                 MessageEntry.COLUMN_NAME_MESSAGE,
-                MessageEntry.COLUMN_NAME_GROUP_ID
+                MessageEntry.COLUMN_NAME_CHANNEL_ID
         };
-        String selection = MessageEntry.COLUMN_NAME_GROUP_ID + " = ?";
-        String[] selectionArgs = { groupId };
+        String selection = MessageEntry.COLUMN_NAME_CHANNEL_ID + " = ? AND " + MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = ?";
+        String[] selectionArgs = {channelId, channelType.name()};
         String sortOrder =
                 MessageEntry.COLUMN_NAME_TIME_STAMP + " DESC";
 
@@ -99,7 +106,7 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
         );
 
         List<ConversationMessage> conversationMessages = new ArrayList<>();
-        while(cursor.moveToNext()) {
+        while (cursor.moveToNext()) {
             String message = cursor.getString(
                     cursor.getColumnIndexOrThrow(MessageEntry.COLUMN_NAME_MESSAGE));
             ConversationMessage conversationMessage = new ConversationMessage(Message.createfromSerializedData(message));
