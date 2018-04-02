@@ -62,6 +62,7 @@ import java.util.Map;
 import io.chatcamp.app.database.ChatCampDatabaseHelper;
 import io.chatcamp.app.webview.FilePath;
 import io.chatcamp.app.webview.WebViewActivity;
+import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
@@ -179,7 +180,11 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
         channelType = getIntent().getStringExtra("channelType");
         channelId = getIntent().getStringExtra("channelId");
-        messageMessagesListAdapter.addToEnd(databaseHelper.getMessages(channelId), false);
+        if(channelType.equals("group")) {
+            messageMessagesListAdapter.addToEnd(databaseHelper.getMessages(channelId, BaseChannel.ChannelType.GROUP), false);
+        } else {
+            messageMessagesListAdapter.addToEnd(databaseHelper.getMessages(channelId, BaseChannel.ChannelType.OPEN), false);
+        }
     }
 
     private void checkCameraPermission() {
@@ -333,7 +338,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                     }
 
                     if (TextUtils.isEmpty(previousMessageId)) {
-                        databaseHelper.addMessages(conversationMessages, g.getId());
+                        databaseHelper.addMessages(conversationMessages, g.getId(), BaseChannel.ChannelType.GROUP);
                         messageMessagesListAdapter.clear();
                     }
                     Log.e("Conve", "before Message Called " + previousMessageId);
@@ -510,7 +515,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 if (channel.getId().equals(groupChannel.getId())) {
                     final Message m = message;
                     final ConversationMessage conversationMessage = new ConversationMessage(m);
-                    databaseHelper.addMessage(conversationMessage, channel.getId());
+                    databaseHelper.addMessage(conversationMessage, channel.getId(), BaseChannel.ChannelType.GROUP);
                     messageMessagesListAdapter.addToStart(conversationMessage, true);
                     Toast.makeText(getApplicationContext(), m.getText(), Toast.LENGTH_SHORT).show();
                 }
