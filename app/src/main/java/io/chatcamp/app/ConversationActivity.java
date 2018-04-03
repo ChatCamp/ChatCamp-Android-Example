@@ -155,6 +155,13 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
             @Override
             public void onActionContentActionClicked(IActionContent actionContent) {
                 String message = actionContent.getTitle();
+                String customType = "flight-confirm-booking";
+                if(actionContent.getActions().size() > 0) {
+                    String action = actionContent.getActions().get(0);
+                    if(action.trim().equalsIgnoreCase("make payment")) {
+                        customType = "flight_make_payment";
+                    }
+                }
                 if(message != null) {
                     message = Html.fromHtml(message.split("<br>")[0]).toString() + " - ";
                 } else {
@@ -168,7 +175,8 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 message = message.replaceAll(", $", "");
                 String meta = new Gson().toJson(actionContent);
                 Product product = new Product(meta);
-                g.sendMessage(message, product, "flight-confirm-booking", new GroupChannel.SendMessageListener() {
+
+                g.sendMessage(message, product, customType, new GroupChannel.SendMessageListener() {
                     @Override
                     public void onSent(Message message, ChatCampException e) {
                         g.markAsRead();
