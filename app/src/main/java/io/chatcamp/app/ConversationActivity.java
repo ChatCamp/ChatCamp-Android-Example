@@ -167,7 +167,8 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 }
                 message = message.replaceAll(", $", "");
                 String meta = new Gson().toJson(actionContent);
-                g.sendMessage(message, meta, "flight-confirm-booking", new GroupChannel.SendMessageListener() {
+                Product product = new Product(meta);
+                g.sendMessage(message, product, "flight-confirm-booking", new GroupChannel.SendMessageListener() {
                     @Override
                     public void onSent(Message message, ChatCampException e) {
                         g.markAsRead();
