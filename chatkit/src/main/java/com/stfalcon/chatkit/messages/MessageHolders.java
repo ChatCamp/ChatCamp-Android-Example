@@ -812,13 +812,17 @@ public class MessageHolders {
                     TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_action);
                     String[] actionArray = action.split(",");
                     action = actionArray[0];
-                    if (actionArray.length > 0) {
+                    if (actionArray.length > 1) {
                         String color = actionArray[1];
-                        if (color.equals("null")) {
-                            actionSubcontentContentTv.setTextColor(ContextCompat.getColor(actionSubcontentContent.getContext(), R.color.black));
+                        if (color.trim().equals("null")) {
                             actionSubcontentContentTv.setBackgroundColor(ContextCompat.getColor(actionSubcontentContent.getContext(), R.color.transparent));
+                            actionSubcontentContentTv.setTextColor(ContextCompat.getColor(actionSubcontentContent.getContext(), R.color.black));
+                            actionSubcontentContentTv.setEnabled(false);
+                            actionSubcontentContentTv.setClickable(false);
                         } else {
-                            actionSubcontentContentTv.setBackgroundColor(Color.parseColor(color));
+                            actionSubcontentContentTv.getBackground().mutate().setTint(Color.parseColor(color));
+                            actionSubcontentContentTv.setEnabled(false);
+                            actionSubcontentContentTv.setClickable(false);
                         }
                     } else {
                         if (actionSubcontentContentTv.isSelected()) {
