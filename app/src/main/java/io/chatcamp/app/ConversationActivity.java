@@ -161,7 +161,11 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                     if(action.trim().equalsIgnoreCase("make payment")) {
                         customType = "flight_make_payment";
                         message = "I want to make payment.";
-                    } else {
+                    } else if(action.trim().equalsIgnoreCase("confirm seat")) {
+                        customType = "flight_confirm_seats";
+                        message = "Seat confirmed - 3F";
+                    }
+                    else {
                         if(message != null) {
                             message = Html.fromHtml(message.split("<br>")[0]).toString() + " - ";
                         } else {
