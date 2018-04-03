@@ -35,9 +35,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
+import com.stfalcon.chatkit.commons.models.IActionContent;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
@@ -146,6 +148,12 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 Intent intent = new Intent(BaseApplication.getInstance(), WebViewActivity.class);
                 intent.putExtra(WebViewActivity.URL, url);
                 startActivity(intent);
+            }
+
+            @Override
+            public void onActionContentActionClicked(IActionContent actionContent) {
+                Toast.makeText(ConversationActivity.this, new Gson().toJson(actionContent), Toast.LENGTH_LONG).show();
+                Log.d("action Content" , new Gson().toJson(actionContent));
             }
         });
         holder.setOnVideoItemClickedListener(new MessageHolders.OnVideoItemClickedListener() {

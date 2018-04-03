@@ -1,9 +1,12 @@
 package com.stfalcon.chatkit.messages;
 
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -100,6 +103,8 @@ public class MessageHolders {
 
     public interface OnActionItemClickedListener {
         void onActionItemClicked(String url);
+
+        void onActionContentActionClicked(IActionContent actionContent);
     }
 
     public interface OnVideoItemClickedListener {
@@ -630,6 +635,7 @@ public class MessageHolders {
         private final RecyclerView recyclerView;
         private final CardView cardView;
         private final FrameLayout listContainer;
+        private List<IActionSubContent> actionSubContents = new ArrayList<>();
 
         public ChatCampIncomingActionMessageViewHolder(View itemView) {
             super(itemView);
@@ -664,7 +670,7 @@ public class MessageHolders {
                         listContainer.setVisibility(View.GONE);
                         cardView.setVisibility(View.VISIBLE);
                         IActionContent actionContent = actionContents.get(0);
-                        populateActionContent(actionContent, cardView);
+                        populateActionContent(actionContent, cardView, actionSubContents);
                         // show single card view
 
                     }
@@ -673,7 +679,7 @@ public class MessageHolders {
 
         }
 
-        public void populateActionContent(IActionContent actionContent, ViewGroup cardView) {
+        public void populateActionContent(IActionContent actionContent, ViewGroup cardView, List<IActionSubContent> actionSubContent) {
             cardView.removeAllViews();
             if (actionContent != null) {
                 View actionContentView = LayoutInflater.from(cardView.getContext()).inflate(R.layout.layout_action_content, cardView, false);
@@ -702,14 +708,14 @@ public class MessageHolders {
                     actionTitleDivider.setVisibility(View.GONE);
                 }
 
-                populateSubContent(actionContent, actionSubcontentContainer);
-                populateActions(actionContent, actionActionContainer);
+                populateSubContent(actionContent, actionSubcontentContainer, actionSubContent);
+                populateActions(actionContent, actionActionContainer, actionSubContent);
                 cardView.addView(actionContentView);
             }
 
         }
 
-        private void populateActions(IActionContent actionContent, LinearLayout actionActionContainer) {
+        private void populateActions(final IActionContent actionContent, LinearLayout actionActionContainer, final List<IActionSubContent> actionSubContents) {
             List<String> actionActionList = actionContent.getActions();
             if (actionActionList != null && actionActionList.size() > 0) {
                 for (int i = 0; i < actionActionList.size(); ++i) {
@@ -719,6 +725,24 @@ public class MessageHolders {
                         TextView actionName = actionLayout.findViewById(R.id.tv_action_name);
                         Spanned sp = Html.fromHtml(actionActionList.get(i));
                         actionName.setText(sp);
+                        actionLayout.setTag(actionActionList.get(i));
+                        actionLayout.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (v.getTag() != null && v.getTag() instanceof String) {
+                                    String action = (String) v.getTag();
+                                    List<String> actions = new ArrayList<>();
+                                    actions.add(action);
+                                    actionContent.setActions(actions);
+                                    actionContent.setContents(actionSubContents);
+                                    if (onActionItemClickedListener != null) {
+                                        onActionItemClickedListener.onActionContentActionClicked(actionContent);
+                                        actionSubContents.clear();
+                                    }
+
+                                }
+                            }
+                        });
                         actionActionContainer.addView(actionLayout);
                     }
                 }
@@ -726,7 +750,7 @@ public class MessageHolders {
 
         }
 
-        private void populateSubContent(IActionContent actionContent, LinearLayout actionSubcontentContainer) {
+        private void populateSubContent(IActionContent actionContent, LinearLayout actionSubcontentContainer, List<IActionSubContent> actionSubContent) {
             List<IActionSubContent> subContents = actionContent.getContents();
             if (subContents != null && subContents.size() > 0) {
                 for (int i = 0; i < subContents.size(); ++i) {
@@ -754,7 +778,7 @@ public class MessageHolders {
                         }
 
                         populateSubContentContent(subContent, subContentContentContainer);
-                        populateSubContentActions(subContent, subContentActionContainer);
+                        populateSubContentActions(subContent, subContentActionContainer, actionSubContent);
                         actionSubcontentContainer.addView(subContentLayout);
                     }
                 }
@@ -778,19 +802,68 @@ public class MessageHolders {
             }
         }
 
-        private static void populateSubContentActions(IActionSubContent subContent, FlowLayout subContentActionContainer) {
-            List<String> subcontentActionList = subContent.getActions();
+        private static void populateSubContentActions(final IActionSubContent subContent, FlowLayout subContentActionContainer, final List<IActionSubContent> actionSubContent) {
+            final List<String> subcontentActionList = subContent.getActions();
             if (subcontentActionList != null && subcontentActionList.size() > 0) {
                 for (int i = 0; i < subcontentActionList.size(); ++i) {
                     String action = subcontentActionList.get(i);
-                    if (!TextUtils.isEmpty(action)) {
-                        LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentActionContainer.getContext())
-                                .inflate(R.layout.layout_action_subcontent_action, subContentActionContainer, false);
-                        TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_action);
-                        Spanned sp = Html.fromHtml(action);
-                        actionSubcontentContentTv.setText(sp);
-                        subContentActionContainer.addView(actionSubcontentContent);
+                    LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentActionContainer.getContext())
+                            .inflate(R.layout.layout_action_subcontent_action, subContentActionContainer, false);
+                    TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_action);
+                    String[] actionArray = action.split(",");
+                    action = actionArray[0];
+                    if (actionArray.length > 0) {
+                        String color = actionArray[1];
+                        if (color.equals("null")) {
+                            actionSubcontentContentTv.setTextColor(ContextCompat.getColor(actionSubcontentContent.getContext(), R.color.black));
+                            actionSubcontentContentTv.setBackgroundColor(ContextCompat.getColor(actionSubcontentContent.getContext(), R.color.transparent));
+                        } else {
+                            actionSubcontentContentTv.setBackgroundColor(Color.parseColor(color));
+                        }
+                    } else {
+                        if (actionSubcontentContentTv.isSelected()) {
+                            actionSubcontentContentTv.setBackgroundResource(R.drawable.subcontent_action_selected);
+                        } else {
+                            actionSubcontentContentTv.setBackgroundResource(R.drawable.subcontent_action);
+
+                        }
                     }
+
+                    Spanned sp = Html.fromHtml(action);
+                    actionSubcontentContentTv.setText(sp);
+                    actionSubcontentContentTv.setTag(action);
+                    actionSubcontentContentTv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (v.getTag() != null && v.getTag() instanceof String) {
+                                String action = (String) v.getTag();
+                                boolean alreadyPresent = false;
+                                for (IActionSubContent subContent1 : actionSubContent) {
+                                    if (subContent1.getId().equals(subContent.getId())) {
+                                        if (v.isSelected()) {
+                                            v.setSelected(false);
+                                            v.setBackgroundResource(R.drawable.subcontent_action);
+                                            subContent1.getActions().remove(action);
+                                        } else {
+                                            v.setSelected(true);
+                                            subContent1.getActions().add(action);
+                                            v.setBackgroundResource(R.drawable.subcontent_action_selected);
+                                        }
+                                        alreadyPresent = true;
+                                        break;
+                                    }
+                                }
+                                if (!alreadyPresent) {
+                                    subContent.getActions().clear();
+                                    subContent.getActions().add(action);
+                                    actionSubContent.add(subContent);
+                                    v.setSelected(true);
+                                    v.setBackgroundResource(R.drawable.subcontent_action_selected);
+                                }
+                            }
+                        }
+                    });
+                    subContentActionContainer.addView(actionSubcontentContent);
                 }
             }
         }
@@ -854,6 +927,7 @@ public class MessageHolders {
 
             public class ItemViewHolder extends RecyclerView.ViewHolder {
                 LinearLayout container;
+                List<IActionSubContent> subContentList = new ArrayList<>();
 
                 public ItemViewHolder(View itemView) {
                     super(itemView);
@@ -861,7 +935,7 @@ public class MessageHolders {
                 }
 
                 public void bind(IActionContent actionContent) {
-                    populateActionContent(actionContent, container);
+                    populateActionContent(actionContent, container, subContentList);
                 }
             }
         }
@@ -876,6 +950,8 @@ public class MessageHolders {
         private final RecyclerView recyclerView;
         private final CardView cardView;
         private final FrameLayout listContainer;
+        private List<IActionSubContent> actionSubContents = new ArrayList<>();
+
 
         public ChatCampOutcomingActionMessageViewHolder(View itemView) {
             super(itemView);
@@ -902,7 +978,7 @@ public class MessageHolders {
                             cardView.setVisibility(View.GONE);
                             RecyclerView.LayoutManager manager = new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false);
                             recyclerView.setLayoutManager(manager);
-                            ActionListAdapter adapter = new ActionListAdapter(actionContents);
+                            ChatCampOutcomingActionMessageViewHolder.ActionListAdapter adapter = new ChatCampOutcomingActionMessageViewHolder.ActionListAdapter(actionContents);
                             recyclerView.setAdapter(adapter);
                         }
 
@@ -910,7 +986,7 @@ public class MessageHolders {
                         listContainer.setVisibility(View.GONE);
                         cardView.setVisibility(View.VISIBLE);
                         IActionContent actionContent = actionContents.get(0);
-                        populateActionContent(actionContent, cardView);
+                        populateActionContent(actionContent, cardView, actionSubContents);
                         // show single card view
 
                     }
@@ -919,7 +995,7 @@ public class MessageHolders {
 
         }
 
-        public void populateActionContent(IActionContent actionContent, ViewGroup cardView) {
+        public void populateActionContent(IActionContent actionContent, ViewGroup cardView, List<IActionSubContent> actionSubContent) {
             cardView.removeAllViews();
             if (actionContent != null) {
                 View actionContentView = LayoutInflater.from(cardView.getContext()).inflate(R.layout.layout_action_content, cardView, false);
@@ -948,14 +1024,14 @@ public class MessageHolders {
                     actionTitleDivider.setVisibility(View.GONE);
                 }
 
-                populateSubContent(actionContent, actionSubcontentContainer);
-                populateActions(actionContent, actionActionContainer);
+                populateSubContent(actionContent, actionSubcontentContainer, actionSubContent);
+                populateActions(actionContent, actionActionContainer, actionSubContent);
                 cardView.addView(actionContentView);
             }
 
         }
 
-        private void populateActions(IActionContent actionContent, LinearLayout actionActionContainer) {
+        private void populateActions(final IActionContent actionContent, LinearLayout actionActionContainer, final List<IActionSubContent> actionSubContents) {
             List<String> actionActionList = actionContent.getActions();
             if (actionActionList != null && actionActionList.size() > 0) {
                 for (int i = 0; i < actionActionList.size(); ++i) {
@@ -965,6 +1041,24 @@ public class MessageHolders {
                         TextView actionName = actionLayout.findViewById(R.id.tv_action_name);
                         Spanned sp = Html.fromHtml(actionActionList.get(i));
                         actionName.setText(sp);
+                        actionLayout.setTag(actionActionList.get(i));
+                        actionLayout.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (v.getTag() != null && v.getTag() instanceof String) {
+                                    String action = (String) v.getTag();
+                                    List<String> actions = new ArrayList<>();
+                                    actions.add(action);
+                                    actionContent.setActions(actions);
+                                    actionContent.setContents(actionSubContents);
+                                    if (onActionItemClickedListener != null) {
+                                        onActionItemClickedListener.onActionContentActionClicked(actionContent);
+                                        actionSubContents.clear();
+                                    }
+
+                                }
+                            }
+                        });
                         actionActionContainer.addView(actionLayout);
                     }
                 }
@@ -972,7 +1066,7 @@ public class MessageHolders {
 
         }
 
-        private void populateSubContent(IActionContent actionContent, LinearLayout actionSubcontentContainer) {
+        private void populateSubContent(IActionContent actionContent, LinearLayout actionSubcontentContainer, List<IActionSubContent> actionSubContent) {
             List<IActionSubContent> subContents = actionContent.getContents();
             if (subContents != null && subContents.size() > 0) {
                 for (int i = 0; i < subContents.size(); ++i) {
@@ -1000,7 +1094,7 @@ public class MessageHolders {
                         }
 
                         populateSubContentContent(subContent, subContentContentContainer);
-                        populateSubContentActions(subContent, subContentActionContainer);
+                        populateSubContentActions(subContent, subContentActionContainer, actionSubContent);
                         actionSubcontentContainer.addView(subContentLayout);
                     }
                 }
@@ -1024,19 +1118,72 @@ public class MessageHolders {
             }
         }
 
-        private static void populateSubContentActions(IActionSubContent subContent, FlowLayout subContentActionContainer) {
-            List<String> subcontentActionList = subContent.getActions();
+        private static void populateSubContentActions(final IActionSubContent subContent, FlowLayout subContentActionContainer, final List<IActionSubContent> actionSubContent) {
+            final List<String> subcontentActionList = subContent.getActions();
             if (subcontentActionList != null && subcontentActionList.size() > 0) {
                 for (int i = 0; i < subcontentActionList.size(); ++i) {
                     String action = subcontentActionList.get(i);
-                    if (!TextUtils.isEmpty(action)) {
-                        LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentActionContainer.getContext())
-                                .inflate(R.layout.layout_action_subcontent_action, subContentActionContainer, false);
-                        TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_action);
-                        Spanned sp = Html.fromHtml(action);
-                        actionSubcontentContentTv.setText(sp);
-                        subContentActionContainer.addView(actionSubcontentContent);
+                    LinearLayout actionSubcontentContent = (LinearLayout) LayoutInflater.from(subContentActionContainer.getContext())
+                            .inflate(R.layout.layout_action_subcontent_action, subContentActionContainer, false);
+                    TextView actionSubcontentContentTv = actionSubcontentContent.findViewById(R.id.tv_action_subcontent_action);
+                    String[] actionArray = action.split(",");
+                    action = actionArray[0];
+                    if (actionArray.length > 1) {
+                        String color = actionArray[1];
+                        if (color.trim().equals("null")) {
+                            actionSubcontentContentTv.setBackgroundColor(ContextCompat.getColor(actionSubcontentContent.getContext(), R.color.transparent));
+                            actionSubcontentContentTv.setTextColor(ContextCompat.getColor(actionSubcontentContent.getContext(), R.color.black));
+                            actionSubcontentContentTv.setEnabled(false);
+                            actionSubcontentContentTv.setClickable(false);
+                        } else {
+                            actionSubcontentContentTv.getBackground().mutate().setTint(Color.parseColor(color));
+                            actionSubcontentContentTv.setEnabled(false);
+                            actionSubcontentContentTv.setClickable(false);
+                        }
+                    } else {
+                        if (actionSubcontentContentTv.isSelected()) {
+                            actionSubcontentContentTv.setBackgroundResource(R.drawable.subcontent_action_selected);
+                        } else {
+                            actionSubcontentContentTv.setBackgroundResource(R.drawable.subcontent_action);
+
+                        }
                     }
+
+                    Spanned sp = Html.fromHtml(action);
+                    actionSubcontentContentTv.setText(sp);
+                    actionSubcontentContentTv.setTag(action);
+                    actionSubcontentContentTv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (v.getTag() != null && v.getTag() instanceof String) {
+                                String action = (String) v.getTag();
+                                boolean alreadyPresent = false;
+                                for (IActionSubContent subContent1 : actionSubContent) {
+                                    if (subContent1.getId().equals(subContent.getId())) {
+                                        if (v.isSelected()) {
+                                            v.setSelected(false);
+                                            v.setBackgroundResource(R.drawable.subcontent_action);
+                                            subContent1.getActions().remove(action);
+                                        } else {
+                                            v.setSelected(true);
+                                            subContent1.getActions().add(action);
+                                            v.setBackgroundResource(R.drawable.subcontent_action_selected);
+                                        }
+                                        alreadyPresent = true;
+                                        break;
+                                    }
+                                }
+                                if (!alreadyPresent) {
+                                    subContent.getActions().clear();
+                                    subContent.getActions().add(action);
+                                    actionSubContent.add(subContent);
+                                    v.setSelected(true);
+                                    v.setBackgroundResource(R.drawable.subcontent_action_selected);
+                                }
+                            }
+                        }
+                    });
+                    subContentActionContainer.addView(actionSubcontentContent);
                 }
             }
         }
@@ -1100,6 +1247,7 @@ public class MessageHolders {
 
             public class ItemViewHolder extends RecyclerView.ViewHolder {
                 LinearLayout container;
+                List<IActionSubContent> actionSubContents = new ArrayList<>();
 
                 public ItemViewHolder(View itemView) {
                     super(itemView);
@@ -1107,7 +1255,7 @@ public class MessageHolders {
                 }
 
                 public void bind(IActionContent actionContent) {
-                    populateActionContent(actionContent, container);
+                    populateActionContent(actionContent, container, actionSubContents);
                 }
             }
         }

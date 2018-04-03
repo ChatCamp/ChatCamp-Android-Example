@@ -13,6 +13,7 @@ public interface IActionContent {
     public String getTitle() ;
     public List<IActionSubContent> getContents();
     public List<String> getActions() ;
-
+    public void setContents(List<IActionSubContent> actionSubContents);
+    public void setActions(List<String> actions) ;
 
 }
