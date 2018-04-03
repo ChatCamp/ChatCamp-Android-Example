@@ -160,19 +160,22 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                     String action = actionContent.getActions().get(0);
                     if(action.trim().equalsIgnoreCase("make payment")) {
                         customType = "flight_make_payment";
+                        message = "I want to make payment.";
+                    } else {
+                        if(message != null) {
+                            message = Html.fromHtml(message.split("<br>")[0]).toString() + " - ";
+                        } else {
+                            message = "";
+                        }
+                        for (IActionSubContent actionSubContent : actionContent.getContents()) {
+                            for (String subContentAction : actionSubContent.getActions()) {
+                                message = message  + subContentAction + ", ";
+                            }
+                        }
+                        message = message.replaceAll(", $", "");
                     }
                 }
-                if(message != null) {
-                    message = Html.fromHtml(message.split("<br>")[0]).toString() + " - ";
-                } else {
-                    message = "";
-                }
-                for (IActionSubContent actionSubContent : actionContent.getContents()) {
-                    for (String subContentAction : actionSubContent.getActions()) {
-                        message = message  + subContentAction + ", ";
-                    }
-                }
-                message = message.replaceAll(", $", "");
+
                 String meta = new Gson().toJson(actionContent);
                 Product product = new Product(meta);
 
