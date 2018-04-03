@@ -21,6 +21,7 @@ import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -40,6 +41,7 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.commons.models.IActionContent;
+import com.stfalcon.chatkit.commons.models.IActionSubContent;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
@@ -152,8 +154,28 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
             @Override
             public void onActionContentActionClicked(IActionContent actionContent) {
-                Toast.makeText(ConversationActivity.this, new Gson().toJson(actionContent), Toast.LENGTH_LONG).show();
-                Log.d("action Content" , new Gson().toJson(actionContent));
+                String message = actionContent.getTitle();
+                if(message != null) {
+                    message = Html.fromHtml(message.split("<br>")[0]).toString() + " - ";
+                } else {
+                    message = "";
+                }
+                for (IActionSubContent actionSubContent : actionContent.getContents()) {
+                    for (String subContentAction : actionSubContent.getActions()) {
+                        message = message  + subContentAction + ", ";
+                    }
+                }
+                message = message.replaceAll(", $", "");
+                String meta = new Gson().toJson(actionContent);
+                g.sendMessage(message, meta, "flight-confirm-booking", new GroupChannel.SendMessageListener() {
+                    @Override
+                    public void onSent(Message message, ChatCampException e) {
+                        g.markAsRead();
+                    }
+                });
+
+               // Toast.makeText(ConversationActivity.this, new Gson().toJson(actionContent), Toast.LENGTH_LONG).show();
+                Log.d("action Content", new Gson().toJson(actionContent));
             }
         });
         holder.setOnVideoItemClickedListener(new MessageHolders.OnVideoItemClickedListener() {
@@ -188,7 +210,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
         channelType = getIntent().getStringExtra("channelType");
         channelId = getIntent().getStringExtra("channelId");
-        if(channelType.equals("group")) {
+        if (channelType.equals("group")) {
             messageMessagesListAdapter.addToEnd(databaseHelper.getMessages(channelId, BaseChannel.ChannelType.GROUP), false);
         } else {
             messageMessagesListAdapter.addToEnd(databaseHelper.getMessages(channelId, BaseChannel.ChannelType.OPEN), false);
@@ -233,7 +255,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_conversation) {
+        if (item.getItemId() == R.id.action_conversation) {
             titleClicked();
         }
         return super.onOptionsItemSelected(item);
@@ -778,7 +800,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
 
         @Override
         public void onClick(View view) {
-         titleClicked();
+            titleClicked();
         }
     }
 
