@@ -3,6 +3,14 @@
 
     <application
         android:allowBackup="true"
-        android:supportsRtl="true"/>
+        android:supportsRtl="true">
+
+        <activity
+            android:name=".preview.WebViewActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".preview.MediaPreviewActivity"/>
+    </application>>
+
 
 </manifest>

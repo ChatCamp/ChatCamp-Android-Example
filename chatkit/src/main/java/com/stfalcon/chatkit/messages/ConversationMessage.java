@@ -1,4 +1,4 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.messages;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -7,23 +7,22 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.stfalcon.chatkit.commons.models.IActionContent;
 import com.stfalcon.chatkit.commons.models.IActionMessage;
 import com.stfalcon.chatkit.commons.models.IActionSubContent;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
-import com.stfalcon.chatkit.messages.MessageType;
+import com.stfalcon.chatkit.messages.customContent.ActionContent;
+import com.stfalcon.chatkit.messages.customContent.ActionMessage;
+import com.stfalcon.chatkit.messages.customContent.ActionSubContent;
 
 import java.lang.reflect.Type;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import io.chatcamp.app.customContent.ActionContent;
-import io.chatcamp.app.customContent.ActionMessage;
-import io.chatcamp.app.customContent.ActionSubContent;
+
 import io.chatcamp.sdk.Message;
 
 /**

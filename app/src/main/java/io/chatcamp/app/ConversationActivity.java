@@ -43,11 +43,17 @@ import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.commons.models.IActionContent;
 import com.stfalcon.chatkit.commons.models.IActionSubContent;
 import com.stfalcon.chatkit.commons.models.MessageContentType;
+import com.stfalcon.chatkit.messages.ConversationAuthor;
+import com.stfalcon.chatkit.messages.ConversationMessage;
 import com.stfalcon.chatkit.messages.MessageHolders;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 import com.stfalcon.chatkit.messages.MessagesListAdapter.OnLoadMoreListener;
+import com.stfalcon.chatkit.messages.database.ChatCampDatabaseHelper;
+import com.stfalcon.chatkit.preview.MediaPreviewActivity;
+import com.stfalcon.chatkit.preview.WebViewActivity;
+import com.stfalcon.chatkit.utils.FilePath;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -63,9 +69,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import io.chatcamp.app.database.ChatCampDatabaseHelper;
-import io.chatcamp.app.webview.FilePath;
-import io.chatcamp.app.webview.WebViewActivity;
 import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
@@ -77,7 +80,7 @@ import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
-import static io.chatcamp.app.ConversationMessage.TYPING_TEXT_ID;
+import static com.stfalcon.chatkit.messages.ConversationMessage.TYPING_TEXT_ID;
 import static io.chatcamp.app.GroupDetailActivity.KEY_GROUP_ID;
 
 public class ConversationActivity extends AppCompatActivity implements OnLoadMoreListener {
@@ -183,12 +186,12 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 String meta = new Gson().toJson(actionContent);
                 Product product = new Product(meta);
 
-                g.sendMessage(message, product, customType, new GroupChannel.SendMessageListener() {
-                    @Override
-                    public void onSent(Message message, ChatCampException e) {
-                        g.markAsRead();
-                    }
-                });
+//                g.sendMessage(message, product, customType, new GroupChannel.SendMessageListener() {
+//                    @Override
+//                    public void onSent(Message message, ChatCampException e) {
+//                        g.markAsRead();
+//                    }
+//                });
 
                // Toast.makeText(ConversationActivity.this, new Gson().toJson(actionContent), Toast.LENGTH_LONG).show();
                 Log.d("action Content", new Gson().toJson(actionContent));

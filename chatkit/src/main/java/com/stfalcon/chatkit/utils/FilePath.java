@@ -1,4 +1,4 @@
-package io.chatcamp.app.webview;
+package com.stfalcon.chatkit.utils;
 
 /**
  * Created by shubhamdhabhai on 05/03/18.

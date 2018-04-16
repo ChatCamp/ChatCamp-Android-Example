@@ -1,13 +1,14 @@
-package io.chatcamp.app.webview;
+package com.stfalcon.chatkit.preview;
 
 import android.content.Intent;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
-import io.chatcamp.app.R;
+import com.stfalcon.chatkit.R;
+
 
 public class WebViewActivity extends AppCompatActivity {
     public static final String URL = "url_link";

@@ -1,5 +1,6 @@
 package io.chatcamp.app;
 
+
 import io.chatcamp.sdk.Participant;
 
 /**

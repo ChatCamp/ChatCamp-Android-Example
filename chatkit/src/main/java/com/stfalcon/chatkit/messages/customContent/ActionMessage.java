@@ -1,4 +1,4 @@
-package io.chatcamp.app.customContent;
+package com.stfalcon.chatkit.messages.customContent;
 
 import com.stfalcon.chatkit.commons.models.IActionContent;
 import com.stfalcon.chatkit.commons.models.IActionMessage;

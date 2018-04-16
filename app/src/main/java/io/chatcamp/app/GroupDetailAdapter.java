@@ -12,7 +12,6 @@ import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -204,7 +203,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter {
             Picasso.with(context).load(participantView.getParticipant().getAvatarUrl())
                     .placeholder(R.drawable.icon_default_contact).into(participantIv);
             participantTv.setText(participantView.getParticipant().getDisplayName());
-            if(participantView.getParticipant().isOnline()) {
+            if (participantView.getParticipant().isOnline()) {
                 onlineIv.setVisibility(View.VISIBLE);
                 lastSeenTv.setVisibility(View.GONE);
             } else {

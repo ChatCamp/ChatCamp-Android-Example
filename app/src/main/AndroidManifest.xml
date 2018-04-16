@@ -66,12 +66,6 @@
             android:name=".setting.SettingActivity"
             android:label="@string/setting"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".webview.WebViewActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".MediaPreviewActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"

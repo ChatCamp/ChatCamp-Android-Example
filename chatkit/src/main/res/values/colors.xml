@@ -30,6 +30,8 @@
 
     <color name="material_indigo_100">#f0f1f5</color>
     <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
     <color name="color_action">#b71c1c</color>
     <color name="action_incoming_bg">#efefef</color>
     <color name="action_confirm">#00838f</color>

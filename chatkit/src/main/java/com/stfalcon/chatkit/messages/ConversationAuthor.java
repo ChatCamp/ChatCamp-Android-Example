@@ -1,4 +1,4 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.messages;
 
 import com.stfalcon.chatkit.commons.models.IUser;
 

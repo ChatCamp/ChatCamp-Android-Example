@@ -1,4 +1,4 @@
-package io.chatcamp.app.database;
+package com.stfalcon.chatkit.messages.database;
 
 import android.provider.BaseColumns;
 

@@ -1,12 +1,10 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.preview;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -15,7 +13,9 @@ import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
-import io.chatcamp.app.webview.FilePath;
+import com.stfalcon.chatkit.R;
+import com.stfalcon.chatkit.utils.FilePath;
+
 
 /**
  * Created by shubhamdhabhai on 15/02/18.
