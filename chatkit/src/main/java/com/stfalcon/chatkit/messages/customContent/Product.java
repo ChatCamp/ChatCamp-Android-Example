@@ -1,4 +1,4 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.messages.customContent;
 
 /**
  * Created by shubhamdhabhai on 03/04/18.
