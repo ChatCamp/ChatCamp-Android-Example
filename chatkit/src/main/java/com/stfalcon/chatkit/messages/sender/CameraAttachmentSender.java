@@ -32,14 +32,14 @@ import io.chatcamp.sdk.BaseChannel;
  * Created by shubhamdhabhai on 18/04/18.
  */
 
-public class CameraAttachementSender extends AttachmentSender {
+public class CameraAttachmentSender extends AttachmentSender {
 
     private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA = 103;
     private static final int CAPTURE_MEDIA_RESULT_CODE = 123;
     private WeakReference<Activity> activityWeakReference;
     private String currentPhotoPath;
 
-    public CameraAttachementSender(@NonNull Activity activity, @NonNull BaseChannel channel, @NonNull String title, @NonNull int drawableRes) {
+    public CameraAttachmentSender(@NonNull Activity activity, @NonNull BaseChannel channel, @NonNull String title, @NonNull int drawableRes) {
         super(channel, title, drawableRes);
         activityWeakReference = new WeakReference<>(activity);
     }
@@ -116,7 +116,7 @@ public class CameraAttachementSender extends AttachmentSender {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        if (resultCode == Activity.RESULT_OK && requestCode == CAPTURE_MEDIA_RESULT_CODE && dataFile != null) {
+        if (resultCode == Activity.RESULT_OK && requestCode == CAPTURE_MEDIA_RESULT_CODE) {
             Uri uri;
             if (dataFile == null || dataFile.getData() == null) {
                 uri = Uri.parse(currentPhotoPath);

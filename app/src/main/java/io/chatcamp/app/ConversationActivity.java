@@ -20,7 +20,12 @@ import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.messages.ConversationViewHelper;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
+import com.stfalcon.chatkit.messages.sender.AttachmentSender;
+import com.stfalcon.chatkit.messages.sender.CameraAttachmentSender;
+import com.stfalcon.chatkit.messages.sender.FileAttachmentSender;
+import com.stfalcon.chatkit.messages.sender.GalleryAttachmentSender;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
@@ -122,18 +127,31 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        helper.onActivityResult(requestCode, resultCode, dataFile);
-
+        input.onActivityResult(requestCode, resultCode,dataFile);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
-        helper.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        input.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
     public void getChannel(BaseChannel channel) {
+        input.setChannel(channel);
+        FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "FILE", R.drawable.ic_document);
+        GalleryAttachmentSender galleryAttachmentSender = new GalleryAttachmentSender(this, channel, "Gallery", R.drawable.ic_gallery);
+        CameraAttachmentSender cameraAttachmentSender = new CameraAttachmentSender(this, channel, "Camera", R.drawable.ic_camera);
+        List<AttachmentSender> attachmentSenders = new ArrayList<>();
+        attachmentSenders.add(fileAttachmentSender);
+        attachmentSenders.add(cameraAttachmentSender);
+        attachmentSenders.add(galleryAttachmentSender);
+//        attachmentSenders.add(galleryAttachmentSender);
+//        attachmentSenders.add(galleryAttachmentSender);
+//        attachmentSenders.add(galleryAttachmentSender);
+//        attachmentSenders.add(galleryAttachmentSender);
+
+        input.setAttachmentSenderList(attachmentSenders);
         boolean isOneToOneConversation = false;
         if (channel instanceof GroupChannel) {
             GroupChannel groupChannel = (GroupChannel) channel;

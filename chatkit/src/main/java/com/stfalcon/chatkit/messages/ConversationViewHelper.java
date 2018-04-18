@@ -427,41 +427,6 @@ public class ConversationViewHelper implements MessagesListAdapter.OnLoadMoreLis
         removeTextWatcher();
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        if (resultCode == RESULT_OK) {
-            // TODO Auto-generated method stub
-            switch (requestCode) {
-                case PICK_MEDIA_RESULT_CODE:
-                    if (resultCode == RESULT_OK) {
-                        Uri uri = dataFile.getData();
-                        Intent intent = new Intent(context, MediaPreviewActivity.class);
-                        intent.putExtra(MediaPreviewActivity.IMAGE_URI, uri.toString());
-                        ((Activity)context).startActivityForResult(intent, PREVIEW_FILE_RESULT_CODE);
-                    }
-                    break;
-                case PREVIEW_FILE_RESULT_CODE:
-                    String uriMedia = dataFile.getExtras().getString(MediaPreviewActivity.IMAGE_URI);
-                    uploadFile(Uri.parse(uriMedia));
-
-                    break;
-                case PICKFILE_RESULT_CODE:
-                    Uri uriFile = dataFile.getData();
-                    uploadFile(uriFile);
-                    break;
-                case CAPTURE_MEDIA_RESULT_CODE:
-                    Uri uri;
-                    if (dataFile == null || dataFile.getData() == null) {
-                        uri = Uri.parse(currentPhotoPath);
-                    } else {
-                        uri = dataFile.getData();
-                    }
-                    uploadFile(uri);
-                    break;
-
-            }
-        }
-    }
-
     public void onDestroy() {
         databaseHelper.close();
     }
@@ -506,20 +471,6 @@ public class ConversationViewHelper implements MessagesListAdapter.OnLoadMoreLis
                         onGetChannelListener.getChannel(openChannel);
                     }
 //                    getSupportActionBar().setTitle(o.getName());
-                    input.setInputListener(new MessageInput.InputListener() {
-                        @Override
-                        public boolean onSubmit(CharSequence input) {
-
-                            o.sendMessage(input.toString(), new OpenChannel.SendMessageListener() {
-                                @Override
-                                public void onSent(Message message, ChatCampException e) {
-//                                    input.setText("");
-                                }
-                            });
-
-                            return true;
-                        }
-                    });
                     openChannel.join(new OpenChannel.JoinListener() {
                         @Override
                         public void onResult(ChatCampException e) {
@@ -726,58 +677,45 @@ public class ConversationViewHelper implements MessagesListAdapter.OnLoadMoreLis
     }
 
     private void setInputListener(final GroupChannel groupChannel) {
-        input.setInputListener(new MessageInput.InputListener() {
-            @Override
-            public boolean onSubmit(CharSequence input) {
-                groupChannel.sendMessage(input.toString(), new GroupChannel.SendMessageListener() {
-                    @Override
-                    public void onSent(Message message, ChatCampException e) {
-//                        input.setText("");
-                        groupChannel.markAsRead();
-                    }
-                });
 
-                return true;
-            }
-        });
-        input.setAttachmentsListener(new MessageInput.AttachmentsListener() {
-            @Override
-            public void onAddAttachments() {
-                LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-                // inflate the custom popup layout
-                final View inflatedView = layoutInflater.inflate(R.layout.layout_attachment, null, false);
-                LinearLayout galleryLl = inflatedView.findViewById(R.id.ll_gallery);
-                LinearLayout cameraLl = inflatedView.findViewById(R.id.ll_camera);
-                LinearLayout documentLl = inflatedView.findViewById(R.id.ll_document);
-
-                final BottomSheetDialog dialog = new BottomSheetDialog(context);
-                dialog.setContentView(inflatedView);
-                dialog.show();
-                // get device size
-                documentLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.hide();
-                        checkReadPermission(DOCUMENT);
-                    }
-                });
-                galleryLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.hide();
-                        checkReadPermission(MEDIA);
-                    }
-                });
-                cameraLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.hide();
-                        checkCameraPermission();
-                    }
-                });
-            }
-        });
+//        input.setAttachmentsListener(new MessageInput.AttachmentsListener() {
+//            @Override
+//            public void onAddAttachments() {
+//                LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//
+//                // inflate the custom popup layout
+//                final View inflatedView = layoutInflater.inflate(R.layout.layout_attachment, null, false);
+//                LinearLayout galleryLl = inflatedView.findViewById(R.id.ll_gallery);
+//                LinearLayout cameraLl = inflatedView.findViewById(R.id.ll_camera);
+//                LinearLayout documentLl = inflatedView.findViewById(R.id.ll_document);
+//
+//                final BottomSheetDialog dialog = new BottomSheetDialog(context);
+//                dialog.setContentView(inflatedView);
+//                dialog.show();
+//                // get device size
+//                documentLl.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        dialog.hide();
+//                        checkReadPermission(DOCUMENT);
+//                    }
+//                });
+//                galleryLl.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        dialog.hide();
+//                        checkReadPermission(MEDIA);
+//                    }
+//                });
+//                cameraLl.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        dialog.hide();
+//                        checkCameraPermission();
+//                    }
+//                });
+//            }
+//        });
     }
 
     private void checkReadPermission(String type) {
@@ -816,82 +754,6 @@ public class ConversationViewHelper implements MessagesListAdapter.OnLoadMoreLis
                 ((Activity)context).startActivityForResult(intent, PICK_MEDIA_RESULT_CODE);
             }
         }
-    }
-
-    private void uploadFile(Uri uri) {
-        String path = FilePath.getPath(context, uri);
-        String fileName = "";
-        String contentType = "";
-        File file;
-        if (path == null) {
-            path = uri.toString();
-            fileName = new File(path).getName();
-            contentType = "image/*";
-        } else {
-            fileName = FilePath.getFileName(context, uri);
-            contentType = context.getContentResolver().getType(uri);
-        }
-        if (contentType.contains("image")) {
-            file = new File(path);
-            try {
-                File compressedFile = createImageFile();
-                Bitmap bitmap = decodeSampledBitmapFromFile(path, 1280, 800);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(compressedFile));
-                file = compressedFile;
-            } catch (Throwable t) {
-                Log.e("ERROR", "Error compressing file." + t.toString());
-                t.printStackTrace();
-            }
-        } else {
-            file = new File(path);
-        }
-        progressBar.setProgress(0);
-        progressBar.setVisibility(View.VISIBLE);
-        g.sendAttachment(file, fileName, contentType
-                , new GroupChannel.UploadAttachmentListener() {
-                    @Override
-                    public void onUploadProgress(int progress) {
-                        progressBar.setProgress(progress);
-                    }
-
-                    @Override
-                    public void onUploadSuccess() {
-                        progressBar.setVisibility(View.GONE);
-                        g.markAsRead();
-                        Snackbar.make(progressBar, "File Uploaded Successfully", Snackbar.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onUploadFailed(Throwable error) {
-                        progressBar.setVisibility(View.GONE);
-                        Snackbar.make(progressBar, "Failed to upload File", Snackbar.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    public Bitmap decodeSampledBitmapFromFile(String path, int reqHeight,
-                                              int reqWidth) {
-
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
-
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        int inSampleSize = 1;
-
-        if (height > reqHeight) {
-            inSampleSize = Math.round((float) height / (float) reqHeight);
-        }
-        int expectedWidth = width / inSampleSize;
-
-        if (expectedWidth > reqWidth) {
-            inSampleSize = Math.round((float) width / (float) reqWidth);
-        }
-        options.inSampleSize = inSampleSize;
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(path, options);
     }
 
     public void onRequestPermissionsResult(int requestCode, String[] permissions,

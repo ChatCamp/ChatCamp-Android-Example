@@ -49,7 +49,7 @@ public abstract class AttachmentSender {
         return title;
     }
 
-    public void sendAttachment(File file, String fileName, String contentType) {
+    protected void sendAttachment(File file, String fileName, String contentType) {
         channel.sendAttachment(file, fileName, contentType
                 , new GroupChannel.UploadAttachmentListener() {
                     @Override

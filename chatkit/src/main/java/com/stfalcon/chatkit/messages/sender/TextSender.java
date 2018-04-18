@@ -11,7 +11,7 @@ import io.chatcamp.sdk.Message;
  *
  * Extend this class and override the send method to customize the class
  */
-public class TextSender {
+public abstract class TextSender {
 
     protected BaseChannel channel;
 
@@ -19,12 +19,5 @@ public class TextSender {
         this.channel = channel;
     }
 
-    public  void sendMessage(@NonNull String message) {
-        channel.sendMessage(message, new BaseChannel.SendMessageListener() {
-            @Override
-            public void onSent(Message message, ChatCampException e) {
-                // can do something here
-            }
-        });
-    }
+    public abstract void sendMessage(@NonNull String message);
 }

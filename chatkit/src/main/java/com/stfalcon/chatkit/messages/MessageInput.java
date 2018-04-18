@@ -17,23 +17,36 @@
 package com.stfalcon.chatkit.messages;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.Space;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.stfalcon.chatkit.R;
+import com.stfalcon.chatkit.messages.sender.AttachmentSender;
+import com.stfalcon.chatkit.messages.sender.DefaultTextSender;
+import com.stfalcon.chatkit.messages.sender.TextSender;
+
+import org.apmem.tools.layouts.FlowLayout;
 
 import java.lang.reflect.Field;
+import java.util.List;
+
+import io.chatcamp.sdk.BaseChannel;
 
 /**
  * Component for input outcoming messages
@@ -48,8 +61,13 @@ public class MessageInput extends RelativeLayout
     protected Space sendButtonSpace, attachmentButtonSpace;
 
     private CharSequence input;
-    private InputListener inputListener;
     private AttachmentsListener attachmentsListener;
+
+    @NonNull
+    private BaseChannel channel;
+    @NonNull
+    private TextSender textSender;
+    private List<AttachmentSender> attachmentSenderList;
 
     public MessageInput(Context context) {
         super(context);
@@ -66,14 +84,6 @@ public class MessageInput extends RelativeLayout
         init(context, attrs);
     }
 
-    /**
-     * Sets callback for 'submit' button.
-     *
-     * @param inputListener input callback
-     */
-    public void setInputListener(InputListener inputListener) {
-        this.inputListener = inputListener;
-    }
 
     /**
      * Sets callback for 'add' button.
@@ -106,12 +116,39 @@ public class MessageInput extends RelativeLayout
     public void onClick(View view) {
         int id = view.getId();
         if (id == R.id.messageSendButton) {
-            boolean isSubmitted = onSubmit();
-            if (isSubmitted) {
-                messageInput.setText("");
-            }
+            textSender.sendMessage(input.toString());
+            messageInput.setText("");
         } else if (id == R.id.attachmentButton) {
+            if (attachmentSenderList != null && attachmentSenderList.size() > 0) {
+                final BottomSheetDialog dialog = new BottomSheetDialog(getContext());
+                LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                // inflate the custom popup layout
+                final View bottomSheetView = layoutInflater.inflate(R.layout.layout_attachment, null, false);
+                FlowLayout container = bottomSheetView.findViewById(R.id.ll_attachment_sender_container);
+                if (attachmentSenderList != null) {
+                    for (final AttachmentSender attachmentSender : attachmentSenderList) {
+                        final View attachmentSenderView = layoutInflater.inflate(R.layout.layout_attachment_sender_item, null, false);
+                        ImageView image = attachmentSenderView.findViewById(R.id.iv_sender_icon);
+                        TextView title = attachmentSenderView.findViewById(R.id.tv_sender_title);
+                        image.setImageResource(attachmentSender.getDrawableRes());
+                        title.setText(attachmentSender.getTitle());
+                        attachmentSenderView.setOnClickListener(new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.hide();
+                                attachmentSender.clickSend();
+                            }
+                        });
+                        container.addView(attachmentSenderView);
+                    }
+
+                    dialog.setContentView(bottomSheetView);
+                    dialog.show();
+                }
+            }
             onAddAttachments();
+
         }
     }
 
@@ -142,12 +179,36 @@ public class MessageInput extends RelativeLayout
         //do nothing
     }
 
-    private boolean onSubmit() {
-        return inputListener != null && inputListener.onSubmit(input);
-    }
 
     private void onAddAttachments() {
         if (attachmentsListener != null) attachmentsListener.onAddAttachments();
+    }
+
+    public void setChannel(@NonNull BaseChannel channel) {
+        this.channel = channel;
+        textSender = new DefaultTextSender(channel);
+    }
+
+    public void setTextSender(@NonNull TextSender textSender) {
+        this.textSender = textSender;
+    }
+
+    public void setAttachmentSenderList(List<AttachmentSender> attachmentSenderList) {
+        this.attachmentSenderList = attachmentSenderList;
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
+        for (AttachmentSender attachmentSender : attachmentSenderList) {
+            attachmentSender.onActivityResult(requestCode, resultCode, dataFile);
+        }
+    }
+
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        for (AttachmentSender attachmentSender : attachmentSenderList) {
+            attachmentSender.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     private void init(Context context, AttributeSet attrs) {
@@ -229,20 +290,6 @@ public class MessageInput extends RelativeLayout
             drawableField.set(drawableFieldOwner, new Drawable[]{drawable, drawable});
         } catch (Exception ignored) {
         }
-    }
-
-    /**
-     * Interface definition for a callback to be invoked when user pressed 'submit' button
-     */
-    public interface InputListener {
-
-        /**
-         * Fires when user presses 'send' button.
-         *
-         * @param input input entered by user
-         * @return if input text is valid, you must return {@code true} and input will be cleared, otherwise return false.
-         */
-        boolean onSubmit(CharSequence input);
     }
 
     /**

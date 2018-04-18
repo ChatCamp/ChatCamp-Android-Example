@@ -17,7 +17,6 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 
 import io.chatcamp.sdk.BaseChannel;
-import io.chatcamp.sdk.GroupChannel;
 
 /**
  * Created by shubhamdhabhai on 18/04/18.
@@ -30,7 +29,7 @@ public class FileAttachmentSender extends AttachmentSender {
     private WeakReference<Activity> activityWeakReference;
 
 
-    private FileAttachmentSender(@NonNull Activity activity, @NonNull BaseChannel channel, @NonNull String title, @NonNull int drawableRes) {
+    public FileAttachmentSender(@NonNull Activity activity, @NonNull BaseChannel channel, @NonNull String title, @NonNull int drawableRes) {
         super(channel, title, drawableRes);
         activityWeakReference = new WeakReference<>(activity);
     }
@@ -72,11 +71,9 @@ public class FileAttachmentSender extends AttachmentSender {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        if (requestCode == Activity.RESULT_OK) {
-            if (dataFile != null) {
-                Uri uriFile = dataFile.getData();
-                uploadFile(uriFile);
-            }
+        if (resultCode == Activity.RESULT_OK && requestCode == PICK_FILE_RESULT_CODE && dataFile != null) {
+            Uri uriFile = dataFile.getData();
+            uploadFile(uriFile);
         }
     }
 
