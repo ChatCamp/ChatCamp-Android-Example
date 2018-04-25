@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="40dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/messageDateHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        tools:text="this is date" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/messageUserAvatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_margin="8dp"
+            android:src="@drawable/icon_default_contact"
+            android:layout_alignParentBottom="true"/>
+
+        <LinearLayout
+            android:id="@+id/messageContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="56dp"
+            android:layout_marginStart="56dp"
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true">
+
+            <TextView
+                android:id="@+id/messageUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:textSize="@dimen/chat_user_name"
+                tools:text="Username"/>
+
+            <FrameLayout
+                android:id="@+id/messageContentContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/messageTimeContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="end">
+
+                <TextView
+                    android:id="@+id/messageTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginRight="4dp"
+                    android:textSize="@dimen/chat_time_text"
+                    tools:text="12:30"/>
+
+                <ImageView
+                    android:id="@+id/messageReadReceipt"
+                    android:layout_width="@dimen/ic_tick_width"
+                    android:layout_height="@dimen/ic_tick_width"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/single_tick" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
