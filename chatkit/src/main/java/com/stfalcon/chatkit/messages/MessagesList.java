@@ -25,6 +25,9 @@ import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
+import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
+
+import io.chatcamp.sdk.BaseChannel;
 
 /**
  * Component for displaying list of messages
@@ -32,6 +35,8 @@ import com.stfalcon.chatkit.commons.models.IMessage;
 public class MessagesList extends RecyclerView {
     private MessagesListStyle messagesListStyle;
     private RecyclerScrollMoreListener recyclerScrollMoreListener;
+    private BaseChannel channel;
+    private MessagesListAdapter adapter;
 
     public MessagesList(Context context) {
         super(context);
@@ -45,6 +50,24 @@ public class MessagesList extends RecyclerView {
     public MessagesList(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs);
+    }
+
+    public void init() {
+        adapter = new MessagesListAdapter();
+        setAdapter(adapter);
+    }
+
+    public void addMessageFactories(MessageFactory... messageFactories) {
+        adapter.addMessageFactories(messageFactories);
+    }
+
+    public void setSenderId(String senderId) {
+        adapter.setSenderId(senderId);
+    }
+
+    public void setChannel(BaseChannel channel) {
+        this.channel = channel;
+        adapter.setChannel(channel);
     }
 
     /**
@@ -63,7 +86,7 @@ public class MessagesList extends RecyclerView {
      * @param <MESSAGE> Message model class
      */
     public <MESSAGE extends IMessage>
-    void setAdapter(MessagesListAdapter<MESSAGE> adapter) {
+    void setAdapter(MessagesListAdapter adapter) {
         setAdapter(adapter, true);
     }
 
@@ -75,7 +98,7 @@ public class MessagesList extends RecyclerView {
      * @param <MESSAGE>     Message model class
      */
     public <MESSAGE extends IMessage>
-    void setAdapter(MessagesListAdapter<MESSAGE> adapter, boolean reverseLayout) {
+    void setAdapter(MessagesListAdapter adapter, boolean reverseLayout) {
         SimpleItemAnimator itemAnimator = new DefaultItemAnimator();
         itemAnimator.setSupportsChangeAnimations(false);
 
@@ -84,8 +107,7 @@ public class MessagesList extends RecyclerView {
 
         setItemAnimator(itemAnimator);
         setLayoutManager(layoutManager);
-        adapter.setLayoutManager(layoutManager);
-        adapter.setStyle(messagesListStyle);
+        adapter.setMessagesListStyle(messagesListStyle);
         recyclerScrollMoreListener = new RecyclerScrollMoreListener(layoutManager, adapter);
         addOnScrollListener(recyclerScrollMoreListener);
         super.setAdapter(adapter);

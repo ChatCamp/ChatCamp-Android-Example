@@ -1,8 +1,68 @@
 package com.stfalcon.chatkit.messages.messagetypes;
 
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+
+import com.stfalcon.chatkit.messages.MessageStyle;
+import com.stfalcon.chatkit.messages.MessagesListStyle;
+
+import io.chatcamp.sdk.Message;
+
 /**
  * Created by shubhamdhabhai on 21/04/18.
  */
 
-public class MessageFactory {
+public abstract class MessageFactory<T extends MessageFactory.MessageHolder> {
+
+    protected Message message;
+
+    protected MessageSpecs messageSpecs;
+
+    protected MessagesListStyle messageStyle;
+
+    public abstract boolean isBindable(Message message);
+
+    public abstract T createMessageHolder(ViewGroup cellView, boolean isMe, LayoutInflater layoutInflater);
+
+    public abstract void bindMessageHolder(T messageHolder, Message message);
+
+    public void setMessageSpecs(MessageSpecs messageStyle) {
+        this.messageSpecs = messageStyle;
+        if(messageStyle != null) {
+            manipulateMessageStyle();
+            messageSpecs.messageStyle = this.messageStyle;
+        }
+    }
+
+    public void setMessageStyle(MessagesListStyle messageStyle) {
+        this.messageStyle = messageStyle;
+        if(messageSpecs != null) {
+            manipulateMessageStyle();
+            messageSpecs.messageStyle = messageStyle;
+        }
+
+    }
+
+    public void manipulateMessageStyle() {
+
+    }
+
+    public static abstract class MessageHolder {
+        private Message message;
+
+        public MessageHolder setMessage(Message message) {
+            this.message  = message;
+            return this;
+        }
+
+        public Message getMessage() {
+            return message;
+        }
+    }
+
+    public static class MessageSpecs {
+        public boolean isMe;
+        public int position;
+        public MessagesListStyle messageStyle;
+    }
 }

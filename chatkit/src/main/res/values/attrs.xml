@@ -63,6 +63,9 @@
         <attr name="incomingAvatarWidth" format="dimension|reference"/>
         <attr name="incomingAvatarHeight" format="dimension|reference"/>
 
+        <attr name="outcomingAvatarWidth" format="dimension|reference"/>
+        <attr name="outcomingAvatarHeight" format="dimension|reference"/>
+
         <attr name="incomingBubbleDrawable" format="reference"/>
         <attr name="incomingDefaultBubbleColor" format="color|reference"/>
         <attr name="incomingDefaultBubblePressedColor" format="color|reference"/>

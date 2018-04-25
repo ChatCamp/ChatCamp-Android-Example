@@ -20,6 +20,7 @@ import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.messages.ConversationViewHelper;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
+import com.stfalcon.chatkit.messages.messagetypes.TextMessageFactory;
 import com.stfalcon.chatkit.messages.sender.AttachmentSender;
 import com.stfalcon.chatkit.messages.sender.CameraAttachmentSender;
 import com.stfalcon.chatkit.messages.sender.FileAttachmentSender;
@@ -29,13 +30,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
+import io.chatcamp.sdk.GroupChannelListQuery;
+import io.chatcamp.sdk.OpenChannel;
 import io.chatcamp.sdk.Participant;
+import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 import static io.chatcamp.app.GroupDetailActivity.KEY_GROUP_ID;
 
-public class ConversationActivity extends AppCompatActivity implements ConversationViewHelper.OnGetChannelListener {
+public class ConversationActivity extends AppCompatActivity {
 
     private MessagesList mMessagesList;
     private String channelType;
@@ -47,6 +52,8 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
     private Toolbar toolbar;
     private Participant otherParticipant = null;
     private ConversationViewHelper helper;
+    private PreviousMessageListQuery previousMessageListQuery;
+    private BaseChannel channel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,21 +74,66 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
         channelType = getIntent().getStringExtra("channelType");
         channelId = getIntent().getStringExtra("channelId");
-        helper = new ConversationViewHelper(this, mMessagesList, input, progressBar,
-                channelType, channelId, LocalStorage.getInstance().getUserId());
-        helper.init();
-        helper.setOnGetChannelListener(this);
+//        helper = new ConversationViewHelper(this, mMessagesList, input, progressBar,
+//                channelType, channelId, LocalStorage.getInstance().getUserId());
+//        helper.init();
+//        helper.setOnGetChannelListener(this);
+        if (channelType.equals("open")) {
+            OpenChannel.get(channelId, new OpenChannel.GetListener() {
+                @Override
+                public void onResult(OpenChannel openChannel, ChatCampException e) {
+                    final OpenChannel o = openChannel;
+                    getChannel(o);
+//                    getSupportActionBar().setTitle(o.getName());
+                    openChannel.join(new OpenChannel.JoinListener() {
+                        @Override
+                        public void onResult(ChatCampException e) {
+                            previousMessageListQuery = o.createPreviousMessageListQuery();
+                            channel = o;
+                        }
+                    });
+
+                }
+            });
+
+        } else {
+            //TODO check the participant state - INVITED, ALL,  ACCEPTED
+            final GroupChannelListQuery.ParticipantState groupFilter = GroupChannelListQuery.ParticipantState.ACCEPTED;//GroupChannelListQuery.ParticipantState.valueOf(getIntent().getStringExtra("participantState"));
+            GroupChannel.get(channelId, new GroupChannel.GetListener() {
+                @Override
+                public void onResult(final GroupChannel groupChannel, ChatCampException e) {
+                    getChannel(groupChannel);
+//                    groupChannel.sync(new GroupChannel.SyncListener() {
+//                        @Override
+//                        public void onResult(ChatCampException e) {
+//
+//                        }
+//                    });
+                    if (groupFilter == GroupChannelListQuery.ParticipantState.INVITED) {
+                        groupChannel.acceptInvitation(new GroupChannel.AcceptInvitationListener() {
+                            @Override
+                            public void onResult(GroupChannel groupChannel, ChatCampException e) {
+                                channel = groupChannel;
+                            }
+                        });
+                    } else {
+                        channel = groupChannel;
+                    }
+
+                }
+            });
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        helper.onResume();
+//        helper.onResume();
     }
 
     @Override
     protected void onPause() {
-        helper.onPause();
+//        helper.onPause();
         super.onPause();
     }
 
@@ -136,9 +188,12 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
         input.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    @Override
     public void getChannel(BaseChannel channel) {
         input.setChannel(channel);
+        mMessagesList.init();
+        mMessagesList.setSenderId(LocalStorage.getInstance().getUserId());
+        mMessagesList.addMessageFactories(new TextMessageFactory());
+        mMessagesList.setChannel(channel);
         FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "FILE", R.drawable.ic_document);
         GalleryAttachmentSender galleryAttachmentSender = new GalleryAttachmentSender(this, channel, "Gallery", R.drawable.ic_gallery);
         CameraAttachmentSender cameraAttachmentSender = new CameraAttachmentSender(this, channel, "Camera", R.drawable.ic_camera);
@@ -146,10 +201,6 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
         attachmentSenders.add(fileAttachmentSender);
         attachmentSenders.add(cameraAttachmentSender);
         attachmentSenders.add(galleryAttachmentSender);
-//        attachmentSenders.add(galleryAttachmentSender);
-//        attachmentSenders.add(galleryAttachmentSender);
-//        attachmentSenders.add(galleryAttachmentSender);
-//        attachmentSenders.add(galleryAttachmentSender);
 
         input.setAttachmentSenderList(attachmentSenders);
         boolean isOneToOneConversation = false;
@@ -159,6 +210,8 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
                 isOneToOneConversation = true;
             }
         }
+
+
         if (isOneToOneConversation) {
             List<Participant> participants = ((GroupChannel) channel).getParticipants();
             for (Participant participant : participants) {
@@ -204,7 +257,7 @@ public class ConversationActivity extends AppCompatActivity implements Conversat
 
     @Override
     protected void onDestroy() {
-        helper.onDestroy();
+//        helper.onDestroy();
         super.onDestroy();
     }
 }

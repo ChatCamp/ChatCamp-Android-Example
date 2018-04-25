@@ -76,7 +76,7 @@ import static com.stfalcon.chatkit.messages.ConversationMessage.TYPING_TEXT_ID;
  * Created by shubhamdhabhai on 16/04/18.
  */
 
-public class ConversationViewHelper implements MessagesListAdapter.OnLoadMoreListener {
+public class ConversationViewHelper{ /*implements MessagesListAdapter.OnLoadMoreListener {
     public static final String GROUP_CONNECTION_LISTENER = "group_channel_connection";
     public static final String CHANNEL_LISTENER = "group_channel_listener";
     private static final int PICK_MEDIA_RESULT_CODE = 111;
@@ -666,9 +666,9 @@ public class ConversationViewHelper implements MessagesListAdapter.OnLoadMoreLis
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,
+                ".jpg",
+                storageDir
         );
 
         // Save a file: path for use with ACTION_VIEW intents
@@ -780,5 +780,5 @@ public class ConversationViewHelper implements MessagesListAdapter.OnLoadMoreLis
 
     private void removeChannelListener() {
         ChatCamp.removeChannelListener(CHANNEL_LISTENER);
-    }
+    }*/
 }

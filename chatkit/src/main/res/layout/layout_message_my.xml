@@ -59,13 +59,15 @@
                 <FrameLayout
                     android:id="@+id/messageContentContainer"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"/>
 
                 <LinearLayout
                     android:id="@+id/messageTimeContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:layout_gravity="end">
 
                     <TextView
                         android:id="@+id/messageTime"
