@@ -648,7 +648,7 @@ public class MessageHolders {
         public void onBind(MESSAGE message) {
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
-            if (actionMessage != null) {
+            if (actionMessage != null && actionImage != null) {
                 usernameTv.setText(message.getUser().getName());
                 imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
                 actionTitle.setText(actionMessage.getName());
@@ -697,7 +697,7 @@ public class MessageHolders {
         public void onBind(MESSAGE message) {
             super.onBind(message);
             final IActionMessage actionMessage = message.getActionMessage();
-            if (actionMessage != null) {
+            if (actionMessage != null && actionImage != null) {
                 usernameTv.setText(message.getUser().getName());
                 imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
                 actionTitle.setText(actionMessage.getName());
@@ -716,7 +716,8 @@ public class MessageHolders {
                             onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
                         }
                     }
-                });            }
+                });
+            }
         }
     }
 
