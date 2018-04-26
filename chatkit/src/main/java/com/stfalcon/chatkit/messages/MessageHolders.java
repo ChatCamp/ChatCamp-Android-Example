@@ -623,8 +623,105 @@ public class MessageHolders {
         }
     }
 
+    public static class ChatCampOutcomingActionMessageViewHolder<MESSAGE extends IMessage>
+            extends OutcomingTextMessageViewHolder<MESSAGE> {
+        private final TextView actionTitle;
+        private final TextView actionCode;
+        private final TextView actionDescription;
+        private final TextView actionShippingCost;
+        private final ImageView actionImage;
+        private final TextView actionText;
+        private final TextView usernameTv;
+
+        public ChatCampOutcomingActionMessageViewHolder(View itemView) {
+            super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
+            actionImage = itemView.findViewById(R.id.iv_action_image);
+            actionText = itemView.findViewById(R.id.messageText);
+            actionTitle = itemView.findViewById(R.id.tv_action_title);
+            actionCode = itemView.findViewById(R.id.tv_action_code);
+            actionDescription = itemView.findViewById(R.id.tv_action_description);
+            actionShippingCost = itemView.findViewById(R.id.tv_action_shipping_cost);
+        }
+
+        @Override
+        public void onBind(MESSAGE message) {
+            super.onBind(message);
+            final IActionMessage actionMessage = message.getActionMessage();
+            if (actionMessage != null) {
+                usernameTv.setText(message.getUser().getName());
+                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
+                actionTitle.setText(actionMessage.getName());
+                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
+                actionDescription.setText(actionMessage.getShortDescription());
+                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
+                if (TextUtils.isEmpty(message.getText())) {
+                    actionText.setVisibility(View.GONE);
+                } else {
+                    actionText.setText(message.getText());
+                }
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(onActionItemClickedListener != null) {
+                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
+                        }
+                    }
+                });
+            }
+        }
+    }
 
     public static class ChatCampIncomingActionMessageViewHolder<MESSAGE extends IMessage>
+            extends IncomingTextMessageViewHolder<MESSAGE> {
+        private final TextView actionTitle;
+        private final TextView actionCode;
+        private final TextView actionDescription;
+        private final TextView actionShippingCost;
+        private final ImageView actionImage;
+        private final TextView actionText;
+        private final TextView usernameTv;
+
+        public ChatCampIncomingActionMessageViewHolder(View itemView) {
+            super(itemView);
+            usernameTv = itemView.findViewById(R.id.tv_username);
+            actionImage = itemView.findViewById(R.id.iv_action_image);
+            actionText = itemView.findViewById(R.id.messageText);
+            actionTitle = itemView.findViewById(R.id.tv_action_title);
+            actionCode = itemView.findViewById(R.id.tv_action_code);
+            actionDescription = itemView.findViewById(R.id.tv_action_description);
+            actionShippingCost = itemView.findViewById(R.id.tv_action_shipping_cost);
+        }
+
+        @Override
+        public void onBind(MESSAGE message) {
+            super.onBind(message);
+            final IActionMessage actionMessage = message.getActionMessage();
+            if (actionMessage != null) {
+                usernameTv.setText(message.getUser().getName());
+                imageLoader.loadImageWithPlaceholder(actionImage, actionMessage.getImageURL());
+                actionTitle.setText(actionMessage.getName());
+                actionCode.setText(String.format("Code: %s", actionMessage.getCode()));
+                actionDescription.setText(actionMessage.getShortDescription());
+                actionShippingCost.setText(String.format("₹ %d shipping cost", actionMessage.getShippingCost()));
+                if (TextUtils.isEmpty(message.getText())) {
+                    actionText.setVisibility(View.GONE);
+                } else {
+                    actionText.setText(message.getText());
+                }
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(onActionItemClickedListener != null) {
+                            onActionItemClickedListener.onActionItemClicked(actionMessage.getImageURL());
+                        }
+                    }
+                });            }
+        }
+    }
+
+
+  /*  public static class ChatCampIncomingActionMessageViewHolder<MESSAGE extends IMessage>
             extends IncomingTextMessageViewHolder<MESSAGE> {
         private final TextView usernameTv;
         private final RecyclerView recyclerView;
@@ -1111,7 +1208,7 @@ public class MessageHolders {
                 }
             }
         }
-    }
+    }*/
 
     public static class ChatCampIncomingTextMessageViewHolder<MESSAGE extends IMessage>
             extends MessageHolders.IncomingTextMessageViewHolder<MESSAGE> {
