@@ -26,6 +26,7 @@ import android.util.AttributeSet;
 
 import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
+import com.stfalcon.chatkit.messages.typing.TypingFactory;
 
 import io.chatcamp.sdk.BaseChannel;
 
@@ -59,6 +60,10 @@ public class MessagesList extends RecyclerView {
 
     public void addMessageFactories(MessageFactory... messageFactories) {
         adapter.addMessageFactories(messageFactories);
+    }
+
+    public void setTypingFactory(TypingFactory typingFactory) {
+        adapter.addTypingFactory(typingFactory);
     }
 
     public void setSenderId(String senderId) {

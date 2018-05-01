@@ -30,7 +30,7 @@ public abstract class MessageFactory<T extends MessageFactory.MessageHolder> {
         this.messageSpecs = messageStyle;
         if(messageStyle != null) {
             manipulateMessageStyle();
-            messageSpecs.messageStyle = this.messageStyle;
+//            messageSpecs.messageStyle = this.messageStyle;
         }
     }
 
@@ -38,7 +38,7 @@ public abstract class MessageFactory<T extends MessageFactory.MessageHolder> {
         this.messageStyle = messageStyle;
         if(messageSpecs != null) {
             manipulateMessageStyle();
-            messageSpecs.messageStyle = messageStyle;
+//            messageSpecs.messageStyle = messageStyle;
         }
 
     }
@@ -48,21 +48,21 @@ public abstract class MessageFactory<T extends MessageFactory.MessageHolder> {
     }
 
     public static abstract class MessageHolder {
-        private Message message;
-
-        public MessageHolder setMessage(Message message) {
-            this.message  = message;
-            return this;
-        }
-
-        public Message getMessage() {
-            return message;
-        }
+//        private Message message;
+//
+//        public MessageHolder setMessage(Message message) {
+//            this.message  = message;
+//            return this;
+//        }
+//
+//        public Message getMessage() {
+//            return message;
+//        }
     }
 
     public static class MessageSpecs {
         public boolean isMe;
         public int position;
-        public MessagesListStyle messageStyle;
+//        public MessagesListStyle messageStyle;
     }
 }

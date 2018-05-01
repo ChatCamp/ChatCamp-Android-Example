@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
+import com.stfalcon.chatkit.messages.typing.TypingFactory;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.Message;
 import io.chatcamp.sdk.OpenChannel;
+import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 
 /**
@@ -74,7 +76,8 @@ public class MessagesListAdapter
 
     private Map<String, Cluster> messageIdClusterMap = new HashMap<>();
 
-    private View footerView;
+    private boolean isTyping;
+    private List<Participant> typingParticipantList;
     private int footerPosition = 0;
 
     private BaseChannel channel;
@@ -82,9 +85,12 @@ public class MessagesListAdapter
     private long lastReadTime;
     private Handler mUiThreadHandler;
 
+    private TypingFactory typingFactory;
+
     public MessagesListAdapter() {
         items = new ArrayList<>();
         mUiThreadHandler = new Handler(Looper.getMainLooper());
+        typingParticipantList = new ArrayList<>();
     }
 
 
@@ -104,6 +110,10 @@ public class MessagesListAdapter
             viewTypeMessageTypeMap.put(totalViewTypes, theirMessageType);
             factoryTheirViewTypeMap.put(messageFactory, totalViewTypes);
         }
+    }
+
+    public void addTypingFactory(TypingFactory typingFactory) {
+        this.typingFactory = typingFactory;
     }
 
     public void setMessagesListStyle(MessagesListStyle messagesListStyle) {
@@ -151,7 +161,18 @@ public class MessagesListAdapter
 
             @Override
             public void onGroupChannelTypingStatusChanged(GroupChannel groupChannel) {
-
+                List<Participant> typingParticipants = groupChannel.getTypingParticipants();
+                if (typingParticipants.size() > 0) {
+                    isTyping = true;
+                    typingParticipantList = typingParticipants;
+//                    notifyItemInserted(0);
+                    notifyDataSetChanged();
+                } else {
+                    isTyping = false;
+                    typingParticipants.clear();
+//                    notifyItemRemoved(0);
+                    notifyDataSetChanged();
+                }
             }
 
             @Override
@@ -170,6 +191,7 @@ public class MessagesListAdapter
                         }
                     }
                     lastReadTime = lastRead * 1000;
+                    //TODO need to optimise this
                     notifyDataSetChanged();
                 }
             }
@@ -188,7 +210,11 @@ public class MessagesListAdapter
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_FOOTER) {
-            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(ViewHolder.RESOURCE_ID_FOOTER, parent, false));
+            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+            TypingViewHolder typingViewHolder = new TypingViewHolder(layoutInflater.inflate(TypingViewHolder.RESOURCE_ID_FOOTER, parent, false));
+            typingViewHolder.typingHolder = typingFactory.createView(typingViewHolder.vgContainer, layoutInflater);
+            return typingViewHolder;
+//            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(ViewHolder.RESOURCE_ID_FOOTER, parent, false));
         }
         MessageType messageType = viewTypeMessageTypeMap.get(viewType);
         int resId = messageType.isMe ? MessageViewHolder.RESOURCE_ID_MY : MessageViewHolder.RESOURCE_ID_THEIR;
@@ -203,12 +229,15 @@ public class MessagesListAdapter
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        if (footerView != null && position == footerPosition) {
-            holder.vgContainer.removeAllViews();
-            holder.vgContainer.addView(footerView);
+        if (isTyping && position == footerPosition) {
+            bindTypingViewHolder((TypingViewHolder) holder, position);
         } else {
             bindMessageViewHolder((MessageViewHolder) holder, position);
         }
+    }
+
+    private void bindTypingViewHolder(TypingViewHolder typingViewHolder, int position) {
+        typingFactory.bindView(typingViewHolder.typingHolder, typingParticipantList);
     }
 
     private void bindMessageViewHolder(MessageViewHolder holder, int position) {
@@ -255,12 +284,8 @@ public class MessagesListAdapter
                 holder.messageUsername.setVisibility(View.VISIBLE);
             }
         }
-        // check read status
-        {
-
-        }
         MessageFactory.MessageHolder messageHolder = holder.messageHolder;
-        messageHolder.setMessage(message);
+//        messageHolder.setMessage(message);
         holder.messageSpecs.isMe = messageType.isMe;
         holder.messageSpecs.position = position;
         messageType.messageFactory.bindMessageHolder(messageHolder, message);
@@ -285,7 +310,7 @@ public class MessagesListAdapter
 
     @Override
     public int getItemCount() {
-        return footerView == null ? items.size() : items.size() + 1;
+        return isTyping ? items.size() + 1 : items.size();
     }
 
     @Override
@@ -294,13 +319,14 @@ public class MessagesListAdapter
     }
 
     private Message getItem(int position) {
-        if (footerView != null && position == footerPosition) return null;
+        if (isTyping && position == footerPosition) return null;
         return items.get(position);
     }
 
+
     @Override
     public int getItemViewType(int position) {
-        if (footerView != null && position == footerPosition) {
+        if (isTyping && position == footerPosition) {
             return VIEW_TYPE_FOOTER;
         }
         Message message = items.get(position);
@@ -432,6 +458,15 @@ public class MessagesListAdapter
         public ViewHolder(View itemView) {
             super(itemView);
             vgContainer = itemView.findViewById(R.id.messageContentContainer);
+        }
+    }
+
+    public static class TypingViewHolder extends ViewHolder {
+
+        protected TypingFactory.TypingHolder typingHolder;
+
+        public TypingViewHolder(View itemView) {
+            super(itemView);
         }
     }
 

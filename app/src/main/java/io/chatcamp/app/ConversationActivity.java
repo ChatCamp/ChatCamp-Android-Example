@@ -25,6 +25,7 @@ import com.stfalcon.chatkit.messages.sender.AttachmentSender;
 import com.stfalcon.chatkit.messages.sender.CameraAttachmentSender;
 import com.stfalcon.chatkit.messages.sender.FileAttachmentSender;
 import com.stfalcon.chatkit.messages.sender.GalleryAttachmentSender;
+import com.stfalcon.chatkit.messages.typing.DefaultTypingFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -194,6 +195,7 @@ public class ConversationActivity extends AppCompatActivity {
         mMessagesList.setSenderId(LocalStorage.getInstance().getUserId());
         mMessagesList.addMessageFactories(new TextMessageFactory());
         mMessagesList.setChannel(channel);
+        mMessagesList.setTypingFactory(new DefaultTypingFactory());
         FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "FILE", R.drawable.ic_document);
         GalleryAttachmentSender galleryAttachmentSender = new GalleryAttachmentSender(this, channel, "Gallery", R.drawable.ic_gallery);
         CameraAttachmentSender cameraAttachmentSender = new CameraAttachmentSender(this, channel, "Camera", R.drawable.ic_camera);
@@ -253,11 +255,5 @@ public class ConversationActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-//        helper.onDestroy();
-        super.onDestroy();
     }
 }

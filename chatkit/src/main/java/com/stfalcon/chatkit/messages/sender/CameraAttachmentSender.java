@@ -78,7 +78,7 @@ public class CameraAttachmentSender extends AttachmentSender {
             if (file == null) {
                 return;
             }
-            //TODO take care of this file privider
+            //TODO take care of this file provider
             Uri photoURI = FileProvider.getUriForFile(activity,
                     "io.chatcamp.app.fileprovider",
                     file);
