@@ -35,6 +35,7 @@ public class DefaultTypingFactory extends TypingFactory<DefaultTypingFactory.Def
         AVLoadingIndicatorView indicatorView;
 
         public DefaultTypingHolder(View view) {
+            //TODO add image of the user (in future we can combine the images like ( ( ( ) ...))
             indicatorView = view.findViewById(R.id.indication);
         }
     }

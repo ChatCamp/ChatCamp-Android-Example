@@ -155,24 +155,36 @@ public class MessagesListAdapter
                             ((GroupChannel) channel).markAsRead();
                         }
                     }
-                    notifyItemInserted(0);
+                    if(isTyping) {
+                        notifyItemInserted(1);
+                    } else {
+                        notifyItemInserted(0);
+                    }
                 }
             }
 
             @Override
             public void onGroupChannelTypingStatusChanged(GroupChannel groupChannel) {
+                //TODO use same method for open and group channel
                 List<Participant> typingParticipants = groupChannel.getTypingParticipants();
-                if (typingParticipants.size() > 0) {
+                boolean isTyping;
+                if (typingParticipants.size() > 0 && !isCurrentUserTyping(typingParticipants)) {
                     isTyping = true;
                     typingParticipantList = typingParticipants;
-//                    notifyItemInserted(0);
-                    notifyDataSetChanged();
                 } else {
                     isTyping = false;
-                    typingParticipants.clear();
-//                    notifyItemRemoved(0);
-                    notifyDataSetChanged();
+                    typingParticipantList.clear();
                 }
+                if(isTyping ^ MessagesListAdapter.this.isTyping) {
+                    if(isTyping) {
+                        notifyItemInserted(footerPosition + 1);
+                    } else {
+                        notifyItemRemoved(footerPosition + 1);
+                    }
+                } else {
+                    notifyItemChanged(footerPosition + 1);
+                }
+                MessagesListAdapter.this.isTyping = isTyping;
             }
 
             @Override
@@ -215,33 +227,40 @@ public class MessagesListAdapter
             typingViewHolder.typingHolder = typingFactory.createView(typingViewHolder.vgContainer, layoutInflater);
             return typingViewHolder;
 //            return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(ViewHolder.RESOURCE_ID_FOOTER, parent, false));
+        } else {
+            MessageType messageType = viewTypeMessageTypeMap.get(viewType);
+            int resId = messageType.isMe ? MessageViewHolder.RESOURCE_ID_MY : MessageViewHolder.RESOURCE_ID_THEIR;
+            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+            MessageViewHolder viewHolder = new MessageViewHolder(layoutInflater.inflate(resId, parent, false));
+            MessageFactory.MessageSpecs messageSpecs = new MessageFactory.MessageSpecs();
+            messageType.messageFactory.setMessageSpecs(messageSpecs);
+            viewHolder.messageHolder = messageType.messageFactory.createMessageHolder(viewHolder.messageContentContainer, messageType.isMe, layoutInflater);
+            viewHolder.messageSpecs = messageSpecs;
+            return viewHolder;
         }
-        MessageType messageType = viewTypeMessageTypeMap.get(viewType);
-        int resId = messageType.isMe ? MessageViewHolder.RESOURCE_ID_MY : MessageViewHolder.RESOURCE_ID_THEIR;
-        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        MessageViewHolder viewHolder = new MessageViewHolder(layoutInflater.inflate(resId, parent, false));
-        MessageFactory.MessageSpecs messageSpecs = new MessageFactory.MessageSpecs();
-        messageType.messageFactory.setMessageSpecs(messageSpecs);
-        viewHolder.messageHolder = messageType.messageFactory.createMessageHolder(viewHolder.messageContentContainer, messageType.isMe, layoutInflater);
-        viewHolder.messageSpecs = messageSpecs;
-        return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (isTyping && position == footerPosition) {
-            bindTypingViewHolder((TypingViewHolder) holder, position);
+            if(holder instanceof TypingViewHolder) {
+                bindTypingViewHolder((TypingViewHolder) holder);
+            }
         } else {
-            bindMessageViewHolder((MessageViewHolder) holder, position);
+            if(holder instanceof MessageViewHolder) {
+                bindMessageViewHolder((MessageViewHolder) holder, position);
+            }
         }
     }
 
-    private void bindTypingViewHolder(TypingViewHolder typingViewHolder, int position) {
-        typingFactory.bindView(typingViewHolder.typingHolder, typingParticipantList);
+    private void bindTypingViewHolder(TypingViewHolder typingViewHolder) {
+        if(typingFactory != null) {
+            typingFactory.bindView(typingViewHolder.typingHolder, typingParticipantList);
+        }
     }
 
     private void bindMessageViewHolder(MessageViewHolder holder, int position) {
-        Message message = items.get(position);
+        Message message = getItem(position);
         holder.message = message;
         MessageType messageType = viewTypeMessageTypeMap.get(holder.getItemViewType());
         //TODO Get image reaource from style and also add in style to show or not the read receipt for both me and their
@@ -319,7 +338,11 @@ public class MessagesListAdapter
     }
 
     private Message getItem(int position) {
-        if (isTyping && position == footerPosition) return null;
+        if (isTyping && position == footerPosition) {
+            return null;
+        } else if(isTyping) {
+            return items.get(position - 1);
+        }
         return items.get(position);
     }
 
@@ -329,7 +352,7 @@ public class MessagesListAdapter
         if (isTyping && position == footerPosition) {
             return VIEW_TYPE_FOOTER;
         }
-        Message message = items.get(position);
+        Message message = getItem(position);
         //TODO get this sender id from sdk
         boolean isMe = message.getUser().getId().equals(senderId);
         for (MessageFactory messageFactory : messageFactories) {
@@ -426,8 +449,11 @@ public class MessagesListAdapter
         if (!older.getUser().getId().equals(newer.getUser().getId())) {
             return true;
         }
-
         return false;
+    }
+
+    private boolean isCurrentUserTyping(List<Participant> participants) {
+        return (participants.size() == 1 && participants.get(0).getId().equals(senderId));
     }
 
     private static class MessageType {
