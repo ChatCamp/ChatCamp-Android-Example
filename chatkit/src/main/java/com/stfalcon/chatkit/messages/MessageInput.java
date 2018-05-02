@@ -47,6 +47,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.GroupChannel;
 
 /**
  * Component for input outcoming messages
@@ -177,6 +178,15 @@ public class MessageInput extends RelativeLayout
     @Override
     public void afterTextChanged(Editable editable) {
         //do nothing
+        //TODO Do we need typing indicator for Openchannel also
+        if(channel instanceof GroupChannel) {
+            String message = editable.toString().trim();
+            if(message.length() > 0) {
+                ((GroupChannel) channel).startTyping();
+            } else {
+                ((GroupChannel) channel).stopTyping();
+            }
+        }
     }
 
 

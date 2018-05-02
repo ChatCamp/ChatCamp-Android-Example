@@ -62,10 +62,7 @@ public class MessagesListAdapter
     private String senderId;
     private List<Message> items;
 
-
-    private RecyclerScrollMoreListener.OnLoadMoreListener loadMoreListener;
     private ImageLoader imageLoader;
-    private RecyclerView.LayoutManager layoutManager;
     private MessagesListStyle messagesListStyle;
 
     private List<MessageFactory> messageFactories = new ArrayList<>();
@@ -89,6 +86,8 @@ public class MessagesListAdapter
     private TypingFactory typingFactory;
 
     private RecyclerView recyclerView;
+
+    PreviousMessageListQuery previousMessageListQuery;
 
     public MessagesListAdapter() {
         items = new ArrayList<>();
@@ -131,7 +130,16 @@ public class MessagesListAdapter
     public void setChannel(final BaseChannel channel) {
         this.channel = channel;
         //TODO get the number of message from client
-        channel.createPreviousMessageListQuery().load(30, true, new PreviousMessageListQuery.ResultListener() {
+       loadMessages();
+        addChannelListener();
+    }
+
+    //TODO We can create a layout for showing loading indicator for pagination.
+    private void loadMessages() {
+        if(previousMessageListQuery == null) {
+            previousMessageListQuery = channel.createPreviousMessageListQuery();
+        }
+        previousMessageListQuery.load(20, true, new PreviousMessageListQuery.ResultListener() {
             @Override
             public void onResult(List<Message> list, ChatCampException e) {
                 items.addAll(list);
@@ -143,7 +151,6 @@ public class MessagesListAdapter
                 notifyDataSetChanged();
             }
         });
-        addChannelListener();
     }
 
     private void addChannelListener() {
@@ -344,7 +351,7 @@ public class MessagesListAdapter
 
     @Override
     public void onLoadMore(int page, int total) {
-
+        loadMessages();
     }
 
     private Message getItem(int position) {
@@ -466,6 +473,15 @@ public class MessagesListAdapter
         return (participants.size() == 1 && participants.get(0).getId().equals(senderId));
     }
 
+    //TODO This function is a workaround for scrolling the list when item is inserted at the bottom, there
+    // is a bug that list doesnot scroll when as item is inserted at position 0. We can change the implementation
+    // and reverse the layout, right now the implementation is
+    // 5                           0
+    // 4                           1
+    // 3    it can be changed to   2
+    // 2                           3
+    // 1                           4
+    // 0                           5
     private void restoreScrollPositionAfterAdAdded() {
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         if (layoutManager != null) {

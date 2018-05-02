@@ -88,9 +88,8 @@ public class MessagesList extends RecyclerView {
      * Sets adapter for MessagesList
      *
      * @param adapter   Adapter. Must extend MessagesListAdapter
-     * @param <MESSAGE> Message model class
      */
-    public <MESSAGE extends IMessage>
+    public
     void setAdapter(MessagesListAdapter adapter) {
         setAdapter(adapter, true);
     }
@@ -100,9 +99,8 @@ public class MessagesList extends RecyclerView {
      *
      * @param adapter       Adapter. Must extend MessagesListAdapter
      * @param reverseLayout weather to use reverse layout for layout manager.
-     * @param <MESSAGE>     Message model class
      */
-    public <MESSAGE extends IMessage>
+    public
     void setAdapter(MessagesListAdapter adapter, boolean reverseLayout) {
         SimpleItemAnimator itemAnimator = new DefaultItemAnimator();
         itemAnimator.setSupportsChangeAnimations(false);
