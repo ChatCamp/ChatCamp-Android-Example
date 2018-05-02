@@ -156,7 +156,7 @@ public class MessagesListAdapter
                         }
                     }
                     if(isTyping) {
-                        notifyItemInserted(1);
+                        notifyItemInserted(0);
                     } else {
                         notifyItemInserted(0);
                     }
@@ -177,12 +177,12 @@ public class MessagesListAdapter
                 }
                 if(isTyping ^ MessagesListAdapter.this.isTyping) {
                     if(isTyping) {
-                        notifyItemInserted(footerPosition + 1);
+                        notifyItemInserted(footerPosition );
                     } else {
-                        notifyItemRemoved(footerPosition + 1);
+                        notifyItemRemoved(footerPosition );
                     }
                 } else {
-                    notifyItemChanged(footerPosition + 1);
+                    notifyItemChanged(footerPosition);
                 }
                 MessagesListAdapter.this.isTyping = isTyping;
             }
