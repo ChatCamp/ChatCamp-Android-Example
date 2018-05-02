@@ -18,6 +18,7 @@ package com.stfalcon.chatkit.messages;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -87,12 +88,19 @@ public class MessagesListAdapter
 
     private TypingFactory typingFactory;
 
+    private RecyclerView recyclerView;
+
     public MessagesListAdapter() {
         items = new ArrayList<>();
         mUiThreadHandler = new Handler(Looper.getMainLooper());
         typingParticipantList = new ArrayList<>();
     }
 
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+        super.onAttachedToRecyclerView(recyclerView);
+    }
 
     public void addMessageFactories(MessageFactory... messageFactories) {
         for (MessageFactory messageFactory : messageFactories) {
@@ -156,10 +164,11 @@ public class MessagesListAdapter
                         }
                     }
                     if(isTyping) {
-                        notifyItemInserted(0);
+                        notifyItemInserted(1);
                     } else {
                         notifyItemInserted(0);
                     }
+                    restoreScrollPositionAfterAdAdded();
                 }
             }
 
@@ -175,16 +184,17 @@ public class MessagesListAdapter
                     isTyping = false;
                     typingParticipantList.clear();
                 }
-                if(isTyping ^ MessagesListAdapter.this.isTyping) {
-                    if(isTyping) {
-                        notifyItemInserted(footerPosition );
+                if (isTyping ^ MessagesListAdapter.this.isTyping) {
+                    if (isTyping) {
+                        notifyItemInserted(footerPosition);
                     } else {
-                        notifyItemRemoved(footerPosition );
+                        notifyItemRemoved(footerPosition);
                     }
                 } else {
                     notifyItemChanged(footerPosition);
                 }
                 MessagesListAdapter.this.isTyping = isTyping;
+                restoreScrollPositionAfterAdAdded();
             }
 
             @Override
@@ -243,18 +253,18 @@ public class MessagesListAdapter
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (isTyping && position == footerPosition) {
-            if(holder instanceof TypingViewHolder) {
+            if (holder instanceof TypingViewHolder) {
                 bindTypingViewHolder((TypingViewHolder) holder);
             }
         } else {
-            if(holder instanceof MessageViewHolder) {
+            if (holder instanceof MessageViewHolder) {
                 bindMessageViewHolder((MessageViewHolder) holder, position);
             }
         }
     }
 
     private void bindTypingViewHolder(TypingViewHolder typingViewHolder) {
-        if(typingFactory != null) {
+        if (typingFactory != null) {
             typingFactory.bindView(typingViewHolder.typingHolder, typingParticipantList);
         }
     }
@@ -340,7 +350,7 @@ public class MessagesListAdapter
     private Message getItem(int position) {
         if (isTyping && position == footerPosition) {
             return null;
-        } else if(isTyping) {
+        } else if (isTyping) {
             return items.get(position - 1);
         }
         return items.get(position);
@@ -454,6 +464,17 @@ public class MessagesListAdapter
 
     private boolean isCurrentUserTyping(List<Participant> participants) {
         return (participants.size() == 1 && participants.get(0).getId().equals(senderId));
+    }
+
+    private void restoreScrollPositionAfterAdAdded() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        if (layoutManager != null) {
+            int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+
+            if (firstVisibleItemPosition == 0){
+                layoutManager.scrollToPosition(0);
+            }
+        }
     }
 
     private static class MessageType {
