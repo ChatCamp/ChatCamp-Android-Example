@@ -81,7 +81,7 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
         sqliteDatabase.insert(ChatCampDatabaseContract.MessageEntry.TABLE_NAME, null, values);
     }
 
-    public List<ConversationMessage> getMessages(String channelId, BaseChannel.ChannelType channelType) {
+    public List<Message> getMessages(String channelId, BaseChannel.ChannelType channelType) {
         SQLiteDatabase db = this.getReadableDatabase();
 
 // Define a projection that specifies which columns from the database
@@ -106,14 +106,13 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
                 sortOrder               // The sort order
         );
 
-        List<ConversationMessage> conversationMessages = new ArrayList<>();
+        List<Message> messages = new ArrayList<>();
         while (cursor.moveToNext()) {
             String message = cursor.getString(
                     cursor.getColumnIndexOrThrow(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE));
-            ConversationMessage conversationMessage = new ConversationMessage(Message.createfromSerializedData(message));
-            conversationMessages.add(conversationMessage);
+            messages.add(Message.createfromSerializedData(message));
         }
         cursor.close();
-        return conversationMessages;
+        return messages;
     }
 }

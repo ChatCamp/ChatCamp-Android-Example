@@ -54,7 +54,7 @@ public class MessagesList extends RecyclerView {
     }
 
     public void init() {
-        adapter = new MessagesListAdapter();
+        adapter = new MessagesListAdapter(getContext());
         setAdapter(adapter);
     }
 

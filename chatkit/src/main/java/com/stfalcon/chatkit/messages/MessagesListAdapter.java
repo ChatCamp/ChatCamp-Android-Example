@@ -16,6 +16,7 @@
 
 package com.stfalcon.chatkit.messages;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
+import com.stfalcon.chatkit.messages.database.ChatCampDatabaseHelper;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
 import com.stfalcon.chatkit.messages.typing.TypingFactory;
 import com.stfalcon.chatkit.utils.DateFormatter;
@@ -88,11 +90,13 @@ public class MessagesListAdapter
     private RecyclerView recyclerView;
 
     PreviousMessageListQuery previousMessageListQuery;
+    private ChatCampDatabaseHelper databaseHelper;
 
-    public MessagesListAdapter() {
+    public MessagesListAdapter(Context context) {
         items = new ArrayList<>();
         mUiThreadHandler = new Handler(Looper.getMainLooper());
         typingParticipantList = new ArrayList<>();
+        databaseHelper = new ChatCampDatabaseHelper(context);
     }
 
     @Override
@@ -130,14 +134,17 @@ public class MessagesListAdapter
     public void setChannel(final BaseChannel channel) {
         this.channel = channel;
         //TODO get the number of message from client
-       loadMessages();
+        loadMessages();
         addChannelListener();
     }
 
     //TODO We can create a layout for showing loading indicator for pagination.
     private void loadMessages() {
-        if(previousMessageListQuery == null) {
+        if (previousMessageListQuery == null) {
+            items = databaseHelper.getMessages(channel.getId(), channel.isGroupChannel()
+                    ? BaseChannel.ChannelType.GROUP : BaseChannel.ChannelType.OPEN);
             previousMessageListQuery = channel.createPreviousMessageListQuery();
+            notifyDataSetChanged();
         }
         previousMessageListQuery.load(20, true, new PreviousMessageListQuery.ResultListener() {
             @Override
@@ -170,7 +177,7 @@ public class MessagesListAdapter
                             ((GroupChannel) channel).markAsRead();
                         }
                     }
-                    if(isTyping) {
+                    if (isTyping) {
                         notifyItemInserted(1);
                     } else {
                         notifyItemInserted(0);
@@ -487,7 +494,7 @@ public class MessagesListAdapter
         if (layoutManager != null) {
             int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
-            if (firstVisibleItemPosition == 0){
+            if (firstVisibleItemPosition == 0) {
                 layoutManager.scrollToPosition(0);
             }
         }
