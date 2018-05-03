@@ -31,9 +31,12 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String CREATE_MESSAGE_TABLE = "CREATE TABLE IF NOT EXISTS " + ChatCampDatabaseContract.MessageEntry.TABLE_NAME + "("
-                + ChatCampDatabaseContract.MessageEntry._ID + " INTEGER PRIMARY KEY," + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID + " TEXT,"
-                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE + " TEXT," + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " TEXT,"
+        String CREATE_MESSAGE_TABLE = "CREATE TABLE IF NOT EXISTS "
+                + ChatCampDatabaseContract.MessageEntry.TABLE_NAME + "("
+                + ChatCampDatabaseContract.MessageEntry._ID + " INTEGER PRIMARY KEY,"
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID + " TEXT,"
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE + " TEXT,"
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " TEXT,"
                 + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP + " INTEGER" + ")";
         sqLiteDatabase.execSQL(CREATE_MESSAGE_TABLE);
     }
@@ -47,37 +50,51 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    public void addMessages(List<ConversationMessage> conversationMessages, String channelId, BaseChannel.ChannelType channelType) {
+    public void addMessages(List<Message> messages, String channelId, BaseChannel.ChannelType channelType) {
         SQLiteDatabase sqliteDatabase = this.getWritableDatabase();
-        sqliteDatabase.delete(ChatCampDatabaseContract.MessageEntry.TABLE_NAME, ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID + " =? AND "
-                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + "=?", new String[]{channelId, channelType.name()});
+        sqliteDatabase.delete(ChatCampDatabaseContract.MessageEntry.TABLE_NAME,
+                ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID + " =? AND "
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + "=?",
+                new String[]{channelId, channelType.name()});
 
-        for (int i = 0; i < conversationMessages.size(); ++i) {
+        for (int i = 0; i < messages.size(); ++i) {
             ContentValues values = new ContentValues();
-            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE, conversationMessages.get(i).getMessage().serialize()); // serialized message
-            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID, channelId); // Group ID
-            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE, channelType.name()); // Group Type
-            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP, conversationMessages.get(i).getMessage().getInsertedAt()); // Time of message inserted
-            sqliteDatabase.insert(ChatCampDatabaseContract.MessageEntry.TABLE_NAME, null, values);
+            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE,
+                    messages.get(i).serialize()); // serialized message
+            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID,
+                    channelId); // Group ID
+            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE,
+                    channelType.name()); // Group Type
+            values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP,
+                    messages.get(i).getInsertedAt()); // Time of message inserted
+            sqliteDatabase.insert(ChatCampDatabaseContract.MessageEntry.TABLE_NAME,
+                    null, values);
         }
     }
 
-    public void addMessage(ConversationMessage conversationMessage, String channelId, BaseChannel.ChannelType channelType) {
+    public void addMessage(Message message, String channelId, BaseChannel.ChannelType channelType) {
         SQLiteDatabase sqliteDatabase = this.getWritableDatabase();
-        sqliteDatabase.execSQL("DELETE FROM " + ChatCampDatabaseContract.MessageEntry.TABLE_NAME + " WHERE "
-                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID + " = '" + channelId + "' AND "
-                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = '" + channelType.name() +  "' AND "
-                + ChatCampDatabaseContract.MessageEntry._ID + " NOT IN (SELECT " + ChatCampDatabaseContract.MessageEntry._ID + " FROM " + ChatCampDatabaseContract.MessageEntry.TABLE_NAME + " WHERE "
-                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID + " = '" + channelId + "' AND "
-                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = '" + channelType.name() +  "' AND "
-                + ChatCampDatabaseContract.MessageEntry._ID + " ORDER BY " + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP +
+        sqliteDatabase.execSQL("DELETE FROM " + ChatCampDatabaseContract.MessageEntry.TABLE_NAME
+                + " WHERE " + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID
+                + " = '" + channelId + "' AND "
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = '"
+                + channelType.name() +  "' AND "
+                + ChatCampDatabaseContract.MessageEntry._ID + " NOT IN (SELECT "
+                + ChatCampDatabaseContract.MessageEntry._ID + " FROM "
+                + ChatCampDatabaseContract.MessageEntry.TABLE_NAME + " WHERE "
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID
+                + " = '" + channelId + "' AND "
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE
+                + " = '" + channelType.name() +  "' AND "
+                + ChatCampDatabaseContract.MessageEntry._ID + " ORDER BY "
+                + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP +
                 "  DESC LIMIT 19)");
 
         ContentValues values = new ContentValues();
-        values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE, conversationMessage.getMessage().serialize()); // serialized message
+        values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE, message.serialize()); // serialized message
         values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID, channelId); // Group ID
         values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE, channelType.name()); // Group ID
-        values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP, conversationMessage.getMessage().getInsertedAt()); // Time of message inserted
+        values.put(ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP, message.getInsertedAt()); // Time of message inserted
         sqliteDatabase.insert(ChatCampDatabaseContract.MessageEntry.TABLE_NAME, null, values);
     }
 
@@ -91,7 +108,8 @@ public class ChatCampDatabaseHelper extends SQLiteOpenHelper {
                 ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_MESSAGE,
                 ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID
         };
-        String selection = ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID + " = ? AND " + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = ?";
+        String selection = ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_ID
+                + " = ? AND " + ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_CHANNEL_TYPE + " = ?";
         String[] selectionArgs = {channelId, channelType.name()};
         String sortOrder =
                 ChatCampDatabaseContract.MessageEntry.COLUMN_NAME_TIME_STAMP + " DESC";

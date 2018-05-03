@@ -91,6 +91,7 @@ public class MessagesListAdapter
 
     PreviousMessageListQuery previousMessageListQuery;
     private ChatCampDatabaseHelper databaseHelper;
+    private boolean loadingFirstTime = true;
 
     public MessagesListAdapter(Context context) {
         items = new ArrayList<>();
@@ -149,7 +150,15 @@ public class MessagesListAdapter
         previousMessageListQuery.load(20, true, new PreviousMessageListQuery.ResultListener() {
             @Override
             public void onResult(List<Message> list, ChatCampException e) {
-                items.addAll(list);
+                if (loadingFirstTime) {
+                    items.clear();
+                    items.addAll(list);
+                    databaseHelper.addMessages(list, channel.getId(), channel.isGroupChannel()
+                            ? BaseChannel.ChannelType.GROUP : BaseChannel.ChannelType.OPEN);
+                    loadingFirstTime = false;
+                } else {
+                    items.addAll(list);
+                }
                 if (channel instanceof GroupChannel) {
                     //TODO should open channel also have something for mark as read?
                     ((GroupChannel) channel).markAsRead();
@@ -171,6 +180,8 @@ public class MessagesListAdapter
             public void onGroupChannelMessageReceived(GroupChannel groupChannel, Message message) {
                 if (groupChannel.getId().equals(channel.getId())) {
                     items.add(0, message);
+                    databaseHelper.addMessage(message, channel.getId(), channel.isGroupChannel()
+                            ? BaseChannel.ChannelType.GROUP : BaseChannel.ChannelType.OPEN);
                     if (channel instanceof GroupChannel) {
                         //TODO should open channel also have something for mark as read?
                         if (lastReadTime < message.getInsertedAt() * 1000) {

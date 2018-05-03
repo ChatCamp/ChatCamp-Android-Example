@@ -85,10 +85,6 @@ class RecyclerScrollMoreListener
         }
     }
 
-    public void setLoading(boolean loading) {
-        this.loading = loading;
-    }
-
     interface OnLoadMoreListener {
         void onLoadMore(int page, int total);
     }
