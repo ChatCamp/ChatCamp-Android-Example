@@ -86,7 +86,7 @@
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
+            android:authorities="io.chatcamp.app.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
