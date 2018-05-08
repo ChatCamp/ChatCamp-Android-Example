@@ -16,7 +16,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.stfalcon.chatkit.preview.MediaPreviewActivity;
-import com.stfalcon.chatkit.utils.FilePath;
+import com.stfalcon.chatkit.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -113,11 +113,11 @@ public class GalleryAttachmentSender extends AttachmentSender {
         if (activity == null) {
             return;
         }
-        String path = FilePath.getPath(activity, uri);
+        String path = FileUtils.getPath(activity, uri);
         if (TextUtils.isEmpty(path)) {
             return;
         }
-        String fileName = FilePath.getFileName(activity, uri);
+        String fileName = FileUtils.getFileName(activity, uri);
         String contentType = activity.getContentResolver().getType(uri);
         if (TextUtils.isEmpty(contentType)) {
             return;

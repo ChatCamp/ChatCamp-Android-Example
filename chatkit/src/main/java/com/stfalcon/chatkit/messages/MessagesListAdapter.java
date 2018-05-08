@@ -17,6 +17,7 @@
 package com.stfalcon.chatkit.messages;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,6 +33,7 @@ import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.database.ChatCampDatabaseHelper;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
+import com.stfalcon.chatkit.messages.sender.AttachmentSender;
 import com.stfalcon.chatkit.messages.typing.TypingFactory;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
@@ -508,6 +510,19 @@ public class MessagesListAdapter
             if (firstVisibleItemPosition == 0) {
                 layoutManager.scrollToPosition(0);
             }
+        }
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
+        for (MessageFactory messageFactory : messageFactories) {
+            messageFactory.onActivityResult(requestCode, resultCode, dataFile);
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        for (MessageFactory messageFactory : messageFactories) {
+            messageFactory.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 

@@ -14,8 +14,14 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
-public class FilePath
-{
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+
+public class FileUtils {
     /**
      * Method for return file path of Gallery image
      *
@@ -24,8 +30,7 @@ public class FilePath
      * @return path of the selected image file from gallery
      */
 
-    public static String getPath(final Context context, final Uri uri)
-    {
+    public static String getPath(final Context context, final Uri uri) {
         //check here to KITKAT or new version
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
@@ -69,7 +74,7 @@ public class FilePath
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -97,9 +102,9 @@ public class FilePath
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
@@ -178,5 +183,63 @@ public class FilePath
             }
         }
         return result;
+    }
+
+    public static File downloadFile(String downloadFilePath, String directory,
+                                    DownloadFileListener downloadFileListener) {
+        File file = null;
+        try {
+            File serverFile = new File(downloadFilePath);
+            // create a new file, to save the downloaded file
+            file = new File(Environment.getExternalStoragePublicDirectory(directory),
+                    serverFile.getName());
+            if (file.exists()) {
+                return file;
+            }
+
+            URL url = new URL(downloadFilePath);
+            HttpURLConnection urlConnection = (HttpURLConnection) url
+                    .openConnection();
+
+            urlConnection.setRequestMethod("GET");
+//
+            // connect
+            urlConnection.connect();
+
+            // set the path where we want to save the file
+            FileOutputStream fileOutput = new FileOutputStream(file);
+
+            // Stream used for reading the data from the internet
+            InputStream inputStream = urlConnection.getInputStream();
+
+            // this is the total size of the file which we are
+            // downloading
+            int totalsize = urlConnection.getContentLength();
+            int downloadedSize = 0;
+
+            // create a buffer...
+            byte[] buffer = new byte[1024 * 1024];
+            int bufferLength = 0;
+
+            while ((bufferLength = inputStream.read(buffer)) > 0) {
+                fileOutput.write(buffer, 0, bufferLength);
+                downloadedSize += bufferLength;
+                final float per = ((float) downloadedSize / totalsize) * 100;
+                if (downloadFileListener != null) {
+                    downloadFileListener.downloadProgress((int) per);
+                }
+            }
+
+            if (downloadFileListener != null) {
+                downloadFileListener.downloadComplete();
+            }
+
+            // close the output stream when complete //
+            fileOutput.close();
+
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 }

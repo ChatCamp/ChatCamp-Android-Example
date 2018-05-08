@@ -14,7 +14,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.stfalcon.chatkit.R;
-import com.stfalcon.chatkit.utils.FilePath;
+import com.stfalcon.chatkit.utils.FileUtils;
 
 
 /**
@@ -66,7 +66,7 @@ public class MediaPreviewActivity extends AppCompatActivity {
         } else if(getContentResolver().getType(Uri.parse(uri)).contains("video")) {
             imageView.setVisibility(View.GONE);
             frameLayout.setVisibility(View.VISIBLE);
-            videoView.setVideoPath((FilePath.getPath(this, Uri.parse(uri))));
+            videoView.setVideoPath((FileUtils.getPath(this, Uri.parse(uri))));
             MediaController mediaController = new MediaController(this);
             videoView.setMediaController(mediaController);
             videoView.start();

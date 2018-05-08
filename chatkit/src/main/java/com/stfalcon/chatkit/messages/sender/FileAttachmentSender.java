@@ -11,7 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
-import com.stfalcon.chatkit.utils.FilePath;
+import com.stfalcon.chatkit.utils.FileUtils;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -82,11 +82,11 @@ public class FileAttachmentSender extends AttachmentSender {
         if (activity == null) {
             return;
         }
-        String path = FilePath.getPath(activity, uri);
+        String path = FileUtils.getPath(activity, uri);
         if (TextUtils.isEmpty(path)) {
             return;
         }
-        String fileName = FilePath.getFileName(activity, uri);
+        String fileName = FileUtils.getFileName(activity, uri);
         String contentType = activity.getContentResolver().getType(uri);
         File file = new File(path);
         sendAttachment(file, fileName, contentType);

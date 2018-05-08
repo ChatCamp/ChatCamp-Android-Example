@@ -17,7 +17,7 @@ import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.stfalcon.chatkit.utils.FilePath;
+import com.stfalcon.chatkit.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +34,7 @@ import io.chatcamp.sdk.BaseChannel;
 
 public class CameraAttachmentSender extends AttachmentSender {
 
-    private static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA = 103;
+    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA = 103;
     private static final int CAPTURE_MEDIA_RESULT_CODE = 123;
     private WeakReference<Activity> activityWeakReference;
     private String currentPhotoPath;
@@ -52,8 +52,8 @@ public class CameraAttachmentSender extends AttachmentSender {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA);
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA);
 
         } else {
             openCamera(activity);
@@ -62,7 +62,7 @@ public class CameraAttachmentSender extends AttachmentSender {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_MEDIA) {
+        if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (activityWeakReference.get() != null) {
                     openCamera(activityWeakReference.get());
@@ -80,7 +80,7 @@ public class CameraAttachmentSender extends AttachmentSender {
             }
             //TODO take care of this file provider
             Uri photoURI = FileProvider.getUriForFile(activity,
-                    "io.chatcamp.app.fileprovider",
+                    activity.getPackageName() + ".chatcamp.fileprovider",
                     file);
 
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -132,7 +132,7 @@ public class CameraAttachmentSender extends AttachmentSender {
         if (activity == null) {
             return;
         }
-        String path = FilePath.getPath(activity, uri);
+        String path = FileUtils.getPath(activity, uri);
         String fileName = "";
         String contentType = "";
         File file;
@@ -141,7 +141,7 @@ public class CameraAttachmentSender extends AttachmentSender {
             fileName = new File(path).getName();
             contentType = "image/*";
         } else {
-            fileName = FilePath.getFileName(activity, uri);
+            fileName = FileUtils.getFileName(activity, uri);
             contentType = activity.getContentResolver().getType(uri);
         }
         if (TextUtils.isEmpty(contentType)) {

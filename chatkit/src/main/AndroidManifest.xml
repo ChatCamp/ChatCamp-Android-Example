@@ -10,6 +10,16 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity android:name=".preview.MediaPreviewActivity"/>
+
+        <provider
+            android:name=".utils.ChatCampFileProvider"
+            android:authorities="${applicationId}.chatcamp.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/library_file_paths"></meta-data>
+        </provider>
     </application>>
 
 

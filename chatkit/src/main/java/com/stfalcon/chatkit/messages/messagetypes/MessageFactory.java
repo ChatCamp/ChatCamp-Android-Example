@@ -1,5 +1,6 @@
 package com.stfalcon.chatkit.messages.messagetypes;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -43,9 +44,11 @@ public abstract class MessageFactory<T extends MessageFactory.MessageHolder> {
 
     }
 
-    public void manipulateMessageStyle() {
+    public void manipulateMessageStyle() { }
 
-    }
+    public void onActivityResult(int requestCode, int resultCode, Intent dataFile){ }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) { }
 
     public static abstract class MessageHolder {
 //        private Message message;
