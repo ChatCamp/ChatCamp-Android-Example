@@ -127,7 +127,7 @@ public class GalleryAttachmentSender extends AttachmentSender {
             file = new File(path);
             try {
                 File compressedFile = createImageFile();
-                if(file == null) return;
+                if(compressedFile == null) return;
                 Bitmap bitmap = decodeSampledBitmapFromFile(path, 1280, 800);
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, new FileOutputStream(compressedFile));
                 file = compressedFile;
@@ -159,6 +159,7 @@ public class GalleryAttachmentSender extends AttachmentSender {
         return image;
     }
 
+    // TODO should do this in background
     private Bitmap decodeSampledBitmapFromFile(String path, int reqHeight,
                                                int reqWidth) {
 

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 
+import com.google.gson.annotations.Expose;
+
 import java.io.File;
 
 import io.chatcamp.sdk.BaseChannel;
@@ -49,7 +51,7 @@ public abstract class AttachmentSender {
         return title;
     }
 
-    protected void sendAttachment(File file, String fileName, String contentType) {
+    protected void sendAttachment(final File file, String fileName, final String contentType) {
         channel.sendAttachment(file, fileName, contentType
                 , new GroupChannel.UploadAttachmentListener() {
                     @Override
@@ -64,10 +66,14 @@ public abstract class AttachmentSender {
                         if (uploadListener != null) {
                             uploadListener.onUploadSuccess();
                         }
-                        //TODO mark read should be a part of BaseChannel and not group channel
-                        if (channel instanceof GroupChannel) {
-                            ((GroupChannel) channel).markAsRead();
-                        }
+                        // delete the temp file created to downsize the image
+//                        if(contentType.contains("image")) {
+//                            try {
+//                                file.delete();
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
                     }
 
                     @Override

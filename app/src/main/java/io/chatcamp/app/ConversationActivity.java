@@ -202,7 +202,7 @@ public class ConversationActivity extends AppCompatActivity {
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);
         messageFactories[2] = new VideoMessageFactory();
-        messageFactories[3] = new DocumentMessageFactory();
+        messageFactories[3] = new DocumentMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory());

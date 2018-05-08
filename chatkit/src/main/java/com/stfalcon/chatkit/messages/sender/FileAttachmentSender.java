@@ -51,13 +51,6 @@ public class FileAttachmentSender extends AttachmentSender {
         }
     }
 
-    private void pickFile(Activity activity) {
-        Intent intent = new Intent();
-        intent.setType("application/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        activity.startActivityForResult(Intent.createChooser(intent, "Select files"), PICK_FILE_RESULT_CODE);
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE_DOCUMENT) {
@@ -67,6 +60,13 @@ public class FileAttachmentSender extends AttachmentSender {
                 }
             }
         }
+    }
+
+    private void pickFile(Activity activity) {
+        Intent intent = new Intent();
+        intent.setType("application/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        activity.startActivityForResult(Intent.createChooser(intent, "Select files"), PICK_FILE_RESULT_CODE);
     }
 
     @Override
