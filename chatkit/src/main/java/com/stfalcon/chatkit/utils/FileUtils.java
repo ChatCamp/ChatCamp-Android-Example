@@ -185,14 +185,19 @@ public class FileUtils {
         return result;
     }
 
-    public static File downloadFile(String downloadFilePath, String directory,
+    public static File downloadFile(Context context, String downloadFilePath, String directory,
                                     DownloadFileListener downloadFileListener) {
         File file = null;
         try {
             File serverFile = new File(downloadFilePath);
             // create a new file, to save the downloaded file
-            file = new File(Environment.getExternalStoragePublicDirectory(directory),
-                    serverFile.getName());
+            if(isExternalStorageWritable()) {
+                file = new File(Environment.getExternalStoragePublicDirectory(directory),
+                        serverFile.getName());
+            } else {
+                if(context == null) { return null;}
+                file = new File(context.getDir(directory, Context.MODE_PRIVATE),serverFile.getName());
+            }
             if (file.exists()) {
                 return file;
             }
@@ -241,5 +246,10 @@ public class FileUtils {
             e.printStackTrace();
         }
         return file;
+    }
+
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
     }
 }

@@ -17,6 +17,7 @@
 package com.stfalcon.chatkit.messages;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,7 +25,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
 
-import com.stfalcon.chatkit.commons.models.IMessage;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
 import com.stfalcon.chatkit.messages.typing.TypingFactory;
 
@@ -87,10 +87,9 @@ public class MessagesList extends RecyclerView {
     /**
      * Sets adapter for MessagesList
      *
-     * @param adapter   Adapter. Must extend MessagesListAdapter
+     * @param adapter Adapter. Must extend MessagesListAdapter
      */
-    public
-    void setAdapter(MessagesListAdapter adapter) {
+    public void setAdapter(MessagesListAdapter adapter) {
         setAdapter(adapter, true);
     }
 
@@ -100,8 +99,7 @@ public class MessagesList extends RecyclerView {
      * @param adapter       Adapter. Must extend MessagesListAdapter
      * @param reverseLayout weather to use reverse layout for layout manager.
      */
-    public
-    void setAdapter(MessagesListAdapter adapter, boolean reverseLayout) {
+    public void setAdapter(MessagesListAdapter adapter, boolean reverseLayout) {
         SimpleItemAnimator itemAnimator = new DefaultItemAnimator();
         itemAnimator.setSupportsChangeAnimations(false);
 
@@ -119,5 +117,15 @@ public class MessagesList extends RecyclerView {
     @SuppressWarnings("ResourceType")
     private void parseStyle(Context context, AttributeSet attrs) {
         messagesListStyle = MessagesListStyle.parse(context, attrs);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
+        adapter.onActivityResult(requestCode, resultCode, dataFile);
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        adapter.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
     }
 }

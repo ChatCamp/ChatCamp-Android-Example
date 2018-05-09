@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Message;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
@@ -185,20 +184,22 @@ public class ConversationActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        input.onActivityResult(requestCode, resultCode,dataFile);
+        input.onActivityResult(requestCode, resultCode, dataFile);
+        mMessagesList.onActivityResult(requestCode, resultCode, dataFile);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
                                            int[] grantResults) {
         input.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        mMessagesList.onRequestPermissionsResult(requestCode, permissions,grantResults);
     }
 
     public void getChannel(BaseChannel channel) {
         input.setChannel(channel);
         mMessagesList.init();
         mMessagesList.setSenderId(LocalStorage.getInstance().getUserId());
-        MessageFactory [] messageFactories = new MessageFactory[4];
+        MessageFactory[] messageFactories = new MessageFactory[4];
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);
         messageFactories[2] = new VideoMessageFactory();

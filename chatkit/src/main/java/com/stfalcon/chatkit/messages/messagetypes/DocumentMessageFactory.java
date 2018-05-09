@@ -2,7 +2,6 @@ package com.stfalcon.chatkit.messages.messagetypes;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -78,16 +77,16 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
         if (activity == null) {
             return;
         }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                != PackageManager.PERMISSION_GRANTED) {
-        view = v;
-        this.textView = textView;
-//            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-//                    PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA);
-//
-//        } else {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            view = v;
+            this.textView = textView;
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA);
+
+        } else {
             downloadDocument(v, textView, activity);
-//        }
+        }
     }
 
     @Override
@@ -95,7 +94,9 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
         if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (activityWeakReference.get() != null) {
-                    downloadDocument(view, textView,activityWeakReference.get());
+                    if(view != null && textView != null) {
+                        downloadDocument(view, textView, activityWeakReference.get());
+                    }
                 }
             }
         }
@@ -122,7 +123,7 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
                     try {
                         Uri path = FileProvider.getUriForFile(activity,
                                 activity.getPackageName() + ".chatcamp.fileprovider",
-                                FileUtils.downloadFile(message.getAttachment().getUrl(),
+                                FileUtils.downloadFile(activity, message.getAttachment().getUrl(),
                                         Environment.DIRECTORY_DOWNLOADS, new DownloadFileListener() {
                                             @Override
                                             public void downloadProgress(final int progress) {
