@@ -1,15 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.stfalcon.chatkit">
-
+    package="com.stfalcon.chatkit">
     <application
         android:allowBackup="true"
         android:supportsRtl="true">
-
         <activity
             android:name=".preview.WebViewActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-
-        <activity android:name=".preview.MediaPreviewActivity"/>
+        <activity android:name=".preview.MediaPreviewActivity" />
 
         <provider
             android:name=".utils.ChatCampFileProvider"
@@ -18,9 +16,14 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/library_file_paths"></meta-data>
+                android:resource="@xml/library_file_paths" />
         </provider>
-    </application>>
 
+        <activity
+            android:name=".preview.ShowImageActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".preview.ShowVideoActivity"
+            android:theme="@style/AppTheme.NoActionBar" ></activity>
+    </application>
 
 </manifest>

@@ -202,7 +202,7 @@ public class ConversationActivity extends AppCompatActivity {
         MessageFactory[] messageFactories = new MessageFactory[4];
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);
-        messageFactories[2] = new VideoMessageFactory();
+        messageFactories[2] = new VideoMessageFactory(this);
         messageFactories[3] = new FileMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);

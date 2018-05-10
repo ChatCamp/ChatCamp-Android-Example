@@ -1,6 +1,7 @@
 package com.stfalcon.chatkit.messages.messagetypes;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.messages.MessageType;
+import com.stfalcon.chatkit.preview.ShowImageActivity;
 
 import io.chatcamp.sdk.Message;
 
@@ -42,8 +44,20 @@ public class ImageMessageFactory extends MessageFactory<ImageMessageFactory.Imag
     }
 
     @Override
-    public void bindMessageHolder(ImageMessageHolder messageHolder, Message message) {
+    public void bindMessageHolder(ImageMessageHolder messageHolder, final Message message) {
         Picasso.with(context).load(message.getAttachment().getUrl()).into(messageHolder.imageView);
+        messageHolder.imageView.setTag(message);
+        messageHolder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(v.getTag() != null && v.getTag() instanceof Message) {
+                    Message clickedMessage = (Message) v.getTag();
+                    Intent intent = new Intent(context, ShowImageActivity.class);
+                    intent.putExtra(ShowImageActivity.IMAGE_URL, clickedMessage.getAttachment().getUrl());
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     public static class ImageMessageHolder extends MessageFactory.MessageHolder {

@@ -1,11 +1,15 @@
 package com.stfalcon.chatkit.messages.messagetypes;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.stfalcon.chatkit.R;
+import com.stfalcon.chatkit.preview.ShowImageActivity;
+import com.stfalcon.chatkit.preview.ShowVideoActivity;
 
 import io.chatcamp.sdk.Message;
 
@@ -14,6 +18,12 @@ import io.chatcamp.sdk.Message;
  */
 
 public class VideoMessageFactory extends MessageFactory<VideoMessageFactory.VideoMessageHolder> {
+
+    private final Context context;
+
+    public VideoMessageFactory(Context context) {
+        this.context = context;
+    }
 
     @Override
     public boolean isBindable(Message message) {
@@ -33,7 +43,18 @@ public class VideoMessageFactory extends MessageFactory<VideoMessageFactory.Vide
 
     @Override
     public void bindMessageHolder(VideoMessageHolder messageHolder, Message message) {
-
+        messageHolder.videoImage.setTag(message);
+        messageHolder.videoImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(v.getTag() != null && v.getTag() instanceof Message) {
+                    Message clickedMessage = (Message) v.getTag();
+                    Intent intent = new Intent(context, ShowVideoActivity.class);
+                    intent.putExtra(ShowVideoActivity.VIDEO_URL, clickedMessage.getAttachment().getUrl());
+                    context.startActivity(intent);
+                }
+            }
+        });
     }
 
     public static class VideoMessageHolder extends MessageFactory.MessageHolder {
