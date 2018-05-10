@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,7 +37,7 @@ import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
-public class ConversationActivity extends AppCompatActivity {
+public class ConversationActivity extends AppCompatActivity implements AttachmentSender.UploadListener {
 
     private MessagesList mMessagesList;
     private String channelType;
@@ -137,13 +138,32 @@ public class ConversationActivity extends AppCompatActivity {
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory());
         FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "FILE", R.drawable.ic_document);
+        fileAttachmentSender.setUploadListener(this);
         GalleryAttachmentSender galleryAttachmentSender = new GalleryAttachmentSender(this, channel, "Gallery", R.drawable.ic_gallery);
+        galleryAttachmentSender.setUploadListener(this);
         CameraAttachmentSender cameraAttachmentSender = new CameraAttachmentSender(this, channel, "Camera", R.drawable.ic_camera);
+        cameraAttachmentSender.setUploadListener(this);
         List<AttachmentSender> attachmentSenders = new ArrayList<>();
         attachmentSenders.add(fileAttachmentSender);
         attachmentSenders.add(cameraAttachmentSender);
         attachmentSenders.add(galleryAttachmentSender);
 
         input.setAttachmentSenderList(attachmentSenders);
+    }
+
+    @Override
+    public void onUploadProgress(int progress) {
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setProgress(progress);
+    }
+
+    @Override
+    public void onUploadSuccess() {
+        progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onUploadFailed() {
+        progressBar.setVisibility(View.GONE);
     }
 }
