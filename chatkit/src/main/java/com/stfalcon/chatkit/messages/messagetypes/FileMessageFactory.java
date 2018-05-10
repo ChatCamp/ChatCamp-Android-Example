@@ -31,15 +31,16 @@ import io.chatcamp.sdk.Message;
  */
 
 
-public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactory.DocumentMessageHolder> {
+public class FileMessageFactory extends MessageFactory<FileMessageFactory.DocumentMessageHolder> {
 
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA = 104;
     private WeakReference<Activity> activityWeakReference;
     private Handler handler;
     private View view;
-    private TextView textView;
+    private ProgressBar progressBar;
+    private ImageView downloadIcon;
 
-    public DocumentMessageFactory(Activity activity) {
+    public FileMessageFactory(Activity activity) {
         this.activityWeakReference = new WeakReference<>(activity);
         handler = new Handler();
 
@@ -63,15 +64,32 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
     @Override
     public void bindMessageHolder(final DocumentMessageHolder messageHolder, final Message message) {
         messageHolder.documentImage.setTag(message);
+        messageHolder.documentName.setText(message.getAttachment().getName());
+        final Activity activity = activityWeakReference.get();
+        if (activity == null) {
+            messageHolder.downloadIcon.setVisibility(View.GONE);
+            return;
+        }
         messageHolder.documentImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onDocumentClick(v, messageHolder.textView);
+                if (!FileUtils.fileExists(activity, message.getAttachment().getUrl(), Environment.DIRECTORY_DOWNLOADS)) {
+                    messageHolder.progressBar.setVisibility(View.VISIBLE);
+                    messageHolder.progressBar.setProgress(0);
+                }
+                onDocumentClick(v, messageHolder.progressBar, messageHolder.downloadIcon);
             }
         });
+
+        if (FileUtils.fileExists(activity, message.getAttachment().getUrl(), Environment.DIRECTORY_DOWNLOADS)) {
+            messageHolder.downloadIcon.setVisibility(View.GONE);
+        } else {
+            messageHolder.downloadIcon.setVisibility(View.VISIBLE);
+        }
+
     }
 
-    private void onDocumentClick(View v, TextView textView) {
+    private void onDocumentClick(View v, ProgressBar progressBar, ImageView downloadIcon) {
         Activity activity = activityWeakReference.get();
 
         if (activity == null) {
@@ -80,12 +98,13 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             view = v;
-            this.textView = textView;
+            this.progressBar = progressBar;
+            this.downloadIcon = downloadIcon;
             ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA);
 
         } else {
-            downloadDocument(v, textView, activity);
+            downloadDocument(v, progressBar, downloadIcon, activity);
         }
     }
 
@@ -94,8 +113,8 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
         if (requestCode == PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (activityWeakReference.get() != null) {
-                    if(view != null && textView != null) {
-                        downloadDocument(view, textView, activityWeakReference.get());
+                    if (view != null && progressBar != null) {
+                        downloadDocument(view, progressBar, downloadIcon, activityWeakReference.get());
                     }
                 }
             }
@@ -105,23 +124,26 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
     public static class DocumentMessageHolder extends MessageFactory.MessageHolder {
         ImageView documentImage;
         ProgressBar progressBar;
-        TextView textView;
+        ImageView downloadIcon;
+        TextView documentName;
 
         public DocumentMessageHolder(View view) {
             documentImage = view.findViewById(R.id.iv_document);
             progressBar = view.findViewById(R.id.progress_bar);
-            textView = view.findViewById(R.id.text);
+            downloadIcon = view.findViewById(R.id.iv_download);
+            documentName = view.findViewById(R.id.tv_document_name);
         }
 
     }
 
-    protected void downloadDocument(View v, final TextView progressBar, final Activity activity) {
+    protected void downloadDocument(View v, final ProgressBar progressBar, final ImageView downloadIcon, final Activity activity) {
         if (v.getTag() != null && v.getTag() instanceof Message) {
             final Message message = (Message) v.getTag();
             new Thread(new Runnable() {
                 public void run() {
+                    Uri path = null;
                     try {
-                        Uri path = FileProvider.getUriForFile(activity,
+                        path = FileProvider.getUriForFile(activity,
                                 activity.getPackageName() + ".chatcamp.fileprovider",
                                 FileUtils.downloadFile(activity, message.getAttachment().getUrl(),
                                         Environment.DIRECTORY_DOWNLOADS, new DownloadFileListener() {
@@ -130,8 +152,12 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
                                                 handler.post(new Runnable() {
                                                     @Override
                                                     public void run() {
-//                                                    progressBar.setProgress(progress);
-                                                        progressBar.setText(String.valueOf(progress));
+                                                        if (progressBar != null) {
+                                                            progressBar.setProgress(progress);
+                                                        }
+                                                        if (downloadIcon != null) {
+                                                            downloadIcon.setVisibility(View.GONE);
+                                                        }
                                                     }
                                                 });
                                             }
@@ -142,6 +168,7 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
                                                     @Override
                                                     public void run() {
                                                         progressBar.setVisibility(View.GONE);
+
                                                     }
                                                 });
                                             }
@@ -153,6 +180,16 @@ public class DocumentMessageFactory extends MessageFactory<DocumentMessageFactor
                         activity.startActivity(intent);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        if (path != null) {
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(path, "application/*");
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                activity.startActivity(intent);
+                            } catch (Exception error) {
+                                error.printStackTrace();
+                            }
+                        }
                     }
                 }
             }).start();

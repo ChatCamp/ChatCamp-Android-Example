@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -191,12 +192,14 @@ public class FileUtils {
         try {
             File serverFile = new File(downloadFilePath);
             // create a new file, to save the downloaded file
-            if(isExternalStorageWritable()) {
+            if (isExternalStorageWritable()) {
                 file = new File(Environment.getExternalStoragePublicDirectory(directory),
                         serverFile.getName());
             } else {
-                if(context == null) { return null;}
-                file = new File(context.getDir(directory, Context.MODE_PRIVATE),serverFile.getName());
+                if (context == null) {
+                    return null;
+                }
+                file = new File(context.getDir(directory, Context.MODE_PRIVATE), serverFile.getName());
             }
             if (file.exists()) {
                 return file;
@@ -246,6 +249,30 @@ public class FileUtils {
             e.printStackTrace();
         }
         return file;
+    }
+
+    public static boolean fileExists(@NonNull Context context, String downloadFilePath, String directory) {
+        try {
+            File file = null;
+            File serverFile = new File(downloadFilePath);
+            // create a new file, to save the downloaded file
+            if (isExternalStorageWritable()) {
+                file = new File(Environment.getExternalStoragePublicDirectory(directory),
+                        serverFile.getName());
+            } else {
+                if (context == null) {
+                    return false;
+                }
+                file = new File(context.getDir(directory, Context.MODE_PRIVATE), serverFile.getName());
+            }
+            if (file.exists()) {
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 
     public static boolean isExternalStorageWritable() {

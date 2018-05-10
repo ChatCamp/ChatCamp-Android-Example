@@ -20,7 +20,7 @@ import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.messages.ConversationViewHelper;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
-import com.stfalcon.chatkit.messages.messagetypes.DocumentMessageFactory;
+import com.stfalcon.chatkit.messages.messagetypes.FileMessageFactory;
 import com.stfalcon.chatkit.messages.messagetypes.ImageMessageFactory;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
 import com.stfalcon.chatkit.messages.messagetypes.TextMessageFactory;
@@ -203,7 +203,7 @@ public class ConversationActivity extends AppCompatActivity {
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);
         messageFactories[2] = new VideoMessageFactory();
-        messageFactories[3] = new DocumentMessageFactory(this);
+        messageFactories[3] = new FileMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory());
