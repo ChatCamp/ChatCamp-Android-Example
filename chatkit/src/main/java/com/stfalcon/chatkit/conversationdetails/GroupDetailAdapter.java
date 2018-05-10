@@ -1,4 +1,4 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.conversationdetails;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

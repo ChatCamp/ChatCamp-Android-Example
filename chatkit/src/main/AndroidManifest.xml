@@ -24,6 +24,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".preview.ShowVideoActivity"
             android:theme="@style/AppTheme.NoActionBar" ></activity>
+        <activity
+            android:name=".conversationdetails.GroupDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".conversationdetails.UserProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

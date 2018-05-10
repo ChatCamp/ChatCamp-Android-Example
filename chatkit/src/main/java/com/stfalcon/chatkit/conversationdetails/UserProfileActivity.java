@@ -1,8 +1,8 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.conversationdetails;
 
+import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

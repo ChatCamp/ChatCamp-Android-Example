@@ -1,4 +1,4 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.conversationdetails;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,10 +19,10 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
+import com.stfalcon.chatkit.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;

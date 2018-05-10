@@ -1,4 +1,4 @@
-package io.chatcamp.app;
+package com.stfalcon.chatkit.conversationdetails;
 
 
 import io.chatcamp.sdk.Participant;
