@@ -29,6 +29,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.database.ChatCampDatabaseHelper;
@@ -95,10 +96,13 @@ public class MessagesListAdapter
     private ChatCampDatabaseHelper databaseHelper;
     private boolean loadingFirstTime = true;
 
+    private Context context;
+
     public MessagesListAdapter(Context context) {
         items = new ArrayList<>();
         mUiThreadHandler = new Handler(Looper.getMainLooper());
         typingParticipantList = new ArrayList<>();
+        this.context = context;
         databaseHelper = new ChatCampDatabaseHelper(context);
     }
 
@@ -327,6 +331,9 @@ public class MessagesListAdapter
         }
 
         holder.messageUsername.setText(username);
+        //TODO add circular transform
+        Picasso.with(context).load(message.getUser().getAvatarUrl())
+                .placeholder(R.drawable.icon_default_contact).into(holder.messageUserAvatar);
         // Cluster messages
         {
             if (cluster.clusterWithNext && !cluster.dateBoundaryWithNext) {
