@@ -3,14 +3,8 @@ package io.chatcamp.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.stfalcon.chatkit.messages.ConversationViewHelper;
 import com.stfalcon.chatkit.messages.HeaderView;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
@@ -33,7 +27,6 @@ import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
 import io.chatcamp.sdk.OpenChannel;
-import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
@@ -137,7 +130,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory());
-        FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "FILE", R.drawable.ic_document);
+        FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "File", R.drawable.ic_document);
         fileAttachmentSender.setUploadListener(this);
         GalleryAttachmentSender galleryAttachmentSender = new GalleryAttachmentSender(this, channel, "Gallery", R.drawable.ic_gallery);
         galleryAttachmentSender.setUploadListener(this);
