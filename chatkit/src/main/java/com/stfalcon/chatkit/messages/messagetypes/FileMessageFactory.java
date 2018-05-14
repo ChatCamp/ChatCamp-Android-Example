@@ -22,6 +22,7 @@ import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.utils.DownloadFileListener;
 import com.stfalcon.chatkit.utils.FileUtils;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 
 import io.chatcamp.sdk.Message;
@@ -145,36 +146,41 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
                 public void run() {
                     Uri path = null;
                     try {
-                        path = FileProvider.getUriForFile(activity,
-                                activity.getPackageName() + ".chatcamp.fileprovider",
-                                FileUtils.downloadFile(activity, message.getAttachment().getUrl(),
-                                        Environment.DIRECTORY_DOWNLOADS, new DownloadFileListener() {
+                       File file =  FileUtils.downloadFile(activity, message.getAttachment().getUrl(),
+                                Environment.DIRECTORY_DOWNLOADS, new DownloadFileListener() {
+                                    @Override
+                                    public void downloadProgress(final int progress) {
+                                        handler.post(new Runnable() {
                                             @Override
-                                            public void downloadProgress(final int progress) {
-                                                handler.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        if (progressBar != null) {
-                                                            progressBar.setProgress(progress);
-                                                        }
-                                                        if (downloadIcon != null) {
-                                                            downloadIcon.setVisibility(View.GONE);
-                                                        }
-                                                    }
-                                                });
+                                            public void run() {
+                                                if (progressBar != null) {
+                                                    progressBar.setProgress(progress);
+                                                }
+                                                if (downloadIcon != null) {
+                                                    downloadIcon.setVisibility(View.GONE);
+                                                }
                                             }
+                                        });
+                                    }
 
+                                    @Override
+                                    public void downloadComplete() {
+                                        handler.post(new Runnable() {
                                             @Override
-                                            public void downloadComplete() {
-                                                handler.post(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        progressBar.setVisibility(View.GONE);
+                                            public void run() {
+                                                progressBar.setVisibility(View.GONE);
 
-                                                    }
-                                                });
                                             }
-                                        }));
+                                        });
+                                    }
+                                });
+                       if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                           path = FileProvider.getUriForFile(activity,
+                                   activity.getPackageName() + ".chatcamp.fileprovider", file
+                           );
+                       } else {
+                           path = Uri.fromFile(file);
+                       }
 
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setDataAndType(path, message.getAttachment().getType());
