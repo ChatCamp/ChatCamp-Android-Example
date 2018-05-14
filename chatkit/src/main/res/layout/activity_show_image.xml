@@ -11,17 +11,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerInside"/>
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:indeterminate="false"
-        android:max="100"
-        android:progress="0"
-        android:layout_centerInParent="true"
-        android:progressDrawable="@drawable/progress_bar_circular"
-        android:secondaryProgress="100"
-        android:visibility="gone"/>
 </RelativeLayout>

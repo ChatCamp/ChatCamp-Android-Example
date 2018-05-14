@@ -76,6 +76,8 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
                 if (!FileUtils.fileExists(activity, message.getAttachment().getUrl(), Environment.DIRECTORY_DOWNLOADS)) {
                     messageHolder.progressBar.setVisibility(View.VISIBLE);
                     messageHolder.progressBar.setProgress(0);
+                } else {
+                    messageHolder.progressBar.setVisibility(View.GONE);
                 }
                 onDocumentClick(v, messageHolder.progressBar, messageHolder.downloadIcon);
             }
@@ -86,7 +88,6 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
         } else {
             messageHolder.downloadIcon.setVisibility(View.VISIBLE);
         }
-
     }
 
     private void onDocumentClick(View v, ProgressBar progressBar, ImageView downloadIcon) {
@@ -136,7 +137,8 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
 
     }
 
-    protected void downloadDocument(View v, final ProgressBar progressBar, final ImageView downloadIcon, final Activity activity) {
+    protected void downloadDocument(View v, final ProgressBar progressBar, final ImageView downloadIcon,
+                                    final Activity activity) {
         if (v.getTag() != null && v.getTag() instanceof Message) {
             final Message message = (Message) v.getTag();
             new Thread(new Runnable() {
