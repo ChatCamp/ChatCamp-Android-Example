@@ -72,7 +72,14 @@ public class ImageMessageFactory extends MessageFactory<ImageMessageFactory.Imag
             messageHolder.downloadIcon.setVisibility(View.GONE);
             return;
         }
+        if (FileUtils.fileExists(activity, message.getAttachment().getUrl(), Environment.DIRECTORY_PICTURES)) {
+            messageHolder.downloadIcon.setVisibility(View.GONE);
+        } else {
+            messageHolder.downloadIcon.setVisibility(View.VISIBLE);
+        }
+
         Picasso.with(activity).load(message.getAttachment().getUrl()).into(messageHolder.imageView);
+
         messageHolder.imageView.setTag(message);
         messageHolder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,11 +96,7 @@ public class ImageMessageFactory extends MessageFactory<ImageMessageFactory.Imag
             }
         });
 
-        if (FileUtils.fileExists(activity, message.getAttachment().getUrl(), Environment.DIRECTORY_PICTURES)) {
-            messageHolder.downloadIcon.setVisibility(View.GONE);
-        } else {
-            messageHolder.downloadIcon.setVisibility(View.VISIBLE);
-        }
+
     }
 
     private void onImageClick(View v, ProgressBar progressBar, ImageView downloadIcon) {

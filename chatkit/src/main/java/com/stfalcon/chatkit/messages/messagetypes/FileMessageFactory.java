@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -60,33 +62,71 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
 
     @Override
     public DocumentMessageHolder createMessageHolder(ViewGroup cellView, boolean isMe, LayoutInflater layoutInflater) {
-        return new DocumentMessageHolder(layoutInflater.inflate(R.layout.layout_message_document, cellView, true));
+        View view = layoutInflater.inflate(R.layout.layout_message_document, cellView, true);
+        TextView textView = view.findViewById(R.id.tv_document_name);
+
+        Drawable backgroundDrawable = isMe ? messageStyle.getOutcomingBubbleDrawable() :
+                messageStyle.getIncomingBubbleDrawable();
+        int textColor = isMe ? messageStyle.getOutcomingTextColor() : messageStyle.getIncomingTextColor();
+        textView.setTextColor(textColor);
+        int documentIcon = isMe ? R.drawable.ic_document_white_chat : R.drawable.ic_document_chat;
+        ImageView documentImage = view.findViewById(R.id.iv_document);
+        documentImage.setImageResource(documentIcon);
+
+        int downloadIcon = isMe ? R.drawable.ic_download_white : R.drawable.ic_download;
+        ImageView downloadImage = view.findViewById(R.id.iv_download);
+        downloadImage.setImageResource(downloadIcon);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            view.setBackground(backgroundDrawable);
+        } else {
+            view.setBackgroundDrawable(backgroundDrawable);
+        }
+        return new DocumentMessageHolder(view);
     }
 
     @Override
     public void bindMessageHolder(final DocumentMessageHolder messageHolder, final Message message) {
-        messageHolder.documentImage.setTag(message);
+        messageHolder.view.setTag(message);
         messageHolder.documentName.setText(message.getAttachment().getName());
         final Activity activity = activityWeakReference.get();
         if (activity == null) {
-            messageHolder.downloadIcon.setVisibility(View.GONE);
+            messageHolder.downloadIcon.setVisibility(View.INVISIBLE);
             return;
         }
-        messageHolder.documentImage.setOnClickListener(new View.OnClickListener() {
+        Drawable backgroundDrawable = messageHolder.view.getBackground().mutate();
+        boolean isFirstMessage = messageSpecs.isFirstMessage;
+        float cornerRadius = messageHolder.view.getContext()
+                .getResources().getDimensionPixelSize(R.dimen.message_bubble_corners_radius);
+        if (isFirstMessage) {
+            float[] cornerRadii = messageSpecs.isMe ? new float[]{cornerRadius, cornerRadius,
+                    0f, 0f, cornerRadius, cornerRadius, cornerRadius, cornerRadius}
+                    : new float[]{0f, 0f, cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius, cornerRadius, cornerRadius};
+            ((GradientDrawable) backgroundDrawable).setCornerRadii(cornerRadii);
+        } else {
+            ((GradientDrawable) backgroundDrawable).setCornerRadius(cornerRadius);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            messageHolder.view.setBackground(backgroundDrawable);
+        } else {
+            messageHolder.view.setBackgroundDrawable(backgroundDrawable);
+        }
+        messageHolder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!FileUtils.fileExists(activity, message.getAttachment().getUrl(), Environment.DIRECTORY_DOWNLOADS)) {
                     messageHolder.progressBar.setVisibility(View.VISIBLE);
                     messageHolder.progressBar.setProgress(0);
                 } else {
-                    messageHolder.progressBar.setVisibility(View.GONE);
+                    messageHolder.progressBar.setVisibility(View.INVISIBLE);
                 }
                 onDocumentClick(v, messageHolder.progressBar, messageHolder.downloadIcon);
             }
         });
 
         if (FileUtils.fileExists(activity, message.getAttachment().getUrl(), Environment.DIRECTORY_DOWNLOADS)) {
-            messageHolder.downloadIcon.setVisibility(View.GONE);
+            messageHolder.downloadIcon.setVisibility(View.INVISIBLE);
         } else {
             messageHolder.downloadIcon.setVisibility(View.VISIBLE);
         }
@@ -129,14 +169,15 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
         ProgressBar progressBar;
         ImageView downloadIcon;
         TextView documentName;
+        View view;
 
         public DocumentMessageHolder(View view) {
+            this.view = view;
             documentImage = view.findViewById(R.id.iv_document);
             progressBar = view.findViewById(R.id.progress_bar);
             downloadIcon = view.findViewById(R.id.iv_download);
             documentName = view.findViewById(R.id.tv_document_name);
         }
-
     }
 
     protected void downloadDocument(View v, final ProgressBar progressBar, final ImageView downloadIcon,
@@ -147,7 +188,7 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
                 public void run() {
                     Uri path = null;
                     try {
-                       File file =  FileUtils.downloadFile(activity, message.getAttachment().getUrl(),
+                        File file = FileUtils.downloadFile(activity, message.getAttachment().getUrl(),
                                 Environment.DIRECTORY_DOWNLOADS, new DownloadFileListener() {
                                     @Override
                                     public void downloadProgress(final int progress) {
@@ -158,7 +199,7 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
                                                     progressBar.setProgress(progress);
                                                 }
                                                 if (downloadIcon != null) {
-                                                    downloadIcon.setVisibility(View.GONE);
+                                                    downloadIcon.setVisibility(View.INVISIBLE);
                                                 }
                                             }
                                         });
@@ -169,19 +210,19 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
                                         handler.post(new Runnable() {
                                             @Override
                                             public void run() {
-                                                progressBar.setVisibility(View.GONE);
+                                                progressBar.setVisibility(View.INVISIBLE);
 
                                             }
                                         });
                                     }
                                 });
-                       if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                           path = FileProvider.getUriForFile(activity,
-                                   activity.getPackageName() + ".chatcamp.fileprovider", file
-                           );
-                       } else {
-                           path = Uri.fromFile(file);
-                       }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            path = FileProvider.getUriForFile(activity,
+                                    activity.getPackageName() + ".chatcamp.fileprovider", file
+                            );
+                        } else {
+                            path = Uri.fromFile(file);
+                        }
 
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setDataAndType(path, message.getAttachment().getType());
