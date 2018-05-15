@@ -31,7 +31,7 @@ import io.chatcamp.sdk.Message;
  * Created by shubhamdhabhai on 07/05/18.
  */
 
-
+// This should be the last factory added to adapter as it returns true for all the attachment types
 public class FileMessageFactory extends MessageFactory<FileMessageFactory.DocumentMessageHolder> {
 
     private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE_MEDIA = 104;
@@ -50,9 +50,10 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
     @Override
     public boolean isBindable(Message message) {
         if (message.getType().equals("attachment")) {
-            if (message.getAttachment().isDocument()) {
-                return true;
-            }
+//            if (message.getAttachment().isDocument()) {
+//                return true;
+//            }
+            return true;
         }
         return false;
     }

@@ -1,6 +1,7 @@
 package com.stfalcon.chatkit.messages.messagetypes;
 
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -53,7 +54,25 @@ public class TextMessageFactory extends MessageFactory<TextMessageFactory.TextMe
 
     @Override
     public void bindMessageHolder(TextMessageHolder cellHolder, Message message) {
+        Drawable backgroundDrawable = cellHolder.messageText.getBackground().mutate();
         cellHolder.messageText.setText(message.getText());
+        boolean isFirstMessage = messageSpecs.isFirstMessage;
+        float cornerRadius = cellHolder.messageText.getContext()
+                .getResources().getDimensionPixelSize(R.dimen.message_bubble_corners_radius);
+        if (isFirstMessage) {
+            float[] cornerRadii = messageSpecs.isMe ? new float[]{cornerRadius, cornerRadius,
+                    0f, 0f, cornerRadius, cornerRadius, cornerRadius, cornerRadius}
+                    : new float[]{0f, 0f, cornerRadius, cornerRadius,
+                    cornerRadius, cornerRadius, cornerRadius, cornerRadius};
+            ((GradientDrawable) backgroundDrawable).setCornerRadii(cornerRadii);
+        } else {
+            ((GradientDrawable) backgroundDrawable).setCornerRadius(cornerRadius);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            cellHolder.messageText.setBackground(backgroundDrawable);
+        } else {
+            cellHolder.messageText.setBackgroundDrawable(backgroundDrawable);
+        }
     }
 
     public static class TextMessageHolder extends MessageFactory.MessageHolder {

@@ -36,6 +36,7 @@ import com.stfalcon.chatkit.messages.database.ChatCampDatabaseHelper;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
 import com.stfalcon.chatkit.messages.sender.AttachmentSender;
 import com.stfalcon.chatkit.messages.typing.TypingFactory;
+import com.stfalcon.chatkit.utils.CircleTransform;
 import com.stfalcon.chatkit.utils.DateFormatter;
 
 import java.util.ArrayList;
@@ -304,6 +305,9 @@ public class MessagesListAdapter
         Message message = getItem(position);
         holder.message = message;
         MessageType messageType = viewTypeMessageTypeMap.get(holder.getItemViewType());
+        MessageFactory.MessageHolder messageHolder = holder.messageHolder;
+        holder.messageSpecs.isMe = messageType.isMe;
+        holder.messageSpecs.position = position;
         //TODO Get image reaource from style and also add in style to show or not the read receipt for both me and their
         if (message.getInsertedAt() * 1000 > lastReadTime) {
             // message is not read by everyone
@@ -331,26 +335,26 @@ public class MessagesListAdapter
         }
 
         holder.messageUsername.setText(username);
-        //TODO add circular transform
+        //TODO use imageloader
         Picasso.with(context).load(message.getUser().getAvatarUrl())
-                .placeholder(R.drawable.icon_default_contact).into(holder.messageUserAvatar);
+                .placeholder(R.drawable.icon_default_contact)
+                .transform(new CircleTransform()).into(holder.messageUserAvatar);
         // Cluster messages
         {
             if (cluster.clusterWithNext && !cluster.dateBoundaryWithNext) {
                 // dont show avatar and name
                 holder.messageUserAvatar.setVisibility(View.GONE);
                 holder.messageUsername.setVisibility(View.GONE);
+                holder.messageSpecs.isFirstMessage = false;
             } else {
                 //show both avatar and name
                 //TODO use imageloader to load the image
                 holder.messageUserAvatar.setVisibility(View.VISIBLE);
                 holder.messageUsername.setVisibility(View.VISIBLE);
+                holder.messageSpecs.isFirstMessage = true;
             }
         }
-        MessageFactory.MessageHolder messageHolder = holder.messageHolder;
-//        messageHolder.setMessage(message);
-        holder.messageSpecs.isMe = messageType.isMe;
-        holder.messageSpecs.position = position;
+        messageType.messageFactory.setMessageSpecs(holder.messageSpecs);
         messageType.messageFactory.bindMessageHolder(messageHolder, message);
     }
 

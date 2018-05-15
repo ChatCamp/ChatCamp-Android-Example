@@ -66,6 +66,7 @@ public abstract class MessageFactory<T extends MessageFactory.MessageHolder> {
     public static class MessageSpecs {
         public boolean isMe;
         public int position;
+        public boolean isFirstMessage;
 //        public MessagesListStyle messageStyle;
     }
 }

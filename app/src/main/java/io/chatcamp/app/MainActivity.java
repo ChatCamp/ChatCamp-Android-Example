@@ -99,18 +99,20 @@ public class MainActivity extends AppCompatActivity {
                             Intent intent = new Intent(MainActivity.this, ListActivity.class);
                             startActivity(intent);
 
-                            Log.d("CHATCAMP APP", FirebaseInstanceId.getInstance().getToken());
+                            //Log.d("CHATCAMP APP", FirebaseInstanceId.getInstance().getToken());
 
 
                         }
                     });
-                    ChatCamp.updateUserPushToken(FirebaseInstanceId.getInstance().getToken(), new ChatCamp.UserPushTokenUpdateListener() {
-                        @Override
-                        public void onUpdated(User user, ChatCampException e) {
-                            Log.d("CHATCAMP_APP", "PUSH TOKEN REGISTERED");
+                    if(FirebaseInstanceId.getInstance().getToken() != null) {
+                        ChatCamp.updateUserPushToken(FirebaseInstanceId.getInstance().getToken(), new ChatCamp.UserPushTokenUpdateListener() {
+                            @Override
+                            public void onUpdated(User user, ChatCampException e) {
+                                Log.d("CHATCAMP_APP", "PUSH TOKEN REGISTERED");
 
-                        }
-                    });
+                            }
+                        });
+                    }
                 }
             }
         });
