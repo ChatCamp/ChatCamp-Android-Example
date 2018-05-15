@@ -10,8 +10,7 @@
         android:id="@+id/iv_document"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_document_chat"
-        android:layout_centerInParent="true"/>
+        android:src="@drawable/ic_document_chat" />
 
     <TextView
         android:id="@+id/tv_document_name"

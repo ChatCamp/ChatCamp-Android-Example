@@ -328,7 +328,7 @@ public class MessagesListAdapter
 
         Date date = new Date();
         date.setTime(message.getInsertedAt() * 1000);
-        holder.messageTime.setText(DateFormatter.format(date, "MM-dd-yyyy"));
+        holder.messageTime.setText(DateFormatter.format(date, DateFormatter.Template.TIME));
         String username = "Unknown";
         if (message.getUser() != null && !TextUtils.isEmpty(message.getUser().getDisplayName())) {
             username = message.getUser().getDisplayName();
