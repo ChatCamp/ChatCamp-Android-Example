@@ -46,14 +46,16 @@ public class MessagesList extends RecyclerView {
     public MessagesList(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         parseStyle(context, attrs);
+        init();
     }
 
     public MessagesList(Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         parseStyle(context, attrs);
+        init();
     }
 
-    public void init() {
+    private void init() {
         adapter = new MessagesListAdapter(getContext());
         setAdapter(adapter);
     }

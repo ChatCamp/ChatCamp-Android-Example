@@ -35,6 +35,12 @@
     <dimen name="message_incoming_bubble_margin_right">40dp</dimen>
     <dimen name="message_outcoming_bubble_margin_left">88dp</dimen>
 
+    <!--Header dimens-->
+    <dimen name="header_view_text_size">16sp</dimen>
+    <dimen name="header_view_image_height">36dp</dimen>
+    <dimen name="header_view_image_width">36dp</dimen>
+    <dimen name="header_view_title_left_margin">8dp</dimen>
+
     <!--chat camp dimen-->
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>

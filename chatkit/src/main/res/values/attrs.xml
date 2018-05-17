@@ -226,4 +226,18 @@
 
     </declare-styleable>
 
+    <declare-styleable name="HeaderView">
+        <attr name="backgroundColor" format="color|reference"/>
+        <attr name="headerTitleTextSize" format="dimension|reference"/>
+        <attr name="headerTitleTextStyle">
+            <flag name="normal" value="0"/>
+            <flag name="bold" value="1"/>
+            <flag name="italic" value="2"/>
+        </attr>
+        <attr name="headerTitleTextColor" format="color|reference"/>
+        <attr name="imageHeight" format="dimension|reference"/>
+        <attr name="imageWidth" format="dimension|reference"/>
+        <attr name="headerTitleMarginLeft" format="dimension|reference"/>
+    </declare-styleable>
+
 </resources>

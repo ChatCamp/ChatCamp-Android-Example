@@ -4,11 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,6 +22,8 @@ import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.conversationdetails.GroupDetailActivity;
 import com.stfalcon.chatkit.conversationdetails.UserProfileActivity;
+import com.stfalcon.chatkit.utils.AvatarLoader;
+import com.stfalcon.chatkit.utils.HeaderViewClickListener;
 
 import java.util.List;
 
@@ -37,6 +42,9 @@ public class HeaderView extends LinearLayout {
     private TextView groupTitleTv;
     private BaseChannel channel;
     private Participant otherParticipant;
+    private HeaderStyle headerStyle;
+    private AvatarLoader avatarLoader;
+    private HeaderViewClickListener headerViewClickListener;
 
     public HeaderView(Context context) {
         super(context);
@@ -56,15 +64,36 @@ public class HeaderView extends LinearLayout {
     private void init(Context context) {
         inflate(context, R.layout.layout_header, this);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-
         groupImageIv = toolbar.findViewById(R.id.iv_group_image);
         groupTitleTv = toolbar.findViewById(R.id.tv_group_name);
     }
 
     private void init(Context context, AttributeSet attrs) {
         init(context);
+        headerStyle = HeaderStyle.parseStyle(context, attrs);
+        toolbar.setBackgroundColor(headerStyle.getBackgroundColor());
+        groupImageIv.getLayoutParams().height = headerStyle.getImageHeight();
+        groupImageIv.getLayoutParams().width = headerStyle.getImageWidth();
+        groupTitleTv.setTextColor(headerStyle.getTitleTextColor());
+        groupTitleTv.setTextSize(TypedValue.COMPLEX_UNIT_PX, headerStyle.getTitleTextSize());
+        groupTitleTv.setTypeface(groupTitleTv.getTypeface(), headerStyle.getTitleTextStyle());
+        LayoutParams titleParams = (LayoutParams) groupTitleTv.getLayoutParams();
+        titleParams.leftMargin = headerStyle.getTitleMarginLeft();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            titleParams.setMarginStart(headerStyle.getTitleMarginLeft());
+        }
+        groupTitleTv.setLayoutParams(titleParams);
     }
 
+    public void setAvatarLoader(AvatarLoader avatarLoader) {
+        this.avatarLoader = avatarLoader;
+    }
+
+    public void setHeaderViewClickListener(HeaderViewClickListener headerViewClickListener) {
+        this.headerViewClickListener = headerViewClickListener;
+    }
+
+    //TODO use Chatcamp.getCurrentUser().getId() and remove senderId from argument
     public void setChannel(BaseChannel channel, String senderId) {
         this.channel = channel;
         boolean isOneToOneConversation = false;
@@ -73,20 +102,24 @@ public class HeaderView extends LinearLayout {
             if (groupChannel.getParticipants().size() <= 2 && groupChannel.isDistinct()) {
                 isOneToOneConversation = true;
             }
-        }
-
-        if (isOneToOneConversation) {
-            List<Participant> participants = ((GroupChannel) channel).getParticipants();
-            for (Participant participant : participants) {
-                if (!participant.getId().equals(senderId)) {
-                    otherParticipant = participant;
+            if (isOneToOneConversation) {
+                List<Participant> participants = ((GroupChannel) channel).getParticipants();
+                for (Participant participant : participants) {
+                    if (!participant.getId().equals(senderId)) {
+                        otherParticipant = participant;
+                    }
                 }
+                populateToobar(otherParticipant.getAvatarUrl(), otherParticipant.getDisplayName());
+            } else {
+                populateToobar(channel.getAvatarUrl(), channel.getName());
             }
-            populateToobar(otherParticipant.getAvatarUrl(), otherParticipant.getDisplayName());
         } else {
             populateToobar(channel.getAvatarUrl(), channel.getName());
         }
-        OnTitleClickListener titleClickListener = new OnTitleClickListener(channel, isOneToOneConversation);
+
+        OnTitleClickListener titleClickListener =
+                new OnTitleClickListener(channel.getId(), isOneToOneConversation,
+                        otherParticipant == null ? null : otherParticipant.getId());
         groupTitleTv.setOnClickListener(titleClickListener);
         groupImageIv.setOnClickListener(titleClickListener);
     }
@@ -96,52 +129,61 @@ public class HeaderView extends LinearLayout {
     }
 
     private void populateToobar(String imageUrl, String title) {
-        Picasso.with(getContext()).load(imageUrl)
-                .placeholder(R.drawable.icon_default_contact)
-                .error(R.drawable.icon_default_contact)
-                .into(groupImageIv, new Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Bitmap imageBitmap = ((BitmapDrawable) groupImageIv.getDrawable()).getBitmap();
-                        RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
-                        imageDrawable.setCircular(true);
-                        imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
-                        groupImageIv.setImageDrawable(imageDrawable);
-                    }
+        if (avatarLoader != null) {
+            avatarLoader.loadImage(groupImageIv, imageUrl);
+        } else {
+            Picasso.with(getContext()).load(imageUrl)
+                    .placeholder(R.drawable.icon_default_contact)
+                    .error(R.drawable.icon_default_contact)
+                    .into(groupImageIv, new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Bitmap imageBitmap = ((BitmapDrawable) groupImageIv.getDrawable()).getBitmap();
+                            RoundedBitmapDrawable imageDrawable = RoundedBitmapDrawableFactory.create(getResources(), imageBitmap);
+                            imageDrawable.setCircular(true);
+                            imageDrawable.setCornerRadius(Math.max(imageBitmap.getWidth(), imageBitmap.getHeight()) / 2.0f);
+                            groupImageIv.setImageDrawable(imageDrawable);
+                        }
 
-                    @Override
-                    public void onError() {
-                        groupImageIv.setImageResource(R.drawable.icon_default_contact);
-                    }
-                });
-
+                        @Override
+                        public void onError() {
+                            groupImageIv.setImageResource(R.drawable.icon_default_contact);
+                        }
+                    });
+        }
         groupTitleTv.setText(title);
     }
 
 
     class OnTitleClickListener implements View.OnClickListener {
 
-        private final BaseChannel channel;
+        private final String channelId;
         private final boolean isOneToOneConversation;
+        private final String participantId;
 
-        public OnTitleClickListener(BaseChannel channel, boolean isOnToOneConversation) {
-            this.channel = channel;
+        public OnTitleClickListener(String channelId, boolean isOnToOneConversation, String participantId) {
+            this.channelId = channelId;
             this.isOneToOneConversation = isOnToOneConversation;
+            this.participantId = participantId;
         }
 
         @Override
         public void onClick(View view) {
-            if (isOneToOneConversation) {
-                Intent intent = new Intent(getContext(), UserProfileActivity.class);
-                if (otherParticipant != null) {
-                    intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, otherParticipant.getId());
-                    intent.putExtra(UserProfileActivity.KEY_GROUP_ID, channel.getId());
-                }
-                getContext().startActivity(intent);
+            if(headerViewClickListener != null) {
+                headerViewClickListener.onHeaderViewClicked(channel.getId(), isOneToOneConversation, participantId);
             } else {
-                Intent intent = new Intent(getContext(), GroupDetailActivity.class);
-                intent.putExtra(GroupDetailActivity.KEY_GROUP_ID, channel.getId());
-                getContext().startActivity(intent);
+                if (isOneToOneConversation) {
+                    Intent intent = new Intent(getContext(), UserProfileActivity.class);
+                    if (!TextUtils.isEmpty(participantId)) {
+                        intent.putExtra(UserProfileActivity.KEY_PARTICIPANT_ID, participantId);
+                        intent.putExtra(UserProfileActivity.KEY_GROUP_ID, channelId);
+                    }
+                    getContext().startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getContext(), GroupDetailActivity.class);
+                    intent.putExtra(GroupDetailActivity.KEY_GROUP_ID, channelId);
+                    getContext().startActivity(intent);
+                }
             }
         }
     }

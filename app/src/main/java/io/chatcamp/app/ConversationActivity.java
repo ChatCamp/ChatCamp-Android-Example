@@ -1,10 +1,18 @@
 package io.chatcamp.app;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.messages.HeaderView;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
@@ -18,6 +26,8 @@ import com.stfalcon.chatkit.messages.sender.CameraAttachmentSender;
 import com.stfalcon.chatkit.messages.sender.FileAttachmentSender;
 import com.stfalcon.chatkit.messages.sender.GalleryAttachmentSender;
 import com.stfalcon.chatkit.messages.typing.DefaultTypingFactory;
+import com.stfalcon.chatkit.utils.AvatarLoader;
+import com.stfalcon.chatkit.utils.HeaderViewClickListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +130,6 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     public void getChannel(BaseChannel channel) {
         headerView.setChannel(channel, LocalStorage.getInstance().getUserId());
         input.setChannel(channel);
-        mMessagesList.init();
         mMessagesList.setSenderId(LocalStorage.getInstance().getUserId());
         MessageFactory[] messageFactories = new MessageFactory[4];
         messageFactories[0] = new TextMessageFactory();
