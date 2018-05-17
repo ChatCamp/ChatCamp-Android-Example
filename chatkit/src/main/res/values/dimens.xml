@@ -22,6 +22,7 @@
     <dimen name="dialog_divider_margin_left">88dp</dimen>
     <dimen name="dialog_divider_margin_right">0dp</dimen>
 
+    <!--Message Dimens-->
     <dimen name="message_avatar_width">40dp</dimen>
     <dimen name="message_avatar_height">40dp</dimen>
     <dimen name="message_padding_left">16dp</dimen>
@@ -31,9 +32,19 @@
     <dimen name="message_text_size">17sp</dimen>
     <dimen name="message_time_text_size">14sp</dimen>
     <dimen name="message_date_header_text_size">16sp</dimen>
-    <dimen name="message_date_header_padding">16dp</dimen>
+    <dimen name="message_date_header_padding">8dp</dimen>
     <dimen name="message_incoming_bubble_margin_right">40dp</dimen>
     <dimen name="message_outcoming_bubble_margin_left">88dp</dimen>
+    <dimen name="message_gap">4dp</dimen>
+    <dimen name="message_avatar_margin">8dp</dimen>
+    <dimen name="message_container_margin_left">56dp</dimen> <!-- this should be avatar_width + avatar_margin_left + avatar_margin_right -->
+    <dimen name="message_container_margin_right">56dp</dimen><!-- this should be avatar_width + avatar_margin_left + avatar_margin_right -->
+    <dimen name="message_text_username">12sp</dimen>
+    <dimen name="message_text_time">10sp</dimen>
+    <dimen name="message_username_padding_bottom">4dp</dimen>
+    <dimen name="message_time_text_padding_right">4dp</dimen>
+    <dimen name="message_read_Receipt_width">10dp</dimen>
+    <dimen name="message_read_Receipt_height">10dp</dimen>
 
     <!--Header dimens-->
     <dimen name="header_view_text_size">16sp</dimen>
@@ -45,7 +56,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
-    <dimen name="ic_tick_width">10dp</dimen>
+
     <dimen name="time_margin_top">4dp</dimen>
     <dimen name="avatar_name_margin_bottom">4dp</dimen>
     <dimen name="file_name_margin_top">4dp</dimen>
@@ -58,6 +69,4 @@
     <dimen name="margin_x">8dp</dimen>
     <dimen name="normal_text">16sp</dimen>
     <dimen name="default_text">14sp</dimen>
-    <dimen name="chat_user_name">12sp</dimen>
-    <dimen name="chat_time_text">10sp</dimen>
 </resources>

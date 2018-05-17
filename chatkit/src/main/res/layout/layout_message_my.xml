@@ -5,16 +5,15 @@
     android:layout_height="wrap_content"
     android:minHeight="40dp"
     android:orientation="vertical"
-    android:paddingBottom="4dp">
+    android:paddingBottom="@dimen/message_gap">
 
     <TextView
         android:id="@+id/messageDateHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        tools:text="this is date"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"/>
+        android:padding="@dimen/message_date_header_padding"
+        tools:text="this is date" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -22,31 +21,30 @@
 
         <ImageView
             android:id="@+id/messageUserAvatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentTop="true"
+            android:layout_width="@dimen/message_avatar_width"
+            android:layout_height="@dimen/message_avatar_height"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_margin="8dp"
-            android:src="@drawable/icon_default_contact" />
+            android:layout_alignParentTop="true"
+            android:layout_margin="@dimen/message_avatar_margin" />
 
         <LinearLayout
             android:id="@+id/messageContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_marginEnd="56dp"
-            android:layout_marginRight="56dp"
-            android:layout_marginLeft="56dp"
-            android:layout_marginStart="56dp">
+            android:layout_marginEnd="@dimen/message_container_margin_right"
+            android:layout_marginLeft="@dimen/message_container_margin_left"
+            android:layout_marginRight="@dimen/message_container_margin_right"
+            android:layout_marginStart="@dimen/message_container_margin_left"
+            android:orientation="horizontal">
 
             <android.support.v4.widget.Space
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"/>
+                android:layout_weight="1" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -57,8 +55,8 @@
                     android:id="@+id/messageUsername"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:textSize="@dimen/chat_user_name"
+                    android:paddingBottom="@dimen/message_username_padding_bottom"
+                    android:textSize="@dimen/message_text_username"
                     tools:text="Username" />
 
                 <FrameLayout
@@ -70,24 +68,29 @@
                     android:id="@+id/messageTimeContainer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="end">
+                    android:layout_gravity="end"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/messageTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:layout_marginRight="4dp"
-                        android:textSize="@dimen/chat_time_text"
+                        android:paddingRight="@dimen/message_time_text_padding_right"
+                        android:textSize="@dimen/message_text_time"
                         tools:text="12:30" />
 
-                    <ImageView
-                        android:id="@+id/messageReadReceipt"
-                        android:layout_width="@dimen/ic_tick_width"
-                        android:layout_height="@dimen/ic_tick_width"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/single_tick" />
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <!--TODO Remove this image view and create a separate layout and add it as default view-->
+                        <ImageView
+                            android:id="@+id/messageReadReceipt"
+                            android:layout_width="@dimen/message_read_Receipt_width"
+                            android:layout_height="@dimen/message_read_Receipt_width"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/single_tick" />
+                    </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

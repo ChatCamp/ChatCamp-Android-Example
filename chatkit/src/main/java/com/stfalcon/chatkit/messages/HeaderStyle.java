@@ -36,6 +36,7 @@ public class HeaderStyle extends Style {
                 headerStyle.getDimension(R.dimen.header_view_image_width));
         headerStyle.titleMarginLeft = typedArray.getDimensionPixelSize(R.styleable.HeaderView_headerTitleMarginLeft,
                 headerStyle.getDimension(R.dimen.header_view_title_left_margin));
+        typedArray.recycle();
         return headerStyle;
     }
 
