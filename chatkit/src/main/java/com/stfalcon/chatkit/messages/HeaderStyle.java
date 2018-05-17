@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 
 import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.Style;
@@ -49,16 +48,8 @@ public class HeaderStyle extends Style {
         return backgroundColor;
     }
 
-    public void setBackgroundColor(int backgroundColor) {
-        this.backgroundColor = backgroundColor;
-    }
-
     public int getTitleTextSize() {
         return titleTextSize;
-    }
-
-    public void setTitleTextSize(int titleTextSize) {
-        this.titleTextSize = titleTextSize;
     }
 
     public int getTitleTextColor() {
@@ -73,31 +64,15 @@ public class HeaderStyle extends Style {
         return titleTextStyle;
     }
 
-    public void setTitleTextStyle(int titleTextStyle) {
-        this.titleTextStyle = titleTextStyle;
-    }
-
     public int getImageHeight() {
         return imageHeight;
-    }
-
-    public void setImageHeight(int imageHeight) {
-        this.imageHeight = imageHeight;
     }
 
     public int getImageWidth() {
         return imageWidth;
     }
 
-    public void setImageWidth(int imageWidth) {
-        this.imageWidth = imageWidth;
-    }
-
     public int getTitleMarginLeft() {
         return titleMarginLeft;
-    }
-
-    public void setTitleMarginLeft(int titleMarginLeft) {
-        this.titleMarginLeft = titleMarginLeft;
     }
 }

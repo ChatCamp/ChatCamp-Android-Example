@@ -69,6 +69,7 @@ public class MessageInput extends RelativeLayout
     @NonNull
     private TextSender textSender;
     private List<AttachmentSender> attachmentSenderList;
+    private OnSendCLickedListener sendClickListener;
 
     public MessageInput(Context context) {
         super(context);
@@ -117,10 +118,17 @@ public class MessageInput extends RelativeLayout
     public void onClick(View view) {
         int id = view.getId();
         if (id == R.id.messageSendButton) {
+            if (sendClickListener != null) {
+                sendClickListener.onSendClicked(input.toString());
+            }
             textSender.sendMessage(input.toString());
             messageInput.setText("");
         } else if (id == R.id.attachmentButton) {
-            if (attachmentSenderList != null && attachmentSenderList.size() > 0) {
+            boolean continueExecution = true;
+            if (attachmentsListener != null) {
+                continueExecution = attachmentsListener.onAddAttachments();
+            }
+            if (continueExecution && attachmentSenderList != null && attachmentSenderList.size() > 0) {
                 final BottomSheetDialog dialog = new BottomSheetDialog(getContext());
                 LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -148,8 +156,6 @@ public class MessageInput extends RelativeLayout
                     dialog.show();
                 }
             }
-            onAddAttachments();
-
         }
     }
 
@@ -179,19 +185,14 @@ public class MessageInput extends RelativeLayout
     public void afterTextChanged(Editable editable) {
         //do nothing
         //TODO Do we need typing indicator for Openchannel also
-        if(channel instanceof GroupChannel) {
+        if (channel instanceof GroupChannel) {
             String message = editable.toString().trim();
-            if(message.length() > 0) {
+            if (message.length() > 0) {
                 ((GroupChannel) channel).startTyping();
             } else {
                 ((GroupChannel) channel).stopTyping();
             }
         }
-    }
-
-
-    private void onAddAttachments() {
-        if (attachmentsListener != null) attachmentsListener.onAddAttachments();
     }
 
     public void setChannel(@NonNull BaseChannel channel) {
@@ -205,6 +206,10 @@ public class MessageInput extends RelativeLayout
 
     public void setAttachmentSenderList(List<AttachmentSender> attachmentSenderList) {
         this.attachmentSenderList = attachmentSenderList;
+    }
+
+    public void setOnSendClickListener(OnSendCLickedListener sendClickListener) {
+        this.sendClickListener = sendClickListener;
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
@@ -310,6 +315,10 @@ public class MessageInput extends RelativeLayout
         /**
          * Fires when user presses 'add' button.
          */
-        void onAddAttachments();
+        boolean onAddAttachments();
+    }
+
+    public interface OnSendCLickedListener {
+        void onSendClicked(String text);
     }
 }

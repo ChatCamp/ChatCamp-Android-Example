@@ -169,9 +169,12 @@ public class HeaderView extends LinearLayout {
 
         @Override
         public void onClick(View view) {
-            if(headerViewClickListener != null) {
-                headerViewClickListener.onHeaderViewClicked(channel.getId(), isOneToOneConversation, participantId);
-            } else {
+            boolean continueExecution = true;
+            if (headerViewClickListener != null) {
+                continueExecution = headerViewClickListener.onHeaderViewClicked(channel.getId(),
+                        isOneToOneConversation, participantId);
+            }
+            if(continueExecution) {
                 if (isOneToOneConversation) {
                     Intent intent = new Intent(getContext(), UserProfileActivity.class);
                     if (!TextUtils.isEmpty(participantId)) {
@@ -185,6 +188,7 @@ public class HeaderView extends LinearLayout {
                     getContext().startActivity(intent);
                 }
             }
+
         }
     }
 }

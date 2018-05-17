@@ -5,5 +5,5 @@ package com.stfalcon.chatkit.utils;
  */
 
 public interface HeaderViewClickListener {
-    void onHeaderViewClicked(String channelId, boolean isOneToOneConversation, String otherParticipantId);
+    boolean onHeaderViewClicked(String channelId, boolean isOneToOneConversation, String otherParticipantId);
 }
