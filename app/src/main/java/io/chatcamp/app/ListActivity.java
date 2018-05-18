@@ -7,30 +7,24 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.List;
+import com.stfalcon.chatkit.channel.ChannelAdapter;
+import com.stfalcon.chatkit.channel.ChannelList;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
 import io.chatcamp.app.setting.SettingActivity;
-import io.chatcamp.sdk.ChatCampException;
-import io.chatcamp.sdk.GroupChannel;
+import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
-import io.chatcamp.sdk.OpenChannel;
-import io.chatcamp.sdk.OpenChannelListQuery;
 
 public class ListActivity extends AppCompatActivity {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
+    private ChannelList channelList;
     private TabLayout mTabLayout;
     private TextView mTextMessage;
     private GroupChannelListQuery.ParticipantState groupFilter;
@@ -86,7 +80,7 @@ public class ListActivity extends AppCompatActivity {
                     mTabLayout.addTab(mTabLayout.newTab().setText(R.string.group_invited_channels));
                     mTabLayout.addTab(mTabLayout.newTab().setText(R.string.group_accepted_channels));
                     getSupportActionBar().setTitle("Group Channels");
-                    handleNavigationGroupChannels();
+                   // handleNavigationGroupChannels();
                     return true;
                 case R.id.navigation_settings:
 //                    mTextMessage.setText(R.string.title_notifications);
@@ -113,11 +107,7 @@ public class ListActivity extends AppCompatActivity {
         //Initializing the tablayout
         mTabLayout = (TabLayout) findViewById(R.id.group_navigation);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.rv_channels_list);
-
-        // use a linear layout manager
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
+        channelList = (ChannelList) findViewById(R.id.rv_channels_list);
 
         mTextMessage = (TextView) findViewById(R.id.message);
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
@@ -125,6 +115,16 @@ public class ListActivity extends AppCompatActivity {
         mChannelCreate = (FloatingActionButton) findViewById(R.id.floating_button_create);
         mChannelCreate.setOnClickListener(mChannelCreateClickListener);
         mTabLayout.addOnTabSelectedListener(mTabLayoutOnClickListener);
+        channelList.setChannelClickListener(new ChannelAdapter.ChannelClickedListener() {
+            @Override
+            public void onClick(BaseChannel baseChannel) {
+                Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
+                intent.putExtra("channelType", baseChannel.isOpenChannel() ? "open" : "group");
+                intent.putExtra("participantState", groupFilter.name());
+                intent.putExtra("channelId", baseChannel.getId());
+                startActivity(intent);
+            }
+        });
         handleNavigationOpenChannels();
     }
 
@@ -136,6 +136,7 @@ public class ListActivity extends AppCompatActivity {
     }
 
     private void handleNavigationGroupChannels() {
+        channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
 
 //        GroupChannel.create("iflychat 12", new String[]{"2", "3"}, false, new GroupChannel.CreateListener() {
 //            @Override
@@ -144,65 +145,66 @@ public class ListActivity extends AppCompatActivity {
 //            }
 //        });
 
-        GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
-        groupChannelListQuery.setParticipantState(groupFilter);
-        groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
-            @Override
-            public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
-
-                final List<GroupChannel> g = groupChannelList;
-
-
-                mAdapter = new GroupChannelListAdapter(ListActivity.this, g, new GroupChannelListAdapter.RecyclerViewClickListener() {
-                    @Override
-                    public void onClick(View view, GroupChannel groupChannelElement) {
-                        Toast.makeText(getApplicationContext(), "Element " + groupChannelElement.getName(), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
-                        intent.putExtra("channelType", "group");
-                        intent.putExtra("participantState", groupFilter.name());
-                        intent.putExtra("channelId", groupChannelElement.getId());
-                        startActivity(intent);
-                    }
-                });
-                mRecyclerView.setAdapter(mAdapter);
-
-
-//                final String groupChannelId = groupChannelList.get(0).getId();
-//                GroupChannel.get(groupChannelId, new GroupChannel.GetListener() {
+//        GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
+//        groupChannelListQuery.setParticipantState(groupFilter);
+//        groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
+//            @Override
+//            public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
+//
+//                final List<GroupChannel> g = groupChannelList;
+//
+//
+//                mAdapter = new GroupChannelListAdapter(ListActivity.this, g, new GroupChannelListAdapter.RecyclerViewClickListener() {
 //                    @Override
-//                    public void onResult(GroupChannel groupChannel) {
-//                        System.out.println("GET GROUP CHANNEL : " + groupChannel.getName());
+//                    public void onClick(View view, GroupChannel groupChannelElement) {
+//                        Toast.makeText(getApplicationContext(), "Element " + groupChannelElement.getName(), Toast.LENGTH_SHORT).show();
+//                        Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
+//                        intent.putExtra("channelType", "group");
+//                        intent.putExtra("participantState", groupFilter.name());
+//                        intent.putExtra("channelId", groupChannelElement.getId());
+//                        startActivity(intent);
 //                    }
 //                });
-            }
-        });
+//                mRecyclerView.setAdapter(mAdapter);
+//
+//
+////                final String groupChannelId = groupChannelList.get(0).getId();
+////                GroupChannel.get(groupChannelId, new GroupChannel.GetListener() {
+////                    @Override
+////                    public void onResult(GroupChannel groupChannel) {
+////                        System.out.println("GET GROUP CHANNEL : " + groupChannel.getName());
+////                    }
+////                });
+//            }
+//        });
     }
 
     private void handleNavigationOpenChannels() {
-        OpenChannelListQuery openChannelListQuery = OpenChannel.createOpenChannelListQuery();
-        openChannelListQuery.get(new OpenChannelListQuery.ResultHandler() {
-            @Override
-            public void onResult(List<OpenChannel> openChannelList, ChatCampException e) {
-                final List<OpenChannel> o = openChannelList;
-
-
-                getSupportActionBar().setTitle("Open Channels");
-                mTabLayout.setVisibility(View.GONE);
-                mAdapter = new OpenChannelListAdapter(o, new OpenChannelListAdapter.RecyclerViewClickListener() {
-                    @Override
-                    public void onClick(View view, int position) {
-                        OpenChannel openChannelElement = o.get(position);
-                        Toast.makeText(getApplicationContext(), "Element " + openChannelElement.getName(), Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
-                        intent.putExtra("channelType", "open");
-                        intent.putExtra("channelId", openChannelElement.getId());
-                        startActivity(intent);
-                    }
-                });
-                mRecyclerView.setAdapter(mAdapter);
-
-            }
-        });
+        channelList.setChannelType(BaseChannel.ChannelType.OPEN, null);
+//        OpenChannelListQuery openChannelListQuery = OpenChannel.createOpenChannelListQuery();
+//        openChannelListQuery.get(new OpenChannelListQuery.ResultHandler() {
+//            @Override
+//            public void onResult(List<OpenChannel> openChannelList, ChatCampException e) {
+//                final List<OpenChannel> o = openChannelList;
+//
+//
+//                getSupportActionBar().setTitle("Open Channels");
+//                mTabLayout.setVisibility(View.GONE);
+//                mAdapter = new OpenChannelListAdapter(o, new OpenChannelListAdapter.RecyclerViewClickListener() {
+//                    @Override
+//                    public void onClick(View view, int position) {
+//                        OpenChannel openChannelElement = o.get(position);
+//                        Toast.makeText(getApplicationContext(), "Element " + openChannelElement.getName(), Toast.LENGTH_SHORT).show();
+//                        Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
+//                        intent.putExtra("channelType", "open");
+//                        intent.putExtra("channelId", openChannelElement.getId());
+//                        startActivity(intent);
+//                    }
+//                });
+//                mRecyclerView.setAdapter(mAdapter);
+//
+//            }
+//        });
     }
 
 
@@ -210,20 +212,22 @@ public class ListActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (navigation.getSelectedItemId() == R.id.navigation_group_channels) {
+                //TODO add this task in the view itself so that user dont have to make this.
+//                channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
 
-                GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
-                groupChannelListQuery.setParticipantState(groupFilter);
-                groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
-                    @Override
-                    public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
-                        final List<GroupChannel> g = groupChannelList;
-                        if(mAdapter instanceof GroupChannelListAdapter) {
-                            ((GroupChannelListAdapter)mAdapter).clear();
-                            ((GroupChannelListAdapter)mAdapter).addAll(g);
-
-                        }
-                    }
-                });
+//                GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
+//                groupChannelListQuery.setParticipantState(groupFilter);
+//                groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
+//                    @Override
+//                    public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
+//                        final List<GroupChannel> g = groupChannelList;
+//                        if(mAdapter instanceof GroupChannelListAdapter) {
+//                            ((GroupChannelListAdapter)mAdapter).clear();
+//                            ((GroupChannelListAdapter)mAdapter).addAll(g);
+//
+//                        }
+//                    }
+//                });
             }
         }
     }

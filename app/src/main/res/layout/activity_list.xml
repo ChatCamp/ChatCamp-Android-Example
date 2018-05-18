@@ -48,7 +48,7 @@
             tools:layout_conversion_absoluteHeight="40dp"
             tools:layout_conversion_absoluteWidth="40dp" />
 
-        <android.support.v7.widget.RecyclerView
+        <com.stfalcon.chatkit.channel.ChannelList
             android:id="@+id/rv_channels_list"
             android:layout_width="0dp"
             android:layout_height="0dp"

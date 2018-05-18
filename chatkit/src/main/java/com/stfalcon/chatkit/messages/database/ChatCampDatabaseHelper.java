@@ -7,8 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
-import com.stfalcon.chatkit.messages.ConversationMessage;
-
 import java.util.ArrayList;
 import java.util.List;
 
