@@ -36,6 +36,7 @@
     <dimen name="message_incoming_bubble_margin_right">40dp</dimen>
     <dimen name="message_outcoming_bubble_margin_left">88dp</dimen>
     <dimen name="message_gap">4dp</dimen>
+    <dimen name="message_margin">8dp</dimen>
     <dimen name="message_avatar_margin">8dp</dimen>
     <dimen name="message_container_margin_left">56dp</dimen> <!-- this should be avatar_width + avatar_margin_left + avatar_margin_right -->
     <dimen name="message_container_margin_right">56dp</dimen><!-- this should be avatar_width + avatar_margin_left + avatar_margin_right -->

@@ -24,19 +24,14 @@
             android:layout_width="@dimen/message_avatar_width"
             android:layout_height="@dimen/message_avatar_height"
             android:layout_margin="@dimen/message_avatar_margin"
-            android:src="@drawable/icon_default_contact"
             android:layout_alignParentTop="true"/>
 
         <LinearLayout
             android:id="@+id/messageContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/message_container_margin_right"
-            android:layout_marginLeft="@dimen/message_container_margin_left"
-            android:layout_marginRight="@dimen/message_container_margin_right"
-            android:layout_marginStart="@dimen/message_container_margin_left"
             android:orientation="vertical"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentTop="true">
 
             <TextView
                 android:id="@+id/messageUsername"
@@ -68,7 +63,8 @@
 
                 <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical">
 
                     <!--TODO Remove this image view and create a separate layout and add it as default view-->
                     <ImageView

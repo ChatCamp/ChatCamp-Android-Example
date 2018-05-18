@@ -158,7 +158,13 @@ public class MessagesListStyle extends Style {
     private boolean showDateHeader;
 
     // space between messages
+    // TODO add this also
     private int messageGap; //  padding bottom in layout_message_my / layout_message_their
+
+    // left space of message
+    private int leftMargin;
+    //right space of message
+    private int rightMargin;
 
     static MessagesListStyle parse(Context context, AttributeSet attrs) {
         MessagesListStyle style = new MessagesListStyle(context, attrs);
@@ -211,7 +217,7 @@ public class MessagesListStyle extends Style {
         style.incomingTimeTextColor = typedArray.getColor(R.styleable.MessagesList_incomingTimeTextColor,
                 style.getColor(R.color.warm_grey_four));
         style.incomingTimeTextSize = typedArray.getDimensionPixelSize(R.styleable.MessagesList_incomingTimeTextSize,
-                style.getDimension(R.dimen.message_time_text_size));
+                style.getDimension(R.dimen.message_text_time));
         style.incomingTimeTextStyle = typedArray.getInt(R.styleable.MessagesList_incomingTimeTextStyle, Typeface.NORMAL);
         style.incomingTimeTextPaddingLeft = typedArray.getDimensionPixelSize(R.styleable.MessagesList_incomingTimeTextPaddingLeft, 0);
         style.incomingTimeTextPaddingRight = typedArray.getDimensionPixelSize(R.styleable.MessagesList_incomingTimeTextPaddingLeft,
@@ -288,7 +294,7 @@ public class MessagesListStyle extends Style {
         style.outcomingTimeTextColor = typedArray.getColor(R.styleable.MessagesList_outcomingTimeTextColor,
                 style.getColor(R.color.warm_grey_four));
         style.outcomingTimeTextSize = typedArray.getDimensionPixelSize(R.styleable.MessagesList_outcomingTimeTextSize,
-                style.getDimension(R.dimen.message_time_text_size));
+                style.getDimension(R.dimen.message_text_time));
         style.outcomingTimeTextStyle = typedArray.getInt(R.styleable.MessagesList_outcomingTimeTextStyle, Typeface.NORMAL);
         style.outcomingTimeTextPaddingLeft = typedArray.getDimensionPixelSize(R.styleable.MessagesList_outcomingTimeTextPaddingLeft, 0);
         style.outcomingTimeTextPaddingRight = typedArray.getDimensionPixelSize(R.styleable.MessagesList_outcomingTimeTextPaddingLeft,
@@ -334,6 +340,13 @@ public class MessagesListStyle extends Style {
         //Message gap
         style.messageGap = typedArray.getDimensionPixelSize(R.styleable.MessagesList_messageGap,
                 style.getDimension(R.dimen.message_gap));
+
+        // left space of message
+        style.leftMargin = typedArray.getDimensionPixelSize(R.styleable.MessagesList_leftMargin,
+                style.getDimension(R.dimen.message_margin));
+        // right space of message
+        style.rightMargin = typedArray.getDimensionPixelSize(R.styleable.MessagesList_rightMargin,
+                style.getDimension(R.dimen.message_margin));
         typedArray.recycle();
         return style;
     }
@@ -481,7 +494,7 @@ public class MessagesListStyle extends Style {
         return incomingReadReceiptLayout;
     }
 
-    public boolean isShowReadReceipt() {
+    public boolean isShowIncomingReadReceipt() {
         return showIncomingReadReceipt;
     }
 
@@ -697,7 +710,18 @@ public class MessagesListStyle extends Style {
         return showDateHeader;
     }
 
+    // Gap between messages
     public int getMessageGap() {
         return messageGap;
+    }
+
+    // left space of message
+    public int getLeftMargin() {
+        return leftMargin;
+    }
+
+    // right space of message
+    public int getRightMargin() {
+        return rightMargin;
     }
 }

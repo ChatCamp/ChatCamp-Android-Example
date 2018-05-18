@@ -23,10 +23,12 @@ import android.os.Looper;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -34,7 +36,6 @@ import com.stfalcon.chatkit.R;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.database.ChatCampDatabaseHelper;
 import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
-import com.stfalcon.chatkit.messages.sender.AttachmentSender;
 import com.stfalcon.chatkit.messages.typing.TypingFactory;
 import com.stfalcon.chatkit.utils.CircleTransform;
 import com.stfalcon.chatkit.utils.DateFormatter;
@@ -308,37 +309,136 @@ public class MessagesListAdapter
         MessageFactory.MessageHolder messageHolder = holder.messageHolder;
         holder.messageSpecs.isMe = messageType.isMe;
         holder.messageSpecs.position = position;
-        //TODO Get image reaource from style and also add in style to show or not the read receipt for both me and their
-        if (message.getInsertedAt() * 1000 > lastReadTime) {
-            // message is not read by everyone
-            holder.messageReadReceipt.setImageResource(R.drawable.single_tick);
-        } else {
-            holder.messageReadReceipt.setImageResource(R.drawable.double_tick);
+        // TODO for receipt we can pass a layout and use it, also add other custom attrs here
+        // read receipt
+        {
+            boolean readReceiptVisibility = messageType.isMe ? messagesListStyle.isShowOutcomingReadReceipt() : messagesListStyle.isShowIncomingReadReceipt();
+            if (readReceiptVisibility) {
+                holder.messageReadReceipt.setVisibility(View.VISIBLE);
+                if (message.getInsertedAt() * 1000 > lastReadTime) {
+                    // message is not read by everyone
+                    holder.messageReadReceipt.setImageResource(R.drawable.single_tick);
+                } else {
+                    holder.messageReadReceipt.setImageResource(R.drawable.double_tick);
+                }
+            } else {
+                holder.messageReadReceipt.setVisibility(View.GONE);
+            }
         }
-
         Cluster cluster = getClustering(message, position);
-        // Check if we want to add date header or not
+
+        // date header
         {
             if (cluster.dateBoundaryWithNext) {
-                bindDateTimeForMessage(holder, message);
+                if (messagesListStyle.isShowDateHeader()) {
+                    int dateHeaderPadding = messagesListStyle.getDateHeaderPadding();
+                    int dateHeaderTextColor = messagesListStyle.getDateHeaderTextColor();
+                    int dateHeaderTextSize = messagesListStyle.getDateHeaderTextSize();
+                    int dateHeaderTextStyle = messagesListStyle.getDateHeaderTextStyle();
+                    holder.messageDateHeader.setPadding(dateHeaderPadding, dateHeaderPadding, dateHeaderPadding, dateHeaderPadding);
+                    holder.messageDateHeader.setTextSize(TypedValue.COMPLEX_UNIT_PX, dateHeaderTextSize);
+                    holder.messageDateHeader.setTypeface(holder.messageDateHeader.getTypeface(), dateHeaderTextStyle);
+                    holder.messageDateHeader.setTextColor(dateHeaderTextColor);
+                    holder.messageDateHeader.setVisibility(View.VISIBLE);
+                    bindDateTimeForMessage(holder, message);
+                } else {
+                    holder.messageDateHeader.setVisibility(View.GONE);
+                }
             } else {
                 holder.messageDateHeader.setVisibility(View.GONE);
             }
         }
 
-        Date date = new Date();
-        date.setTime(message.getInsertedAt() * 1000);
-        holder.messageTime.setText(DateFormatter.format(date, DateFormatter.Template.TIME));
-        String username = "Unknown";
-        if (message.getUser() != null && !TextUtils.isEmpty(message.getUser().getDisplayName())) {
-            username = message.getUser().getDisplayName();
+        // time
+        {
+            boolean timeVisibility = messageType.isMe ? messagesListStyle.isShowOutcomingTimeText() : messagesListStyle.isShowIncomingTimeText();
+            String timeFormat = messageType.isMe ? messagesListStyle.getOutcomingTimeTextFormat() : messagesListStyle.getIncomingTimeTextFormat();
+            if (timeVisibility) {
+                holder.messageTime.setVisibility(View.VISIBLE);
+                int timeTextColor = messageType.isMe ? messagesListStyle.getOutcomingTimeTextColor() : messagesListStyle.getIncomingTimeTextColor();
+                int timeTextSize = messageType.isMe ? messagesListStyle.getOutcomingTimeTextSize() : messagesListStyle.getIncomingTimeTextSize();
+                int timeTextStyle = messageType.isMe ? messagesListStyle.getOutcomingTimeTextStyle() : messagesListStyle.getIncomingTimeTextStyle();
+                int timeTextPaddingLeft = messageType.isMe ? messagesListStyle.getOutcomingTimeTextPaddingLeft() : messagesListStyle.getIncomingTimeTextPaddingLeft();
+                int timeTextPaddingRight = messageType.isMe ? messagesListStyle.getOutcomingTimeTextPaddingRight() : messagesListStyle.getIncomingTimeTextPaddingRight();
+                int timeTextPaddingTop = messageType.isMe ? messagesListStyle.getOutcomingTimeTextPaddingTop() : messagesListStyle.getIncomingTimeTextPaddingTop();
+                int timeTextPaddingBottom = messageType.isMe ? messagesListStyle.getOutcomingTimeTextPaddingBottom() : messagesListStyle.getIncomingTimeTextPaddingBottom();
+                holder.messageTime.setPadding(timeTextPaddingLeft, timeTextPaddingTop, timeTextPaddingRight, timeTextPaddingBottom);
+                holder.messageTime.setTextSize(TypedValue.COMPLEX_UNIT_PX, timeTextSize);
+                holder.messageTime.setTypeface(holder.messageTime.getTypeface(), timeTextStyle);
+                holder.messageTime.setTextColor(timeTextColor);
+                Date date = new Date();
+                date.setTime(message.getInsertedAt() * 1000);
+                if (TextUtils.isEmpty(timeFormat)) {
+                    holder.messageTime.setText(DateFormatter.format(date, DateFormatter.Template.TIME));
+                } else {
+                    holder.messageTime.setText(DateFormatter.format(date, timeFormat));
+                }
+            } else {
+                holder.messageTime.setVisibility(View.GONE);
+            }
         }
 
-        holder.messageUsername.setText(username);
+
+        //username
+
+        boolean usernameVisibility = messageType.isMe ? messagesListStyle.isShowOutcomingUsername() : messagesListStyle.isShowIncomingUsername();
+        if (usernameVisibility) {
+            holder.messageUsername.setVisibility(View.VISIBLE);
+            int usernameTextColor = messageType.isMe ? messagesListStyle.getOutcomingUsernameTextColor() : messagesListStyle.getIncomingUsernameTextColor();
+            int usernameTextSize = messageType.isMe ? messagesListStyle.getOutcomingUsernameTextSize() : messagesListStyle.getIncomingUsernameTextSize();
+            int usernameTextStyle = messageType.isMe ? messagesListStyle.getOutcomingUsernameTextStyle() : messagesListStyle.getIncomingUsernameTextStyle();
+            int usernameTextPaddingLeft = messageType.isMe ? messagesListStyle.getOutcomingUsernameTextPaddingLeft() : messagesListStyle.getIncomingUsernameTextPaddingLeft();
+            int usernameTextPaddingRight = messageType.isMe ? messagesListStyle.getOutcomingUsernameTextPaddingRight() : messagesListStyle.getIncomingUsernameTextPaddingRight();
+            int usernameTextPaddingTop = messageType.isMe ? messagesListStyle.getOutcomingUsernameTextPaddingTop() : messagesListStyle.getIncomingUsernameTextPaddingTop();
+            int usernameTextPaddingBottom = messageType.isMe ? messagesListStyle.getOutcomingUsernameTextPaddingBottom() : messagesListStyle.getIncomingUsernameTextPaddingBottom();
+            String username = "Unknown";
+            if (message.getUser() != null && !TextUtils.isEmpty(message.getUser().getDisplayName())) {
+                username = message.getUser().getDisplayName();
+            }
+            holder.messageUsername.setPadding(usernameTextPaddingLeft, usernameTextPaddingTop, usernameTextPaddingRight, usernameTextPaddingBottom);
+            holder.messageUsername.setTextSize(TypedValue.COMPLEX_UNIT_PX, usernameTextSize);
+            holder.messageUsername.setTypeface(holder.messageUsername.getTypeface(), usernameTextStyle);
+            holder.messageUsername.setTextColor(usernameTextColor);
+            holder.messageUsername.setText(username);
+        } else {
+            holder.messageUsername.setVisibility(View.GONE);
+        }
+
         //TODO use imageloader
-        Picasso.with(context).load(message.getUser().getAvatarUrl())
-                .placeholder(R.drawable.icon_default_contact)
-                .transform(new CircleTransform()).into(holder.messageUserAvatar);
+        // avatar
+
+        boolean avatarVisibility = messageType.isMe ? messagesListStyle.isShowOutcomingAvatar() : messagesListStyle.isShowIncomingAvatar();
+        if (avatarVisibility) {
+            holder.messageUserAvatar.setVisibility(View.VISIBLE);
+            int avatarHeight = messageType.isMe ? messagesListStyle.getOutcomingAvatarHeight() : messagesListStyle.getIncomingAvatarHeight();
+            int avatarWidth = messageType.isMe ? messagesListStyle.getOutcomingAvatarWidth() : messagesListStyle.getIncomingAvatarWidth();
+            int avatarMarginLeft = messageType.isMe ? messagesListStyle.getOutcomingAvatarMarginLeft() : messagesListStyle.getIncomingAvatarMarginLeft();
+            int avatarMarginRight = messageType.isMe ? messagesListStyle.getOutcomingAvatarMarginRight() : messagesListStyle.getIncomingAvatarMarginRight();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) holder.messageUserAvatar.getLayoutParams();
+            params.width = avatarWidth;
+            params.height = avatarHeight;
+            params.setMargins(avatarMarginLeft, 0, avatarMarginRight, 0);
+            Picasso.with(context).load(message.getUser().getAvatarUrl())
+                    .placeholder(R.drawable.icon_default_contact)
+                    .transform(new CircleTransform()).into(holder.messageUserAvatar);
+        } else {
+            holder.messageUserAvatar.setVisibility(View.GONE);
+        }
+
+        //container layout
+        {
+            RelativeLayout.LayoutParams messageContainerParams = (RelativeLayout.LayoutParams) holder.messageContainer.getLayoutParams();
+            int messageContainerMarginRight = messagesListStyle.isShowOutcomingAvatar() ? messagesListStyle.getOutcomingAvatarWidth()
+                    + messagesListStyle.getOutcomingAvatarMarginLeft()
+                    + messagesListStyle.getOutcomingAvatarMarginRight()
+                    : messagesListStyle.getRightMargin();
+            int messageContainerMarginLeft = messagesListStyle.isShowIncomingAvatar() ?  messagesListStyle.getIncomingAvatarWidth()
+                    + messagesListStyle.getIncomingAvatarMarginLeft()
+                    + messagesListStyle.getIncomingAvatarMarginRight() : messagesListStyle.getLeftMargin();
+            messageContainerParams.setMargins(messageContainerMarginLeft, 0, messageContainerMarginRight, 0);
+            holder.messageContainer.setLayoutParams(messageContainerParams);
+        }
+
         // Cluster messages
         {
             if (cluster.clusterWithNext && !cluster.dateBoundaryWithNext) {
@@ -349,8 +449,16 @@ public class MessagesListAdapter
             } else {
                 //show both avatar and name
                 //TODO use imageloader to load the image
-                holder.messageUserAvatar.setVisibility(View.VISIBLE);
-                holder.messageUsername.setVisibility(View.VISIBLE);
+                if (avatarVisibility) {
+                    holder.messageUserAvatar.setVisibility(View.VISIBLE);
+                } else {
+                    holder.messageUserAvatar.setVisibility(View.GONE);
+                }
+                if (usernameVisibility) {
+                    holder.messageUsername.setVisibility(View.VISIBLE);
+                } else {
+                    holder.messageUsername.setVisibility(View.GONE);
+                }
                 holder.messageSpecs.isFirstMessage = true;
             }
         }

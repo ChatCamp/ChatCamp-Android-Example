@@ -198,6 +198,8 @@
         </attr>
         <attr name="showDateHeader" format="boolean|reference"/>
         <attr name="messageGap" format="dimension|reference"/>
+        <attr name="leftMargin" format="dimension|reference"/>
+        <attr name="rightMargin" format="dimension|reference"/>
     </declare-styleable>
 
     <attr name="DialogsListView" format="reference"/>

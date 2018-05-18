@@ -32,13 +32,9 @@
             android:id="@+id/messageContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
-            android:layout_marginEnd="@dimen/message_container_margin_right"
-            android:layout_marginLeft="@dimen/message_container_margin_left"
-            android:layout_marginRight="@dimen/message_container_margin_right"
-            android:layout_marginStart="@dimen/message_container_margin_left"
             android:orientation="horizontal">
 
             <android.support.v4.widget.Space
@@ -57,7 +53,8 @@
                     android:layout_height="wrap_content"
                     android:paddingBottom="@dimen/message_username_padding_bottom"
                     android:textSize="@dimen/message_text_username"
-                    tools:text="Username" />
+                    tools:text="Username"
+                    android:layout_gravity="end"/>
 
                 <FrameLayout
                     android:id="@+id/messageContentContainer"
@@ -77,11 +74,13 @@
                         android:layout_height="wrap_content"
                         android:paddingRight="@dimen/message_time_text_padding_right"
                         android:textSize="@dimen/message_text_time"
-                        tools:text="12:30" />
+                        tools:text="12:30"
+                        android:layout_gravity="center_vertical"/>
 
                     <FrameLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical">
 
                         <!--TODO Remove this image view and create a separate layout and add it as default view-->
                         <ImageView
