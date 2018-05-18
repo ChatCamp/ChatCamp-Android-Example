@@ -183,6 +183,9 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
     protected void downloadDocument(View v, final ProgressBar progressBar, final ImageView downloadIcon,
                                     final Activity activity) {
         if (v.getTag() != null && v.getTag() instanceof Message) {
+            if (downloadIcon != null) {
+                downloadIcon.setVisibility(View.INVISIBLE);
+            }
             final Message message = (Message) v.getTag();
             new Thread(new Runnable() {
                 public void run() {
@@ -197,9 +200,6 @@ public class FileMessageFactory extends MessageFactory<FileMessageFactory.Docume
                                             public void run() {
                                                 if (progressBar != null) {
                                                     progressBar.setProgress(progress);
-                                                }
-                                                if (downloadIcon != null) {
-                                                    downloadIcon.setVisibility(View.INVISIBLE);
                                                 }
                                             }
                                         });

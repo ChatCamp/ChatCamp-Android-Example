@@ -161,6 +161,9 @@ public class VideoMessageFactory extends MessageFactory<VideoMessageFactory.Vide
             return;
         }
         if (v.getTag() != null && v.getTag() instanceof Message) {
+            if (downloadIcon != null) {
+                downloadIcon.setVisibility(View.INVISIBLE);
+            }
             final Message message = (Message) v.getTag();
             final String imageUrl = message.getAttachment().getUrl();
             if (!TextUtils.isEmpty(imageUrl)) {
@@ -179,9 +182,6 @@ public class VideoMessageFactory extends MessageFactory<VideoMessageFactory.Vide
                                                         public void run() {
                                                             if (progressBar != null) {
                                                                 progressBar.setProgress(progress);
-                                                            }
-                                                            if (downloadIcon != null) {
-                                                                downloadIcon.setVisibility(View.INVISIBLE);
                                                             }
                                                         }
                                                     });

@@ -62,6 +62,9 @@ public class ImageMessageFactory extends MessageFactory<ImageMessageFactory.Imag
     @Override
     public ImageMessageHolder createMessageHolder(ViewGroup cellView, boolean isMe, LayoutInflater layoutInflater) {
         View view = layoutInflater.inflate(R.layout.layout_message_image, cellView, true);
+        int downloadIcon = isMe ? R.drawable.ic_download_white : R.drawable.ic_download;
+        ImageView downloadImage = view.findViewById(R.id.iv_download);
+        downloadImage.setImageResource(downloadIcon);
         return new ImageMessageHolder(view);
     }
 
@@ -124,6 +127,9 @@ public class ImageMessageFactory extends MessageFactory<ImageMessageFactory.Imag
             return;
         }
         if (v.getTag() != null && v.getTag() instanceof Message) {
+            if (downloadIcon != null) {
+                downloadIcon.setVisibility(View.GONE);
+            }
             final Message message = (Message) v.getTag();
             final String imageUrl = message.getAttachment().getUrl();
             if (!TextUtils.isEmpty(imageUrl)) {
@@ -142,9 +148,6 @@ public class ImageMessageFactory extends MessageFactory<ImageMessageFactory.Imag
                                                         public void run() {
                                                             if (progressBar != null) {
                                                                 progressBar.setProgress(progress);
-                                                            }
-                                                            if (downloadIcon != null) {
-                                                                downloadIcon.setVisibility(View.GONE);
                                                             }
                                                         }
                                                     });
