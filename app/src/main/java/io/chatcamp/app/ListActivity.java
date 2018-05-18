@@ -137,74 +137,10 @@ public class ListActivity extends AppCompatActivity {
 
     private void handleNavigationGroupChannels() {
         channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
-
-//        GroupChannel.create("iflychat 12", new String[]{"2", "3"}, false, new GroupChannel.CreateListener() {
-//            @Override
-//            public void onResult(GroupChannel groupChannel) {
-//                System.out.println("GROUP CREATED: " + groupChannel.getName());
-//            }
-//        });
-
-//        GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
-//        groupChannelListQuery.setParticipantState(groupFilter);
-//        groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
-//            @Override
-//            public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
-//
-//                final List<GroupChannel> g = groupChannelList;
-//
-//
-//                mAdapter = new GroupChannelListAdapter(ListActivity.this, g, new GroupChannelListAdapter.RecyclerViewClickListener() {
-//                    @Override
-//                    public void onClick(View view, GroupChannel groupChannelElement) {
-//                        Toast.makeText(getApplicationContext(), "Element " + groupChannelElement.getName(), Toast.LENGTH_SHORT).show();
-//                        Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
-//                        intent.putExtra("channelType", "group");
-//                        intent.putExtra("participantState", groupFilter.name());
-//                        intent.putExtra("channelId", groupChannelElement.getId());
-//                        startActivity(intent);
-//                    }
-//                });
-//                mRecyclerView.setAdapter(mAdapter);
-//
-//
-////                final String groupChannelId = groupChannelList.get(0).getId();
-////                GroupChannel.get(groupChannelId, new GroupChannel.GetListener() {
-////                    @Override
-////                    public void onResult(GroupChannel groupChannel) {
-////                        System.out.println("GET GROUP CHANNEL : " + groupChannel.getName());
-////                    }
-////                });
-//            }
-//        });
     }
 
     private void handleNavigationOpenChannels() {
         channelList.setChannelType(BaseChannel.ChannelType.OPEN, null);
-//        OpenChannelListQuery openChannelListQuery = OpenChannel.createOpenChannelListQuery();
-//        openChannelListQuery.get(new OpenChannelListQuery.ResultHandler() {
-//            @Override
-//            public void onResult(List<OpenChannel> openChannelList, ChatCampException e) {
-//                final List<OpenChannel> o = openChannelList;
-//
-//
-//                getSupportActionBar().setTitle("Open Channels");
-//                mTabLayout.setVisibility(View.GONE);
-//                mAdapter = new OpenChannelListAdapter(o, new OpenChannelListAdapter.RecyclerViewClickListener() {
-//                    @Override
-//                    public void onClick(View view, int position) {
-//                        OpenChannel openChannelElement = o.get(position);
-//                        Toast.makeText(getApplicationContext(), "Element " + openChannelElement.getName(), Toast.LENGTH_SHORT).show();
-//                        Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
-//                        intent.putExtra("channelType", "open");
-//                        intent.putExtra("channelId", openChannelElement.getId());
-//                        startActivity(intent);
-//                    }
-//                });
-//                mRecyclerView.setAdapter(mAdapter);
-//
-//            }
-//        });
     }
 
 
@@ -213,21 +149,6 @@ public class ListActivity extends AppCompatActivity {
         public void run() {
             if (navigation.getSelectedItemId() == R.id.navigation_group_channels) {
                 //TODO add this task in the view itself so that user dont have to make this.
-//                channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
-
-//                GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
-//                groupChannelListQuery.setParticipantState(groupFilter);
-//                groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
-//                    @Override
-//                    public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
-//                        final List<GroupChannel> g = groupChannelList;
-//                        if(mAdapter instanceof GroupChannelListAdapter) {
-//                            ((GroupChannelListAdapter)mAdapter).clear();
-//                            ((GroupChannelListAdapter)mAdapter).addAll(g);
-//
-//                        }
-//                    }
-//                });
             }
         }
     }
