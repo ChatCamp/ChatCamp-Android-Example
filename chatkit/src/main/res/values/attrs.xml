@@ -288,4 +288,38 @@
         <attr name="headerTitleMarginLeft" format="dimension|reference"/>
     </declare-styleable>
 
+    <declare-styleable name="ChannelList">
+        <attr name="avatarWidth" format="dimension|reference"/>
+        <attr name="avatarHeight" format="dimension|reference"/>
+        <attr name="nameTextSize" format="dimension|reference"/>
+        <attr name="nameTextStyle">
+            <flag name="normal" value="0"/>
+            <flag name="bold" value="1"/>
+            <flag name="italic" value="2"/>
+        </attr>
+        <attr name="nameTextColor" format="color|reference"/>
+        <attr name="lastMessageTextSize" format="dimension|reference"/>
+        <attr name="lastMessageTextStyle">
+            <flag name="normal" value="0"/>
+            <flag name="bold" value="1"/>
+            <flag name="italic" value="2"/>
+        </attr>
+        <attr name="lastMessageTextColor" format="color|reference"/>
+        <attr name="lastSeenTextSize" format="dimension|reference"/>
+        <attr name="lastSeenTextStyle">
+            <flag name="normal" value="0"/>
+            <flag name="bold" value="1"/>
+            <flag name="italic" value="2"/>
+        </attr>
+        <attr name="lastSeenTextColor" format="color|reference"/>
+        <attr name="unreadMessageCountTextSize" format="dimension|reference"/>
+        <attr name="unreadMessageCountTextColor" format="color|reference"/>
+        <attr name="unreadMessageCountTextStyle">
+            <flag name="normal" value="0"/>
+            <flag name="bold" value="1"/>
+            <flag name="italic" value="2"/>
+        </attr>
+        <attr name="unreadMessageCountBackgroundColor" format="color|reference"/>
+    </declare-styleable>
+
 </resources>

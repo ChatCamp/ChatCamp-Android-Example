@@ -2,10 +2,14 @@ package com.stfalcon.chatkit.channel;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +71,8 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     public void setChannelClickedListener(ChannelClickedListener channelClickedListener) {
         this.channelClickedListener = channelClickedListener;
     }
-    public void setChannelType(BaseChannel.ChannelType channelType,  GroupChannelListQuery.ParticipantState participantState) {
+
+    public void setChannelType(BaseChannel.ChannelType channelType, GroupChannelListQuery.ParticipantState participantState) {
         dataset.clear();
         if (channelType == BaseChannel.ChannelType.OPEN) {
             OpenChannelListQuery openChannelListQuery = OpenChannel.createOpenChannelListQuery();
@@ -78,14 +83,14 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     notifyDataSetChanged();
                 }
             });
-        } else if(channelType == BaseChannel.ChannelType.GROUP) {
+        } else if (channelType == BaseChannel.ChannelType.GROUP) {
             GroupChannelListQuery groupChannelListQuery = GroupChannel.createGroupChannelListQuery();
             groupChannelListQuery.setParticipantState(participantState);
             groupChannelListQuery.get(new GroupChannelListQuery.ResultHandler() {
                 @Override
                 public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
-                   dataset.addAll(groupChannelList);
-                   notifyDataSetChanged();
+                    dataset.addAll(groupChannelList);
+                    notifyDataSetChanged();
                 }
             });
         }
@@ -100,6 +105,38 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                                                                int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_channel_list, parent, false);
+        ImageView avatar = v.findViewById(R.id.iv_avatar);
+        TextView nameText = v.findViewById(R.id.tv_title);
+        TextView timeText = v.findViewById(R.id.tv_time);
+        TextView lastMessageText = v.findViewById(R.id.tv_last_message);
+        TextView unreadMessageText = v.findViewById(R.id.tv_unread_message);
+
+        avatar.getLayoutParams().width = channelListStyle.getAvatarWidth();
+        avatar.getLayoutParams().height = channelListStyle.getAvatarHeight();
+
+        nameText.setTextColor(channelListStyle.getNameTextColor());
+        nameText.setTextSize(TypedValue.COMPLEX_UNIT_PX, channelListStyle.getNameTextSize());
+        nameText.setTypeface(nameText.getTypeface(), channelListStyle.getNameTextStyle());
+
+        timeText.setTextSize(TypedValue.COMPLEX_UNIT_PX, channelListStyle.getLastSeenTextSize());
+        timeText.setTextColor(channelListStyle.getLastSeenTextColor());
+        timeText.setTypeface(timeText.getTypeface(), channelListStyle.getLastSeenTextStyle());
+
+        lastMessageText.setTextSize(TypedValue.COMPLEX_UNIT_PX, channelListStyle.getLastMessageTextSize());
+        lastMessageText.setTextColor(channelListStyle.getLastMessageTextColor());
+        lastMessageText.setTypeface(lastMessageText.getTypeface(), channelListStyle.getLastMessageTextStyle());
+
+        Drawable unreadMessageTextBackground = unreadMessageText.getBackground();
+        unreadMessageTextBackground.mutate().setColorFilter(channelListStyle.getUnreadMessageCountBackgroundColor(), PorterDuff.Mode.SRC_IN);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            unreadMessageText.setBackground(unreadMessageTextBackground);
+        } else {
+            unreadMessageText.setBackgroundDrawable(unreadMessageTextBackground);
+        }
+        //unreadMessageText.setBackgroundColor(channelListStyle.getUnreadMessageCountBackgroundColor());
+        unreadMessageText.setTextSize(TypedValue.COMPLEX_UNIT_PX, channelListStyle.getUnreadMessageCountTextSize());
+        unreadMessageText.setTextColor(channelListStyle.getUnreadMessageCountTextColor());
+        unreadMessageText.setTypeface(unreadMessageText.getTypeface(), channelListStyle.getUnreadMessageCountTextStyle());
 
         ChannelViewHolder vh = new ChannelViewHolder(v, channelClickedListener);
         return vh;
@@ -138,7 +175,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
             itemView.setTag(baseChannel);
             itemView.setOnClickListener(this);
             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            if (baseChannel instanceof GroupChannel && ((GroupChannel)baseChannel).getLastMessage() != null) {
+            if (baseChannel instanceof GroupChannel && ((GroupChannel) baseChannel).getLastMessage() != null) {
                 GroupChannel groupChannel = (GroupChannel) baseChannel;
                 Date date = new Date(groupChannel.getLastMessage().getInsertedAt() * 1000);
                 timeTv.setText(format.format(date));
@@ -151,15 +188,15 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                 lastMessageTv.setText("");
                 timeTv.setText("");
             }
-            if (baseChannel instanceof GroupChannel && ((GroupChannel)baseChannel).getUnreadMessageCount() > 0) {
+            if (baseChannel instanceof GroupChannel && ((GroupChannel) baseChannel).getUnreadMessageCount() > 0) {
                 unreadMessageTv.setVisibility(View.VISIBLE);
-                unreadMessageTv.setText(String.valueOf(((GroupChannel)baseChannel).getUnreadMessageCount()));
+                unreadMessageTv.setText(String.valueOf(((GroupChannel) baseChannel).getUnreadMessageCount()));
             } else {
                 unreadMessageTv.setVisibility(View.GONE);
             }
             if (baseChannel instanceof GroupChannel
-                    && ((GroupChannel)baseChannel).getParticipantsCount() <= 2
-                    && ((GroupChannel)baseChannel).isDistinct()) {
+                    && ((GroupChannel) baseChannel).getParticipantsCount() <= 2
+                    && ((GroupChannel) baseChannel).isDistinct()) {
                 GroupChannel.get(baseChannel.getId(), new GroupChannel.GetListener() {
                     @Override
                     public void onResult(GroupChannel groupChannel, ChatCampException e) {
@@ -204,7 +241,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
 
         @Override
         public void onClick(View view) {
-            if(channelClickedListener != null) {
+            if (channelClickedListener != null) {
                 channelClickedListener.onClick((BaseChannel) view.getTag()); // call the onClick in the OnItemClickListener
             }
         }
