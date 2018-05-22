@@ -18,7 +18,7 @@ public class ChatCampAppFirebaseInstanceIDService extends FirebaseInstanceIdServ
         // Get updated InstanceID token.
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d("CHATCAMP APP", "Refreshed token: " + refreshedToken);
-        if(FirebaseInstanceId.getInstance().getToken() != null) {
+        if(FirebaseInstanceId.getInstance().getToken() != null && ChatCamp.getConnectionState() == ChatCamp.ConnectionState.OPEN) {
             ChatCamp.updateUserPushToken(FirebaseInstanceId.getInstance().getToken(), new ChatCamp.UserPushTokenUpdateListener() {
                 @Override
                 public void onUpdated(User user, ChatCampException e) {
