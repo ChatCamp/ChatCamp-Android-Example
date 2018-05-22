@@ -50,7 +50,7 @@ public class UserListFragment extends Fragment implements UserListAdapter.UserCl
             @Override
             public void onResult(List<User> userList, ChatCampException e) {
                 for(User user : userList) {
-                    if(user.getId().equals(LocalStorage.getInstance().getUserId())) {
+                    if(user.getId().equals(ChatCamp.getCurrentUser().getId())) {
                         userList.remove(user);
                         break;
                     }
@@ -62,8 +62,7 @@ public class UserListFragment extends Fragment implements UserListAdapter.UserCl
 
     @Override
     public void onUserClicked(User user) {
-        //TODO use userId from chatcamp
-        GroupChannel.create("OneToOne", new String[]{LocalStorage.getInstance().getUserId(), user.getId()}, true, new BaseChannel.CreateListener() {
+        GroupChannel.create("OneToOne", new String[]{ChatCamp.getCurrentUser().getId(), user.getId()}, true, new BaseChannel.CreateListener() {
             @Override
             public void onResult(BaseChannel groupChannel, ChatCampException e) {
                 Intent intent = new Intent(getActivity(), ConversationActivity.class);

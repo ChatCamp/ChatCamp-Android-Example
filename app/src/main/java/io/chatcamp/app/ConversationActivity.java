@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
@@ -128,9 +129,8 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     }
 
     public void getChannel(BaseChannel channel) {
-        headerView.setChannel(channel, LocalStorage.getInstance().getUserId());
+        headerView.setChannel(channel);
         input.setChannel(channel);
-        mMessagesList.setSenderId(LocalStorage.getInstance().getUserId());
         MessageFactory[] messageFactories = new MessageFactory[4];
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);

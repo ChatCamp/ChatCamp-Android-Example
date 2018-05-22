@@ -66,7 +66,6 @@ public class MessagesListAdapter
     private static final int VIEW_TYPE_FOOTER = 0;
     private static final String CHANNEL_LISTENER = "channel_listener";
 
-    private String senderId;
     private List<Message> items;
 
     private ImageLoader imageLoader;
@@ -256,10 +255,6 @@ public class MessagesListAdapter
 
             }
         });
-    }
-
-    public void setSenderId(String senderId) {
-        this.senderId = senderId;
     }
 
     @Override
@@ -509,8 +504,7 @@ public class MessagesListAdapter
             return VIEW_TYPE_FOOTER;
         }
         Message message = getItem(position);
-        //TODO get this sender id from sdk
-        boolean isMe = message.getUser().getId().equals(senderId);
+        boolean isMe = message.getUser().getId().equals(ChatCamp.getCurrentUser().getId());
         for (MessageFactory messageFactory : messageFactories) {
             if (messageFactory.isBindable(message)) {
                 return isMe ? factoryMyViewTypeMap.get(messageFactory) : factoryTheirViewTypeMap.get(messageFactory);
@@ -609,7 +603,7 @@ public class MessagesListAdapter
     }
 
     private boolean isCurrentUserTyping(List<Participant> participants) {
-        return (participants.size() == 1 && participants.get(0).getId().equals(senderId));
+        return (participants.size() == 1 && participants.get(0).getId().equals(ChatCamp.getCurrentUser().getId()));
     }
 
     //TODO This function is a workaround for scrolling the list when item is inserted at the bottom, there

@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
@@ -46,7 +47,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     private List<BaseChannel> dataset;
     private ChannelClickedListener channelClickedListener;
     private Context context;
-    private String senderId;
     private ChannelListStyle channelListStyle;
 
     public ChannelAdapter(Context context) {
@@ -62,10 +62,6 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
     public void addAll(List<BaseChannel> data) {
         dataset = data;
         notifyDataSetChanged();
-    }
-
-    public void setSenderId(String senderId) {
-        this.senderId = senderId;
     }
 
     public void setChannelClickedListener(ChannelClickedListener channelClickedListener) {
@@ -202,7 +198,7 @@ public class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ChannelV
                     public void onResult(GroupChannel groupChannel, ChatCampException e) {
                         List<Participant> participants = groupChannel.getParticipants();
                         for (Participant participant : participants) {
-                            if (!participant.getId().equals(senderId)) {
+                            if (!participant.getId().equals(ChatCamp.getCurrentUser().getId())) {
                                 populateTitle(participant.getAvatarUrl(), participant.getDisplayName());
                             }
                         }

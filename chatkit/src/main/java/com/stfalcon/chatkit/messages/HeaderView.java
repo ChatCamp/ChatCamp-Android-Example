@@ -28,6 +28,7 @@ import com.stfalcon.chatkit.utils.HeaderViewClickListener;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.Participant;
 
@@ -93,8 +94,7 @@ public class HeaderView extends LinearLayout {
         this.headerViewClickListener = headerViewClickListener;
     }
 
-    //TODO use Chatcamp.getCurrentUser().getId() and remove senderId from argument
-    public void setChannel(BaseChannel channel, String senderId) {
+    public void setChannel(BaseChannel channel) {
         this.channel = channel;
         boolean isOneToOneConversation = false;
         if (channel instanceof GroupChannel) {
@@ -105,7 +105,7 @@ public class HeaderView extends LinearLayout {
             if (isOneToOneConversation) {
                 List<Participant> participants = ((GroupChannel) channel).getParticipants();
                 for (Participant participant : participants) {
-                    if (!participant.getId().equals(senderId)) {
+                    if (!participant.getId().equals(ChatCamp.getCurrentUser().getId())) {
                         otherParticipant = participant;
                     }
                 }

@@ -68,10 +68,6 @@ public class MessagesList extends RecyclerView {
         adapter.addTypingFactory(typingFactory);
     }
 
-    public void setSenderId(String senderId) {
-        adapter.setSenderId(senderId);
-    }
-
     public void setChannel(BaseChannel channel) {
         this.channel = channel;
         adapter.setChannel(channel);
