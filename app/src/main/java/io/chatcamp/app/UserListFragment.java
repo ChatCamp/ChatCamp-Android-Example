@@ -15,6 +15,7 @@ import com.stfalcon.chatkit.messages.RecyclerScrollMoreListener;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.User;
@@ -30,7 +31,7 @@ public class UserListFragment extends Fragment implements UserListAdapter.UserCl
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
-        query = new UserListQuery();
+        query = ChatCamp.createUserListQuery();
         userListAdapter = new UserListAdapter(getActivity());
         userListAdapter.setUserClickListener(this);
         getActivity().setTitle("Users");
@@ -45,7 +46,7 @@ public class UserListFragment extends Fragment implements UserListAdapter.UserCl
     }
 
     private void loadUsers() {
-        query.get(new UserListQuery.ResultHandler() {
+        query.load(20, new UserListQuery.ResultHandler() {
             @Override
             public void onResult(List<User> userList, ChatCampException e) {
                 for(User user : userList) {
