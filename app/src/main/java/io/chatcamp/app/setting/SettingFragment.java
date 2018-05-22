@@ -1,11 +1,14 @@
 package io.chatcamp.app.setting;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import io.chatcamp.app.LocalStorage;
@@ -14,16 +17,14 @@ import io.chatcamp.app.R;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 
-public class SettingActivity extends AppCompatActivity {
+public class SettingFragment extends Fragment {
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_setting);
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        TextView logout = findViewById(R.id.tv_logout);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_setting, container, false);
+        getActivity().setTitle("Setting");
+        TextView logout = view.findViewById(R.id.tv_logout);
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -32,22 +33,16 @@ public class SettingActivity extends AppCompatActivity {
                 ChatCamp.disconnect(new ChatCamp.DisconnectListener() {
                     @Override
                     public void onDisconnected(ChatCampException e) {
-                        Intent logoutIntent = new Intent(SettingActivity.this, MainActivity.class);
+                        Intent logoutIntent = new Intent(getActivity(), MainActivity.class);
                         logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         logoutIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(logoutIntent);
+                        getActivity().finish();
                     }
                 });
 
             }
         });
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home) {
-            finish();
-        }
-        return super.onOptionsItemSelected(item);
+        return view;
     }
 }

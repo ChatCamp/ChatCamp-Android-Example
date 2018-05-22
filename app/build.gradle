@@ -42,6 +42,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:11.6.2'
 //    implementation 'io.chatcamp.sdk:chatcamp-android-sdk:0.1.16'
     //Picasso
+    implementation 'com.android.support:support-v4:26.1.0'
     compile "com.squareup.picasso:picasso:$picassoVersion"
     //ImageViews
     compile "de.hdodenhof:circleimageview:$circleImageViewVersion"
