@@ -1,39 +1,28 @@
 package io.chatcamp.app;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.squareup.picasso.Callback;
-import com.squareup.picasso.Picasso;
-import com.stfalcon.chatkit.messages.HeaderView;
-import com.stfalcon.chatkit.messages.MessageInput;
-import com.stfalcon.chatkit.messages.MessagesList;
-import com.stfalcon.chatkit.messages.messagetypes.FileMessageFactory;
-import com.stfalcon.chatkit.messages.messagetypes.ImageMessageFactory;
-import com.stfalcon.chatkit.messages.messagetypes.MessageFactory;
-import com.stfalcon.chatkit.messages.messagetypes.TextMessageFactory;
-import com.stfalcon.chatkit.messages.messagetypes.VideoMessageFactory;
-import com.stfalcon.chatkit.messages.sender.AttachmentSender;
-import com.stfalcon.chatkit.messages.sender.CameraAttachmentSender;
-import com.stfalcon.chatkit.messages.sender.FileAttachmentSender;
-import com.stfalcon.chatkit.messages.sender.GalleryAttachmentSender;
-import com.stfalcon.chatkit.messages.typing.DefaultTypingFactory;
-import com.stfalcon.chatkit.utils.AvatarLoader;
-import com.stfalcon.chatkit.utils.HeaderViewClickListener;
+import com.chatcamp.uikit.messages.HeaderView;
+import com.chatcamp.uikit.messages.MessageInput;
+import com.chatcamp.uikit.messages.MessagesList;
+import com.chatcamp.uikit.messages.messagetypes.FileMessageFactory;
+import com.chatcamp.uikit.messages.messagetypes.ImageMessageFactory;
+import com.chatcamp.uikit.messages.messagetypes.MessageFactory;
+import com.chatcamp.uikit.messages.messagetypes.TextMessageFactory;
+import com.chatcamp.uikit.messages.messagetypes.VideoMessageFactory;
+import com.chatcamp.uikit.messages.sender.AttachmentSender;
+import com.chatcamp.uikit.messages.sender.CameraAttachmentSender;
+import com.chatcamp.uikit.messages.sender.FileAttachmentSender;
+import com.chatcamp.uikit.messages.sender.GalleryAttachmentSender;
+import com.chatcamp.uikit.messages.typing.DefaultTypingFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
-import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;

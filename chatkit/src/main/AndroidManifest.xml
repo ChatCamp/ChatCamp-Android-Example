@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.stfalcon.chatkit">
+    package="com.chatcamp.uikit">
     <application
         android:allowBackup="true"
         android:supportsRtl="true">
-        <activity android:name=".preview.MediaPreviewActivity" />
+        <activity android:name="com.chatcamp.uikit.preview.MediaPreviewActivity" />
 
         <provider
-            android:name=".utils.ChatCampFileProvider"
+            android:name="com.chatcamp.uikit.utils.ChatCampFileProvider"
             android:authorities="${applicationId}.chatcamp.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -17,14 +17,14 @@
         </provider>
 
         <activity
-            android:name=".preview.ShowImageActivity"
+            android:name="com.chatcamp.uikit.preview.ShowImageActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".preview.ShowVideoActivity"
+        <activity android:name="com.chatcamp.uikit.preview.ShowVideoActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".conversationdetails.GroupDetailActivity"
+            android:name="com.chatcamp.uikit.conversationdetails.GroupDetailActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".conversationdetails.UserProfileActivity"
+        <activity android:name="com.chatcamp.uikit.conversationdetails.UserProfileActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

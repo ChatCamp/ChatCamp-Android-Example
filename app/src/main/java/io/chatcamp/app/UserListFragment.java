@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.stfalcon.chatkit.messages.RecyclerScrollMoreListener;
+import com.chatcamp.uikit.messages.RecyclerScrollMoreListener;
 
 import java.util.List;
 

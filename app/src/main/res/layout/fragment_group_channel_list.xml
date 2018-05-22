@@ -10,7 +10,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"/>
 
-    <com.stfalcon.chatkit.channel.ChannelList
+    <com.chatcamp.uikit.channel.ChannelList
         android:id="@+id/channel_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

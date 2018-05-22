@@ -8,12 +8,12 @@
     android:orientation="vertical"
     tools:context="io.chatcamp.app.ConversationActivity">
 
-    <com.stfalcon.chatkit.messages.HeaderView
+    <com.chatcamp.uikit.messages.HeaderView
         android:id="@+id/header_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.stfalcon.chatkit.messages.MessagesList
+    <com.chatcamp.uikit.messages.MessagesList
         android:id="@+id/messagesList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -48,7 +48,7 @@
         android:layout_marginRight="16dp"
         android:background="@color/gray_light" />
 
-    <com.stfalcon.chatkit.messages.MessageInput
+    <com.chatcamp.uikit.messages.MessageInput
         android:id="@+id/edit_conversation_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

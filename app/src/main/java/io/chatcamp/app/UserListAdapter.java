@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
-import com.stfalcon.chatkit.utils.CircleTransform;
+import com.chatcamp.uikit.utils.CircleTransform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +82,7 @@ public class UserListAdapter  extends RecyclerView.Adapter<UserListAdapter.UserL
 
         public void bind(final User user) {
             Picasso.with(context).load(user.getAvatarUrl())
-                    .placeholder(com.stfalcon.chatkit.R.drawable.icon_default_contact)
+                    .placeholder(com.chatcamp.uikit.R.drawable.icon_default_contact)
                     .transform(new CircleTransform()).into(avatar);
             nameTv.setText(user.getDisplayName());
             if(user.isOnline()) {

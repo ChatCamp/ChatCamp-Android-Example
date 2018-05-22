@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     tools:context="io.chatcamp.app.OpenChannelListFragment">
 
-    <com.stfalcon.chatkit.channel.ChannelList
+    <com.chatcamp.uikit.channel.ChannelList
         android:id="@+id/rv_open_channels_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

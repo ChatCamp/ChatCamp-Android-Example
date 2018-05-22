@@ -9,8 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.stfalcon.chatkit.channel.ChannelAdapter;
-import com.stfalcon.chatkit.channel.ChannelList;
+import com.chatcamp.uikit.channel.ChannelAdapter;
+import com.chatcamp.uikit.channel.ChannelList;
 
 import java.util.Timer;
 import java.util.TimerTask;

@@ -32,7 +32,7 @@ ext {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'io.chatcamp.sdk:chatcamp-android-sdk:0.1.23'
+//    compile 'io.chatcamp.sdk:chatcamp-android-sdk:0.1.26'
     compile "com.android.support:appcompat-v7:$supportVersion"
     compile "com.android.support:design:$supportVersion"
     compile "com.google.android:flexbox:$flexboxVersion"
@@ -41,5 +41,7 @@ dependencies {
     compile 'org.apmem.tools:layouts:1.10@aar'
     compile "com.squareup.picasso:picasso:$picassoVersion"
     compile 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+    compile 'com.github.ChatCamp:ChatCamp-Android-UI-Kit:0.0.2'
+    //api project(':chatcamp')
 
 }
