@@ -82,6 +82,9 @@ public class ListActivity extends AppCompatActivity {
                     getSupportActionBar().setTitle("Group Channels");
                    // handleNavigationGroupChannels();
                     return true;
+                case R.id.navigation_user_list:
+                    startActivity(new Intent(ListActivity.this, UserListActivity.class));
+                    return true;
                 case R.id.navigation_settings:
 //                    mTextMessage.setText(R.string.title_notifications);
                     startActivity(new Intent(ListActivity.this, SettingActivity.class));

@@ -21,7 +21,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 
-class RecyclerScrollMoreListener
+public class RecyclerScrollMoreListener
         extends RecyclerView.OnScrollListener {
 
     private OnLoadMoreListener loadMoreListener;
@@ -31,7 +31,7 @@ class RecyclerScrollMoreListener
 
     private RecyclerView.LayoutManager mLayoutManager;
 
-    RecyclerScrollMoreListener(LinearLayoutManager layoutManager, OnLoadMoreListener loadMoreListener) {
+    public RecyclerScrollMoreListener(LinearLayoutManager layoutManager, OnLoadMoreListener loadMoreListener) {
         this.mLayoutManager = layoutManager;
         this.loadMoreListener = loadMoreListener;
     }
@@ -77,7 +77,11 @@ class RecyclerScrollMoreListener
             }
 
             int visibleThreshold = 5;
-            if (!loading && (lastVisibleItemPosition + visibleThreshold) > totalItemCount) {
+            //((lastVisibleItemPosition + 1) != totalItemCount) to check if the number of items are
+            // less than what can be accomodated on the screen, if they are less we dont have to call
+            // onLoadMore().
+            if (!loading && ((lastVisibleItemPosition + 1) != totalItemCount) &&
+                    (lastVisibleItemPosition + visibleThreshold) > totalItemCount) {
                 currentPage++;
                 loadMoreListener.onLoadMore(currentPage, totalItemCount);
                 loading = true;
@@ -85,7 +89,7 @@ class RecyclerScrollMoreListener
         }
     }
 
-    interface OnLoadMoreListener {
+    public interface OnLoadMoreListener {
         void onLoadMore(int page, int total);
     }
 }
