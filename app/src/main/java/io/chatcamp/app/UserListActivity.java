@@ -42,6 +42,12 @@ public class UserListActivity extends AppCompatActivity implements UserListAdapt
         query.get(new UserListQuery.ResultHandler() {
             @Override
             public void onResult(List<User> userList, ChatCampException e) {
+                for(User user : userList) {
+                    if(user.getId().equals(LocalStorage.getInstance().getUserId())) {
+                        userList.remove(user);
+                        break;
+                    }
+                }
                 userListAdapter.addAll(userList);
             }
         });
