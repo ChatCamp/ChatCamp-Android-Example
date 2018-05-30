@@ -9,9 +9,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.chatcamp.uikit.channel.ChannelAdapter;
 import com.chatcamp.uikit.channel.ChannelList;
+import com.chatcamp.uikit.commons.ImageLoader;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -57,6 +59,12 @@ public class GroupChannelListFragment extends Fragment {
                 startActivity(intent);
             }
         });
+//        channelList.setAvatarImageLoader(new ImageLoader() {
+//            @Override
+//            public void loadImage(ImageView imageView, String url) {
+//                // add image loading logic here
+//            }
+//        });
         groupFilter = GroupChannelListQuery.ParticipantState.ALL;
         return view;
     }
