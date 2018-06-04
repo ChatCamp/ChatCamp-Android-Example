@@ -125,4 +125,7 @@
     <string name="logout">Logout</string>
     <string name="setting">Setting</string>
     <string name="title_activity_group_detail">GroupDetailActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

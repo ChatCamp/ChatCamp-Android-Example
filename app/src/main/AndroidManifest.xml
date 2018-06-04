@@ -62,17 +62,6 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".setting.SettingActivity"
-            android:label="@string/setting"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".webview.WebViewActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".MediaPreviewActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_send_app" />
@@ -84,21 +73,8 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-        <activity
-            android:name=".GroupDetailActivity"
-            android:label="@string/title_activity_group_detail"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".UserProfileActivity"
+        <activity android:name=".TestConversationActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
-        <provider
-            android:name="android.support.v4.content.FileProvider"
-            android:authorities="io.chatcamp.app.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
-        </provider>
     </application>
 
 </manifest>

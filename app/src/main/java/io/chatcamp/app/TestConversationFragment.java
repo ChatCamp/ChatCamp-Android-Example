@@ -1,9 +1,14 @@
 package io.chatcamp.app;
 
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.chatcamp.uikit.messages.HeaderView;
 import com.chatcamp.uikit.messages.MessageInput;
@@ -30,7 +35,13 @@ import io.chatcamp.sdk.OpenChannel;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
-public class ConversationActivity extends AppCompatActivity implements AttachmentSender.UploadListener {
+
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class TestConversationFragment extends Fragment
+
+        implements AttachmentSender.UploadListener {
 
     private MessagesList mMessagesList;
     private String channelType;
@@ -41,23 +52,26 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     private BaseChannel channel;
     private HeaderView headerView;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conversation);
 
-        mMessagesList = findViewById(R.id.messagesList);
-        input = findViewById(R.id.edit_conversation_input);
-        progressBar = findViewById(R.id.progress_bar);
-        headerView = findViewById(R.id.header_view);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_test_conversation, container, false);
+
+        mMessagesList = view.findViewById(R.id.messagesList);
+        input = view.findViewById(R.id.edit_conversation_input);
+        progressBar = view.findViewById(R.id.progress_bar);
+        headerView = view.findViewById(R.id.header_view);
+        setHasOptionsMenu(true);
 
         // use a linear layout manager
 
-        setSupportActionBar(headerView.getToolbar());
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(headerView.getToolbar());
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        channelType = getIntent().getStringExtra("channelType");
-        channelId = getIntent().getStringExtra("channelId");
+        channelType = getArguments().getString("channelType");
+        channelId = getArguments().getString("channelId");
         if (channelType.equals("open")) {
             OpenChannel.get(channelId, new OpenChannel.GetListener() {
                 @Override
@@ -102,12 +116,22 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
                 }
             });
         }
+        return view;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent dataFile) {
-        input.onActivityResult(requestCode, resultCode, dataFile);
-        mMessagesList.onActivityResult(requestCode, resultCode, dataFile);
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home) {
+            getActivity().finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        input.onActivityResult(requestCode, resultCode, data);
+        mMessagesList.onActivityResult(requestCode, resultCode, data);
+        //requestPermissions(new String[]{}, 111);
     }
 
     @Override
@@ -157,4 +181,10 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     public void onUploadFailed() {
         progressBar.setVisibility(View.GONE);
     }
+
+
+    public TestConversationFragment() {
+        // Required empty public constructor
+    }
+
 }
