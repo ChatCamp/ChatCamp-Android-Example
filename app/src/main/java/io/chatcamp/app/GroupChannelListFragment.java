@@ -1,7 +1,6 @@
 package io.chatcamp.app;
 
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -9,11 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.chatcamp.uikit.channel.ChannelAdapter;
 import com.chatcamp.uikit.channel.ChannelList;
-import com.chatcamp.uikit.commons.ImageLoader;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -103,7 +100,7 @@ public class GroupChannelListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         timer = new Timer();
-        timer.schedule(new UpdateListTask(), 5000, 5000);
+        timer.schedule(new UpdateListTask(), 1000, 5000);
     }
 
     @Override
@@ -116,7 +113,12 @@ public class GroupChannelListFragment extends Fragment {
     class UpdateListTask extends TimerTask {
         @Override
         public void run() {
-            channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
+                }
+            });
         }
     }
 
