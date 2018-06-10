@@ -26,7 +26,6 @@ public class GroupChannelListFragment extends Fragment {
     private TabLayout tabLayout;
     private ChannelList channelList;
     private GroupChannelListQuery.ParticipantState groupFilter;
-    private Timer timer;
 
     public GroupChannelListFragment() {
         // Required empty public constructor
@@ -45,7 +44,6 @@ public class GroupChannelListFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_accepted_channels));
         tabLayout.addOnTabSelectedListener(tabLayoutOnClickListener);
         channelList = view.findViewById(R.id.channel_list);
-        channelList.setChannelType(BaseChannel.ChannelType.GROUP, GroupChannelListQuery.ParticipantState.ALL);
         channelList.setChannelClickListener(new ChannelAdapter.ChannelClickedListener() {
             @Override
             public void onClick(BaseChannel baseChannel) {
@@ -62,7 +60,7 @@ public class GroupChannelListFragment extends Fragment {
 //                // add image loading logic here
 //            }
 //        });
-        groupFilter = GroupChannelListQuery.ParticipantState.ALL;
+
         return view;
     }
 
@@ -99,27 +97,9 @@ public class GroupChannelListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        timer = new Timer();
-        timer.schedule(new UpdateListTask(), 1000, 5000);
-    }
-
-    @Override
-    public void onStop() {
-        timer.cancel();
-        timer = null;
-        super.onStop();
-    }
-
-    class UpdateListTask extends TimerTask {
-        @Override
-        public void run() {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
-                }
-            });
+        if(groupFilter == null) {
+            groupFilter = GroupChannelListQuery.ParticipantState.ALL;
         }
+        channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
     }
-
 }

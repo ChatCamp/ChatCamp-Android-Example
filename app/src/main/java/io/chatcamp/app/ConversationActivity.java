@@ -3,6 +3,7 @@ package io.chatcamp.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -165,5 +166,14 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     @Override
     public void onUploadFailed() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
