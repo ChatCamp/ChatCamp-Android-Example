@@ -21,8 +21,6 @@ public class OpenChannelListFragment extends Fragment {
 
     private ChannelList channelList;
 
-    private Timer timer;
-
     public OpenChannelListFragment() {
         // Required empty public constructor
     }
@@ -46,26 +44,5 @@ public class OpenChannelListFragment extends Fragment {
             }
         });
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        timer = new Timer();
-        timer.schedule(new UpdateListTask(), 5000, 5000);
-    }
-
-    @Override
-    public void onStop() {
-        timer.cancel();
-        timer = null;
-        super.onStop();
-    }
-
-    class UpdateListTask extends TimerTask {
-        @Override
-        public void run() {
-            channelList.setChannelType(BaseChannel.ChannelType.OPEN, null);
-        }
     }
 }

@@ -1,7 +1,6 @@
 package io.chatcamp.app;
 
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -27,7 +26,6 @@ public class GroupChannelListFragment extends Fragment {
     private TabLayout tabLayout;
     private ChannelList channelList;
     private GroupChannelListQuery.ParticipantState groupFilter;
-    private Timer timer;
 
     public GroupChannelListFragment() {
         // Required empty public constructor
@@ -46,7 +44,6 @@ public class GroupChannelListFragment extends Fragment {
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_accepted_channels));
         tabLayout.addOnTabSelectedListener(tabLayoutOnClickListener);
         channelList = view.findViewById(R.id.channel_list);
-        channelList.setChannelType(BaseChannel.ChannelType.GROUP, GroupChannelListQuery.ParticipantState.ALL);
         channelList.setChannelClickListener(new ChannelAdapter.ChannelClickedListener() {
             @Override
             public void onClick(BaseChannel baseChannel) {
@@ -57,7 +54,13 @@ public class GroupChannelListFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        groupFilter = GroupChannelListQuery.ParticipantState.ALL;
+//        channelList.setAvatarImageLoader(new ImageLoader() {
+//            @Override
+//            public void loadImage(ImageView imageView, String url) {
+//                // add image loading logic here
+//            }
+//        });
+
         return view;
     }
 
@@ -94,22 +97,9 @@ public class GroupChannelListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        timer = new Timer();
-        timer.schedule(new UpdateListTask(), 5000, 5000);
-    }
-
-    @Override
-    public void onStop() {
-        timer.cancel();
-        timer = null;
-        super.onStop();
-    }
-
-    class UpdateListTask extends TimerTask {
-        @Override
-        public void run() {
-            channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
+        if(groupFilter == null) {
+            groupFilter = GroupChannelListQuery.ParticipantState.ALL;
         }
+        channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
     }
-
 }

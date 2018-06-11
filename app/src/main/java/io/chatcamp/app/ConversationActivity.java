@@ -3,8 +3,11 @@ package io.chatcamp.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.chatcamp.uikit.commons.ImageLoader;
 import com.chatcamp.uikit.messages.HeaderView;
 import com.chatcamp.uikit.messages.MessageInput;
 import com.chatcamp.uikit.messages.MessagesList;
@@ -18,6 +21,7 @@ import com.chatcamp.uikit.messages.sender.CameraAttachmentSender;
 import com.chatcamp.uikit.messages.sender.FileAttachmentSender;
 import com.chatcamp.uikit.messages.sender.GalleryAttachmentSender;
 import com.chatcamp.uikit.messages.typing.DefaultTypingFactory;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,6 +132,12 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory());
+//        mMessagesList.setAvatarImageLoader(new ImageLoader() {
+//            @Override
+//            public void loadImage(ImageView imageView, String url) {
+//                // add loading image logic here
+//            }
+//        });
         FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "File", R.drawable.ic_document);
         fileAttachmentSender.setUploadListener(this);
         GalleryAttachmentSender galleryAttachmentSender = new GalleryAttachmentSender(this, channel, "Gallery", R.drawable.ic_gallery);
@@ -156,5 +166,14 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     @Override
     public void onUploadFailed() {
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
