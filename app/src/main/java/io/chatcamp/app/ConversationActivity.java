@@ -2,7 +2,9 @@ package io.chatcamp.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.speech.tts.Voice;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,10 +18,12 @@ import com.chatcamp.uikit.messages.messagetypes.ImageMessageFactory;
 import com.chatcamp.uikit.messages.messagetypes.MessageFactory;
 import com.chatcamp.uikit.messages.messagetypes.TextMessageFactory;
 import com.chatcamp.uikit.messages.messagetypes.VideoMessageFactory;
+import com.chatcamp.uikit.messages.messagetypes.VoiceMessageFactory;
 import com.chatcamp.uikit.messages.sender.AttachmentSender;
 import com.chatcamp.uikit.messages.sender.CameraAttachmentSender;
 import com.chatcamp.uikit.messages.sender.FileAttachmentSender;
 import com.chatcamp.uikit.messages.sender.GalleryAttachmentSender;
+import com.chatcamp.uikit.messages.sender.VoiceSender;
 import com.chatcamp.uikit.messages.typing.DefaultTypingFactory;
 import com.squareup.picasso.Picasso;
 
@@ -124,11 +128,18 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     public void getChannel(BaseChannel channel) {
         headerView.setChannel(channel);
         input.setChannel(channel);
-        MessageFactory[] messageFactories = new MessageFactory[4];
+        input.setOnSendClickListener(new MessageInput.OnSendCLickedListener() {
+            @Override
+            public void onSendClicked(String text) {
+                String a = text;
+            }
+        });
+        MessageFactory[] messageFactories = new MessageFactory[5];
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);
         messageFactories[2] = new VideoMessageFactory(this);
-        messageFactories[3] = new FileMessageFactory(this);
+        messageFactories[3] = new VoiceMessageFactory(this);
+        messageFactories[4] = new FileMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory());
@@ -150,6 +161,9 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         attachmentSenders.add(galleryAttachmentSender);
 
         input.setAttachmentSenderList(attachmentSenders);
+        VoiceSender voiceSender = new VoiceSender(this, channel);
+        voiceSender.setUploadListener(this);
+        input.setVoiceSender(voiceSender);
     }
 
     @Override
@@ -164,7 +178,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     }
 
     @Override
-    public void onUploadFailed() {
+    public void onUploadFailed(ChatCampException error) {
         progressBar.setVisibility(View.GONE);
     }
 
@@ -175,5 +189,23 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause() {
+        Log.e("conversation", "on pause");
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e("conversation", "on stop");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.e("conversation", "on destroy");
+        super.onDestroy();
     }
 }
