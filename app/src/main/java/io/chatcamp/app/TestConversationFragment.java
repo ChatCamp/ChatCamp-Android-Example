@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
@@ -178,7 +179,7 @@ public class TestConversationFragment extends Fragment
     }
 
     @Override
-    public void onUploadFailed() {
+    public void onUploadFailed(ChatCampException error) {
         progressBar.setVisibility(View.GONE);
     }
 

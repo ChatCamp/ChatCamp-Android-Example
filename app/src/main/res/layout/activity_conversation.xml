@@ -62,6 +62,8 @@
         app:attachmentButtonWidth="30dp"
         app:inputButtonBackground="@color/transparent"
         app:inputButtonIcon="@drawable/ic_send_app"
+        app:voiceMessageButtonIcon="@drawable/ic_mic"
+        app:voiceMessageButtonMuteIcon="@drawable/ic_mic_mute"
         app:inputHint="@string/hint_enter_a_message"
         app:inputTextSize="14sp"
         app:showAttachmentButton="true" />
