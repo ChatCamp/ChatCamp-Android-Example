@@ -152,7 +152,7 @@ public class TestConversationFragment extends Fragment
         messageFactories[3] = new FileMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
-        mMessagesList.setTypingFactory(new DefaultTypingFactory());
+        mMessagesList.setTypingFactory(new DefaultTypingFactory(getContext()));
         FileAttachmentSender fileAttachmentSender = new FileAttachmentSender(this, channel, "File", R.drawable.ic_document);
         fileAttachmentSender.setUploadListener(this);
         GalleryAttachmentSender galleryAttachmentSender = new GalleryAttachmentSender(this, channel, "Gallery", R.drawable.ic_gallery);

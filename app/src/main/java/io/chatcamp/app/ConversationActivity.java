@@ -142,7 +142,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         messageFactories[4] = new FileMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
-        mMessagesList.setTypingFactory(new DefaultTypingFactory());
+        mMessagesList.setTypingFactory(new DefaultTypingFactory(this));
 //        mMessagesList.setAvatarImageLoader(new ImageLoader() {
 //            @Override
 //            public void loadImage(ImageView imageView, String url) {
