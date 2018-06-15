@@ -134,12 +134,11 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
                 String a = text;
             }
         });
-        MessageFactory[] messageFactories = new MessageFactory[5];
+        MessageFactory[] messageFactories = new MessageFactory[4];
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);
         messageFactories[2] = new VideoMessageFactory(this);
-        messageFactories[3] = new VoiceMessageFactory(this);
-        messageFactories[4] = new FileMessageFactory(this);
+        messageFactories[3] = new FileMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory(this));

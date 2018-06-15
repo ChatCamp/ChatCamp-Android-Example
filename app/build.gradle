@@ -49,12 +49,12 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     implementation 'com.android.support:cardview-v7:26.1.0'
     compile 'me.zhanghai.android.materialprogressbar:library:1.4.2'
-    compile 'com.github.ChatCamp:ChatCamp-Android-UI-Kit:0.0.12'
+    compile 'com.github.ChatCamp:ChatCamp-Android-UI-Kit:0.0.13'
 //    compile project(':chatkit')
 
-    compile 'com.facebook.stetho:stetho:1.3.1'
-
-    compile 'com.facebook.stetho:stetho-okhttp:1.3.1'
+//    compile 'com.facebook.stetho:stetho:1.3.1'
+//
+//    compile 'com.facebook.stetho:stetho-okhttp:1.3.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
