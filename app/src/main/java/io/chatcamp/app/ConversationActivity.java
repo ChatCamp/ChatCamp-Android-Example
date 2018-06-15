@@ -160,9 +160,9 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         attachmentSenders.add(galleryAttachmentSender);
 
         input.setAttachmentSenderList(attachmentSenders);
-        VoiceSender voiceSender = new VoiceSender(this, channel);
-        voiceSender.setUploadListener(this);
-        input.setVoiceSender(voiceSender);
+//        VoiceSender voiceSender = new VoiceSender(this, channel);
+//        voiceSender.setUploadListener(this);
+//        input.setVoiceSender(voiceSender);
     }
 
     @Override
