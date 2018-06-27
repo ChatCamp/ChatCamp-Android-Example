@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ChatCamp App</string>
+    <string name="app_name">ChatCamp</string>
     <string name="action_settings">Settings</string>
     <string name="edit_user_id">User ID</string>
     <string name="edit_user_name">User Name</string>
