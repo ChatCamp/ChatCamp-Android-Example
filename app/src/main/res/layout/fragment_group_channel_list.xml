@@ -2,16 +2,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="io.chatcamp.app.GroupChannelListFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="io.chatcamp.app.GroupChannelListFragment">
 
     <android.support.design.widget.TabLayout
-    android:id="@+id/group_navigation"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
-
-    <com.chatcamp.uikit.channel.ChannelList
-        android:id="@+id/channel_list"
+        android:id="@+id/group_navigation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.chatcamp.uikit.channel.ChannelList
+            android:id="@+id/channel_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 </LinearLayout>
