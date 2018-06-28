@@ -13,18 +13,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.chatcamp.uikit.messages.MessagesList
-        android:id="@+id/messagesList"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        app:incomingBubblePaddingBottom="4dp"
-        app:incomingBubblePaddingTop="4dp"
-        app:incomingTextSize="14sp"
-        app:outcomingBubblePaddingBottom="4dp"
-        app:outcomingBubblePaddingTop="4dp"
-        app:outcomingTextSize="14sp"
-        app:textAutoLink="all" />
+        android:layout_weight="1">
+
+        <com.chatcamp.uikit.messages.MessagesList
+            android:id="@+id/messagesList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:incomingBubblePaddingBottom="4dp"
+            app:incomingBubblePaddingTop="4dp"
+            app:incomingTextSize="14sp"
+            app:outcomingBubblePaddingBottom="4dp"
+            app:outcomingBubblePaddingTop="4dp"
+            app:outcomingTextSize="14sp"
+            app:textAutoLink="all" />
+
+        <ProgressBar
+            android:id="@+id/load_message_pb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"/>
+
+    </RelativeLayout>
+
 
     <me.zhanghai.android.materialprogressbar.MaterialProgressBar
         android:id="@+id/progress_bar"
@@ -66,5 +79,6 @@
         app:voiceMessageButtonMuteIcon="@drawable/ic_mic_mute"
         app:inputHint="@string/hint_enter_a_message"
         app:inputTextSize="14sp"
-        app:showAttachmentButton="true" />
+        app:showAttachmentButton="true"
+        app:showVoiceMessageButton="true"/>
 </LinearLayout>

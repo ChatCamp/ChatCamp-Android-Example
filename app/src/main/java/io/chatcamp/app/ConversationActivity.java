@@ -2,14 +2,12 @@ package io.chatcamp.app;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.speech.tts.Voice;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.ProgressBar;
 
-import com.chatcamp.uikit.commons.ImageLoader;
 import com.chatcamp.uikit.messages.HeaderView;
 import com.chatcamp.uikit.messages.MessageInput;
 import com.chatcamp.uikit.messages.MessagesList;
@@ -25,7 +23,6 @@ import com.chatcamp.uikit.messages.sender.FileAttachmentSender;
 import com.chatcamp.uikit.messages.sender.GalleryAttachmentSender;
 import com.chatcamp.uikit.messages.sender.VoiceSender;
 import com.chatcamp.uikit.messages.typing.DefaultTypingFactory;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +45,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     private PreviousMessageListQuery previousMessageListQuery;
     private BaseChannel channel;
     private HeaderView headerView;
+    private ProgressBar loadMessagePb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +56,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         input = findViewById(R.id.edit_conversation_input);
         progressBar = findViewById(R.id.progress_bar);
         headerView = findViewById(R.id.header_view);
+        loadMessagePb = findViewById(R.id.load_message_pb);
 
         // use a linear layout manager
 
@@ -71,7 +70,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
                 @Override
                 public void onResult(OpenChannel openChannel, ChatCampException e) {
                     final OpenChannel o = openChannel;
-                    getChannel(o);
+                    setChannel(o);
                     openChannel.join(new OpenChannel.JoinListener() {
                         @Override
                         public void onResult(ChatCampException e) {
@@ -89,7 +88,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
             GroupChannel.get(channelId, new GroupChannel.GetListener() {
                 @Override
                 public void onResult(final GroupChannel groupChannel, ChatCampException e) {
-                    getChannel(groupChannel);
+                    setChannel(groupChannel);
 //                    groupChannel.sync(new GroupChannel.SyncListener() {
 //                        @Override
 //                        public void onResult(ChatCampException e) {
@@ -125,7 +124,13 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         mMessagesList.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    public void getChannel(BaseChannel channel) {
+    public void setChannel(BaseChannel channel) {
+        mMessagesList.setOnMessagesLoadedListener(new MessagesList.OnMessagesLoadedListener() {
+            @Override
+            public void onMessagesLoaded() {
+                loadMessagePb.setVisibility(View.GONE);
+            }
+        });
         headerView.setChannel(channel);
         input.setChannel(channel);
         input.setOnSendClickListener(new MessageInput.OnSendCLickedListener() {
@@ -134,11 +139,12 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
                 String a = text;
             }
         });
-        MessageFactory[] messageFactories = new MessageFactory[4];
+        MessageFactory[] messageFactories = new MessageFactory[5];
         messageFactories[0] = new TextMessageFactory();
         messageFactories[1] = new ImageMessageFactory(this);
         messageFactories[2] = new VideoMessageFactory(this);
-        messageFactories[3] = new FileMessageFactory(this);
+        messageFactories[3] = new VoiceMessageFactory(this);
+        messageFactories[4] = new FileMessageFactory(this);
         mMessagesList.addMessageFactories(messageFactories);
         mMessagesList.setChannel(channel);
         mMessagesList.setTypingFactory(new DefaultTypingFactory(this));
@@ -160,9 +166,9 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         attachmentSenders.add(galleryAttachmentSender);
 
         input.setAttachmentSenderList(attachmentSenders);
-//        VoiceSender voiceSender = new VoiceSender(this, channel);
-//        voiceSender.setUploadListener(this);
-//        input.setVoiceSender(voiceSender);
+        VoiceSender voiceSender = new VoiceSender(this, channel);
+        voiceSender.setUploadListener(this);
+        input.setVoiceSender(voiceSender);
     }
 
     @Override
