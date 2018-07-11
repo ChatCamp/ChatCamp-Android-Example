@@ -3,6 +3,7 @@ package io.chatcamp.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,6 +50,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.e("Conversation Activity", "on create");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
@@ -197,8 +199,17 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if(!TextUtils.isEmpty(channelId)) {
+            BaseApplication.getInstance().setGroupId(channelId);
+        }
+    }
+
+    @Override
     protected void onPause() {
         Log.e("conversation", "on pause");
+        BaseApplication.getInstance().setGroupId("");
         super.onPause();
     }
 
