@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
                     LocalStorage.getInstance().getUsername(), false);
             return;
         }
-       setUpView();
+        setUpView();
     }
 
     private void setUpView() {
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onConnected(User user, ChatCampException e) {
                 if (e != null) {
-                    if(!buttonClicked) {
+                    if (!buttonClicked) {
                         LocalStorage.getInstance().setUserId("");
                         LocalStorage.getInstance().setUsername("");
                         setUpView();
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
-                    if(FirebaseInstanceId.getInstance().getToken() != null) {
+                    if (FirebaseInstanceId.getInstance().getToken() != null) {
                         ChatCamp.updateUserPushToken(FirebaseInstanceId.getInstance().getToken(), new ChatCamp.UserPushTokenUpdateListener() {
                             @Override
                             public void onUpdated(User user, ChatCampException e) {
