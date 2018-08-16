@@ -57,8 +57,6 @@ public class ChatCampAppFirebaseMessagingService extends FirebaseMessagingServic
         }
 
         Intent intent = new Intent(context, ConversationActivity.class);
-//        String channelId = remoteMessage.getData().get("channelId");
-//        String channelType = remoteMessage.getData().get("channelType");
         String participantState = GroupChannelListQuery.ParticipantState.ALL.name();
         intent.putExtra("channelId", channelId);
         intent.putExtra("channelType", channelType);
@@ -78,11 +76,20 @@ public class ChatCampAppFirebaseMessagingService extends FirebaseMessagingServic
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(pendingIntent);
 
-//        String data = remoteMessage.getData().get("message");
-//        Message message = Message.createfromSerializedData(data);
-
-        notificationBuilder.setContentText(message.getText()/*remoteMessage.getNotification().getBody()*/);
-
+        if (message.getType().equals("attachment")) {
+            if (message.getAttachment().getType().contains("image")) {
+                notificationBuilder.setContentText("Image");
+            } else if (message.getAttachment().getType().contains("video")) {
+                notificationBuilder.setContentText("video");
+            }  else if (message.getAttachment().getType().contains("application") || message.getAttachment().getType().contains("css") ||
+                    message.getAttachment().getType().contains("csv") || message.getAttachment().getType().contains("text")) {
+                notificationBuilder.setContentText("document");
+            }
+        } else if(message.getType().equals("text")) {
+            notificationBuilder.setContentText(message.getText());
+        } else {
+            notificationBuilder.setContentText("new Message");
+        }
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
