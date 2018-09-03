@@ -44,7 +44,8 @@ public class BaseApplication extends Application implements Application.Activity
             @Override
             public void onGroupChannelMessageReceived(GroupChannel groupChannel, Message message) {
                 Log.e("Base Application", "push notification");
-                if (!BaseApplication.getInstance().getGroupId().equals(groupChannel.getId())) {
+                if (!BaseApplication.getInstance().getGroupId().equals(groupChannel.getId())
+                        && !message.getUser().getId().equalsIgnoreCase(ChatCamp.getCurrentUser().getId())) {
                     sendNotification(BaseApplication.this, groupChannel.getId(),
                             BaseChannel.ChannelType.GROUP.name(), message, "chatcamp");
                 }
