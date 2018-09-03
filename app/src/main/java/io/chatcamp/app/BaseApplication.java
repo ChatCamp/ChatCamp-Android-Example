@@ -6,19 +6,16 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.facebook.stetho.Stetho;
-
 import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.Message;
-import io.chatcamp.sdk.OpenChannel;
-import io.chatcamp.sdk.Participant;
-import io.chatcamp.sdk.TotalCountFilterParams;
 import io.chatcamp.sdk.User;
 
 import static io.chatcamp.app.ChatCampAppFirebaseMessagingService.sendNotification;
+
+//import com.facebook.stetho.Stetho;
 
 /**
  * Created by shubhamdhabhai on 08/02/18.
@@ -55,9 +52,9 @@ public class BaseApplication extends Application implements Application.Activity
         });
         if (!TextUtils.isEmpty(LocalStorage.getInstance().getUserId())
                 && !TextUtils.isEmpty(LocalStorage.getInstance().getUsername())
-                && ChatCamp.getConnectionState() != ChatCamp.ConnectionState.OPEN)  {
+                && ChatCamp.getConnectionState() != ChatCamp.ConnectionState.OPEN) {
             ChatCamp.init(this, Constant.APP_ID);
-            ChatCamp.connect(LocalStorage.getInstance().getUserId() , new ChatCamp.ConnectListener() {
+            ChatCamp.connect(LocalStorage.getInstance().getUserId(), new ChatCamp.ConnectListener() {
                 @Override
                 public void onConnected(User user, ChatCampException e) {
                     // do nothing
@@ -67,6 +64,7 @@ public class BaseApplication extends Application implements Application.Activity
             return;
         }
     }
+
     public static BaseApplication getInstance() {
         return instance;
     }
