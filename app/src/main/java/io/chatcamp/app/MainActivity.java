@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void connectToChatSdk(final String userId, final String username, final boolean buttonClicked) {
-        ChatCamp.init(this, "6346990561630613504");
+        ChatCamp.init(this, Constant.APP_ID);
         ChatCamp.connect(userId, new ChatCamp.ConnectListener() {
             @Override
             public void onConnected(User user, ChatCampException e) {
