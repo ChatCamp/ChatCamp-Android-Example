@@ -213,15 +213,4 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         super.onPause();
     }
 
-    @Override
-    protected void onStop() {
-        Log.e("conversation", "on stop");
-        super.onStop();
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.e("conversation", "on destroy");
-        super.onDestroy();
-    }
 }

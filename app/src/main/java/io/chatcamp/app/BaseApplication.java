@@ -6,17 +6,16 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-//import com.facebook.stetho.Stetho;
-
 import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.Message;
-import io.chatcamp.sdk.OpenChannel;
 import io.chatcamp.sdk.User;
 
 import static io.chatcamp.app.ChatCampAppFirebaseMessagingService.sendNotification;
+
+//import com.facebook.stetho.Stetho;
 
 /**
  * Created by shubhamdhabhai on 08/02/18.
@@ -43,11 +42,6 @@ public class BaseApplication extends Application implements Application.Activity
     private void setupChatcamp() {
         ChatCamp.addChannelListener("NOTIFICATION", new ChatCamp.ChannelListener() {
             @Override
-            public void onOpenChannelMessageReceived(OpenChannel openChannel, Message message) {
-
-            }
-
-            @Override
             public void onGroupChannelMessageReceived(GroupChannel groupChannel, Message message) {
                 Log.e("Base Application", "push notification");
                 if (!BaseApplication.getInstance().getGroupId().equals(groupChannel.getId())) {
@@ -55,36 +49,11 @@ public class BaseApplication extends Application implements Application.Activity
                             BaseChannel.ChannelType.GROUP.name(), message, "chatcamp");
                 }
             }
-
-            @Override
-            public void onGroupChannelUpdated(GroupChannel groupChannel) {
-
-            }
-
-            @Override
-            public void onGroupChannelTypingStatusChanged(GroupChannel groupChannel) {
-
-            }
-
-            @Override
-            public void onOpenChannelTypingStatusChanged(OpenChannel groupChannel) {
-
-            }
-
-            @Override
-            public void onGroupChannelReadStatusUpdated(GroupChannel groupChannel) {
-
-            }
-
-            @Override
-            public void onOpenChannelReadStatusUpdated(OpenChannel groupChannel) {
-
-            }
         });
         if (!TextUtils.isEmpty(LocalStorage.getInstance().getUserId())
                 && !TextUtils.isEmpty(LocalStorage.getInstance().getUsername())
-                && ChatCamp.getConnectionState() != ChatCamp.ConnectionState.OPEN)  {
-            ChatCamp.init(this, "6346990561630613504");
+                && ChatCamp.getConnectionState() != ChatCamp.ConnectionState.OPEN) {
+            ChatCamp.init(this, Constant.APP_ID);
             ChatCamp.connect(LocalStorage.getInstance().getUserId(), new ChatCamp.ConnectListener() {
                 @Override
                 public void onConnected(User user, ChatCampException e) {
@@ -95,6 +64,7 @@ public class BaseApplication extends Application implements Application.Activity
             return;
         }
     }
+
     public static BaseApplication getInstance() {
         return instance;
     }

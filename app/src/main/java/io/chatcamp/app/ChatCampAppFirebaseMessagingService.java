@@ -69,7 +69,7 @@ public class ChatCampAppFirebaseMessagingService extends FirebaseMessagingServic
                 .setSmallIcon(R.drawable.icon_default_contact)
                 .setColor(Color.parseColor("#7469C4"))  // small icon background color
                 .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.icon_default_contact))
-                .setContentTitle(context.getResources().getString(R.string.app_name))
+                .setContentTitle(message.getUser().getDisplayName())
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setPriority(Notification.PRIORITY_MAX)
