@@ -14,6 +14,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/tv_place_holder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="no Group to show"
+            android:layout_centerInParent="true"
+            android:visibility="gone"/>
+
         <com.chatcamp.uikit.channel.ChannelList
             android:id="@+id/channel_list"
             android:layout_width="match_parent"
