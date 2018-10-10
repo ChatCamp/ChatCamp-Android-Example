@@ -24,7 +24,7 @@ public class ListActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         mChannelCreate = (FloatingActionButton) findViewById(R.id.floating_button_create);
         mChannelCreate.setOnClickListener(mChannelCreateClickListener);
-        handleNavigationOpenChannels();
+        handleNavigationGroupChannels();
     }
 
 

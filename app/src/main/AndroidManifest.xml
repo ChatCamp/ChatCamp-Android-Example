@@ -22,7 +22,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ifly_blue_icon"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -39,7 +39,8 @@
         <activity
             android:name=".ChannelCreateActivity"
             android:label="@string/title_activity_channel_create"
-            android:parentActivityName=".ListActivity">
+            android:parentActivityName=".ListActivity"
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="io.chatcamp.app.ListActivity" />

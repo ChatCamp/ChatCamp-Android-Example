@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_open_channels"
-        android:icon="@drawable/ic_home_black_24dp"
-        android:title="@string/title_open_channels" />
-
-    <item
         android:id="@+id/navigation_group_channels"
         android:icon="@drawable/ic_dashboard_black_24dp"
         android:title="Conversation" />
+
+    <item
+        android:id="@+id/navigation_open_channels"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/title_open_channels" />
 
     <item
         android:id="@+id/navigation_user_list"
