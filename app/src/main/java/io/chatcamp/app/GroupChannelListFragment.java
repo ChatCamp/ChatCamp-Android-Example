@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.chatcamp.uikit.channel.ChannelAdapter;
 import com.chatcamp.uikit.channel.ChannelList;
@@ -28,6 +29,7 @@ public class GroupChannelListFragment extends Fragment {
     private ChannelList channelList;
     private GroupChannelListQuery.ParticipantState groupFilter;
     private ProgressBar progressBar;
+    private TextView placeHolderText;
 
     public GroupChannelListFragment() {
         // Required empty public constructor
@@ -42,6 +44,7 @@ public class GroupChannelListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_group_channel_list, container, false);
         tabLayout = view.findViewById(R.id.group_navigation);
         progressBar = view.findViewById(R.id.progress_bar);
+        placeHolderText = view.findViewById(R.id.tv_place_holder);
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_all_channels));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_invited_channels));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_accepted_channels));
@@ -61,6 +64,11 @@ public class GroupChannelListFragment extends Fragment {
             @Override
             public void onChannelsLoaded() {
                 progressBar.setVisibility(View.GONE);
+                if(channelList.getAdapter().getItemCount() == 0) {
+                    placeHolderText.setVisibility(View.VISIBLE);
+                } else {
+                    placeHolderText.setVisibility(View.GONE);
+                }
             }
         });
 //        channelList.setAvatarImageLoader(new ImageLoader() {

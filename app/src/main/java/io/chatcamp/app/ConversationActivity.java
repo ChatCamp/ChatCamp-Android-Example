@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -29,10 +31,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.chatcamp.sdk.BaseChannel;
+import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
 import io.chatcamp.sdk.OpenChannel;
+import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
@@ -134,6 +138,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
             }
         });
         headerView.setChannel(channel);
+        invalidateOptionsMenu();
         input.setChannel(channel);
         input.setOnSendClickListener(new MessageInput.OnSendCLickedListener() {
             @Override
@@ -191,17 +196,33 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home) {
+        if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.action_block) {
+            headerView.onOptionsItemSelected(item);
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = new MenuInflater(this);
+        inflater.inflate(R.menu.menu_conversation, menu);
+        headerView.onCreateOptionMenu(menu.findItem(R.id.action_block));
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        headerView.onPrepareOptionsMenu(menu.findItem(R.id.action_block));
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        if(!TextUtils.isEmpty(channelId)) {
+        if (!TextUtils.isEmpty(channelId)) {
             BaseApplication.getInstance().setGroupId(channelId);
         }
     }
