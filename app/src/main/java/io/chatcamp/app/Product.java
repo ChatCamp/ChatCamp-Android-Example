@@ -6,7 +6,9 @@ package io.chatcamp.app;
 
 public class Product {
     String product;
-    public Product(String product) {
+    String customType;
+    public Product(String product, String customType) {
         this.product = product;
+        this.customType = customType;
     }
 }

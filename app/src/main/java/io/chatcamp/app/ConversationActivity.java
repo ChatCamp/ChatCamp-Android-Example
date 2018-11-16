@@ -181,7 +181,7 @@ public class ConversationActivity extends AppCompatActivity implements OnLoadMor
                 }
 
                 String meta = new Gson().toJson(actionContent);
-                Product product = new Product(meta);
+                Product product = new Product(meta, customType);
 
                 g.sendMessage(message, product, customType, new GroupChannel.SendMessageListener() {
                     @Override

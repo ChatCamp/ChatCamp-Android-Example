@@ -115,7 +115,7 @@ public class ConversationMessage implements MessageContentType,
                return MessageType.VIEW_TYPE_TEXT_MESSAGE_CHATCAMP;
             }
         } else if (message.getType().equals("text")
-                && message.getCustomType().equals("action_link")) {
+                && message.getMetadata().get("product") != null) {
             return MessageType.VIEW_TYPE_ACTION_MESSAGE_CHATCAMP;
         } else if (message.getType().equals("text")) {
             return MessageType.VIEW_TYPE_TEXT_MESSAGE_CHATCAMP;
