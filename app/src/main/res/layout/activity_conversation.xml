@@ -80,5 +80,6 @@
         app:inputHint="@string/hint_enter_a_message"
         app:inputTextSize="14sp"
         app:showAttachmentButton="true"
-        app:showVoiceMessageButton="true"/>
+        app:showVoiceMessageButton="true"
+        app:attachmentButtonDefaultBgColor="@color/red"/>
 </LinearLayout>

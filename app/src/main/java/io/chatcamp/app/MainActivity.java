@@ -16,8 +16,12 @@ import android.widget.EditText;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
+import io.chatcamp.sdk.PreviousMessageListQuery;
 import io.chatcamp.sdk.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -102,6 +106,14 @@ public class MainActivity extends AppCompatActivity {
                             //Log.d("CHATCAMP APP", FirebaseInstanceId.getInstance().getToken());
 
 
+                        }
+                    });
+                    Map map = new HashMap();
+                    map.put("key", "value");
+                    ChatCamp.updateUserMetadata(map, new ChatCamp.UserUpdateListener() {
+                        @Override
+                        public void onUpdated(User user, ChatCampException e) {
+                            Log.d("CHATCAMP_APP", "meta data updated");
                         }
                     });
                     if (FirebaseInstanceId.getInstance().getToken() != null) {
