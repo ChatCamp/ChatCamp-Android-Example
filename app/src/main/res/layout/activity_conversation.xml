@@ -13,6 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <com.chatcamp.uikit.customview.LoadingView
+        android:id="@+id/loading_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -80,5 +86,6 @@
         app:inputHint="@string/hint_enter_a_message"
         app:inputTextSize="14sp"
         app:showAttachmentButton="true"
-        app:showVoiceMessageButton="true"/>
+        app:showVoiceMessageButton="true"
+        app:attachmentButtonDefaultBgColor="@color/red"/>
 </LinearLayout>
