@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.chatcamp.uikit.customview.LoadingView;
 import com.chatcamp.uikit.messages.HeaderView;
 import com.chatcamp.uikit.messages.MessageInput;
 import com.chatcamp.uikit.messages.MessagesList;
@@ -51,6 +52,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     private BaseChannel channel;
     private HeaderView headerView;
     private ProgressBar loadMessagePb;
+    private LoadingView loadingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,8 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         progressBar = findViewById(R.id.progress_bar);
         headerView = findViewById(R.id.header_view);
         loadMessagePb = findViewById(R.id.load_message_pb);
+        loadingView = findViewById(R.id.loading_view);
+        mMessagesList.setLoadingView(loadingView);
 
         // use a linear layout manager
 

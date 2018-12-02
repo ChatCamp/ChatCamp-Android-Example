@@ -15,14 +15,14 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
-        tools:replace="android:allowBackup"
         android:name=".BaseApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ifly_blue_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ifly_blue_icon"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        tools:replace="android:allowBackup">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -37,7 +37,7 @@
             android:name=".ListActivity"
             android:label="@string/title_activity_list" />
         <activity
-            android:name=".ChannelCreateActivity"
+            android:name=".CreateGroupChannelActivity"
             android:label="@string/title_activity_channel_create"
             android:parentActivityName=".ListActivity"
             android:theme="@style/AppTheme">
@@ -77,8 +77,10 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorPrimary" />
 
-        <activity android:name=".TestConversationActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".TestConversationActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".CreateOpenChannelActivity"></activity>
     </application>
 
 </manifest>

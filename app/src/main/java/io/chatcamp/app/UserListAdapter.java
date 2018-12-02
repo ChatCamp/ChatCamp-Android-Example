@@ -1,6 +1,7 @@
 package io.chatcamp.app;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.chatcamp.uikit.customview.AvatarView;
 import com.squareup.picasso.Picasso;
 import com.chatcamp.uikit.utils.CircleTransform;
 
@@ -69,26 +71,28 @@ public class UserListAdapter  extends RecyclerView.Adapter<UserListAdapter.UserL
 
     public class UserListViewHolder extends RecyclerView.ViewHolder {
 
-        private ImageView avatar;
+        private AvatarView avatar;
         private TextView nameTv;
         private ImageView onlineIndicator;
+        private ImageView offlineIndicator;
 
         public UserListViewHolder(View itemView) {
             super(itemView);
             avatar = itemView.findViewById(R.id.iv_avatar);
             nameTv = itemView.findViewById(R.id.tv_name);
             onlineIndicator = itemView.findViewById(R.id.iv_online);
+            offlineIndicator = itemView.findViewById(R.id.iv_offline);
         }
 
         public void bind(final User user) {
-            Picasso.with(context).load(user.getAvatarUrl())
-                    .placeholder(com.chatcamp.uikit.R.drawable.icon_default_contact)
-                    .transform(new CircleTransform()).into(avatar);
+            avatar.initView(user.getAvatarUrl(), user.getDisplayName());
             nameTv.setText(user.getDisplayName());
             if(user.isOnline()) {
                 onlineIndicator.setVisibility(View.VISIBLE);
+                offlineIndicator.setVisibility(View.GONE);
             } else {
                 onlineIndicator.setVisibility(View.GONE);
+                offlineIndicator.setVisibility(View.VISIBLE);
             }
             itemView.setTag(user);
             itemView.setOnClickListener(new View.OnClickListener() {

@@ -3,6 +3,7 @@ package io.chatcamp.app;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -13,9 +14,7 @@ import android.widget.TextView;
 
 import com.chatcamp.uikit.channel.ChannelAdapter;
 import com.chatcamp.uikit.channel.ChannelList;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import com.chatcamp.uikit.customview.LoadingView;
 
 import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
@@ -30,6 +29,8 @@ public class GroupChannelListFragment extends Fragment {
     private GroupChannelListQuery.ParticipantState groupFilter;
     private ProgressBar progressBar;
     private TextView placeHolderText;
+    private LoadingView loadingView;
+    private FloatingActionButton mChannelCreate;
 
     public GroupChannelListFragment() {
         // Required empty public constructor
@@ -45,11 +46,15 @@ public class GroupChannelListFragment extends Fragment {
         tabLayout = view.findViewById(R.id.group_navigation);
         progressBar = view.findViewById(R.id.progress_bar);
         placeHolderText = view.findViewById(R.id.tv_place_holder);
+        loadingView = view.findViewById(R.id.loading_view);
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_all_channels));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_invited_channels));
         tabLayout.addTab(tabLayout.newTab().setText(R.string.group_accepted_channels));
         tabLayout.addOnTabSelectedListener(tabLayoutOnClickListener);
         channelList = view.findViewById(R.id.channel_list);
+        channelList.setLoadingView(loadingView);
+        mChannelCreate = (FloatingActionButton) view.findViewById(R.id.floating_button_create);
+        mChannelCreate.setOnClickListener(mChannelCreateClickListener);
         channelList.setChannelClickListener(new ChannelAdapter.ChannelClickedListener() {
             @Override
             public void onClick(BaseChannel baseChannel) {
@@ -119,4 +124,12 @@ public class GroupChannelListFragment extends Fragment {
         }
         channelList.setChannelType(BaseChannel.ChannelType.GROUP, groupFilter);
     }
+
+    private FloatingActionButton.OnClickListener mChannelCreateClickListener = new FloatingActionButton.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(getContext(), CreateGroupChannelActivity.class);
+            startActivity(intent);
+        }
+    };
 }

@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 //        ChatCamp.init(this, "6365171677000626176");
 //        ChatCamp.init(this, "6359014142933725184");
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         Button bConnect = (Button) findViewById(R.id.button_connect);
         userId = (EditText) findViewById(R.id.edit_view_id);
         userName = (EditText) findViewById(R.id.edit_view_name);
@@ -101,7 +101,10 @@ public class MainActivity extends AppCompatActivity {
                             System.out.println("UPDATE DISPLAY NAME" + user.getDisplayName());
 
                             Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
+                            finish();
 
                             //Log.d("CHATCAMP APP", FirebaseInstanceId.getInstance().getToken());
 

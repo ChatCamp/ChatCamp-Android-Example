@@ -13,7 +13,7 @@ import io.chatcamp.app.setting.SettingFragment;
 
 public class ListActivity extends AppCompatActivity {
 
-    private FloatingActionButton mChannelCreate;
+
 
     private BottomNavigationView navigation;
 
@@ -22,8 +22,6 @@ public class ListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list);
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        mChannelCreate = (FloatingActionButton) findViewById(R.id.floating_button_create);
-        mChannelCreate.setOnClickListener(mChannelCreateClickListener);
         handleNavigationGroupChannels();
     }
 
@@ -56,14 +54,6 @@ public class ListActivity extends AppCompatActivity {
                     return true;
             }
             return false;
-        }
-    };
-
-    private FloatingActionButton.OnClickListener mChannelCreateClickListener = new FloatingActionButton.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(getApplicationContext(), ChannelCreateActivity.class);
-            startActivity(intent);
         }
     };
 }
