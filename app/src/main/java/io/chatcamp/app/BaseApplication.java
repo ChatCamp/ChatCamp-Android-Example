@@ -41,13 +41,17 @@ public class BaseApplication extends Application implements Application.Activity
 
     private void setupChatcamp() {
         ChatCamp.addChannelListener("NOTIFICATION", new ChatCamp.ChannelListener() {
+
             @Override
-            public void onGroupChannelMessageReceived(GroupChannel groupChannel, Message message) {
-                Log.e("Base Application", "push notification");
-                if (!BaseApplication.getInstance().getGroupId().equals(groupChannel.getId())
-                        && !message.getUser().getId().equalsIgnoreCase(ChatCamp.getCurrentUser().getId())) {
-                    sendNotification(BaseApplication.this, groupChannel.getId(),
-                            BaseChannel.ChannelType.GROUP.name(), message, "chatcamp");
+            public void onMessageReceived(BaseChannel baseChannel, Message message) {
+                if(baseChannel.getType() == BaseChannel.ChannelType.GROUP) {
+                    GroupChannel groupChannel = (GroupChannel) baseChannel;
+                    Log.e("Base Application", "push notification");
+                    if (!BaseApplication.getInstance().getGroupId().equals(groupChannel.getId())
+                            && !message.getUser().getId().equalsIgnoreCase(ChatCamp.getCurrentUser().getId())) {
+                        sendNotification(BaseApplication.this, groupChannel.getId(),
+                                BaseChannel.ChannelType.GROUP.name(), message, "chatcamp");
+                    }
                 }
             }
         });
@@ -55,7 +59,7 @@ public class BaseApplication extends Application implements Application.Activity
                 && !TextUtils.isEmpty(LocalStorage.getInstance().getUsername())
                 && ChatCamp.getConnectionState() != ChatCamp.ConnectionState.OPEN) {
             ChatCamp.init(this, Constant.APP_ID);
-            ChatCamp.connect(LocalStorage.getInstance().getUserId(), new ChatCamp.ConnectListener() {
+            ChatCamp.connect(LocalStorage.getInstance().getUserId(), "test", new ChatCamp.ConnectListener() {
                 @Override
                 public void onConnected(User user, ChatCampException e) {
                     // do nothing

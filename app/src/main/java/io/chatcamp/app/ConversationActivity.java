@@ -10,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.chatcamp.uikit.customview.LoadingView;
 import com.chatcamp.uikit.messages.HeaderView;
@@ -36,9 +37,14 @@ import io.chatcamp.sdk.ChatCamp;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannel;
 import io.chatcamp.sdk.GroupChannelListQuery;
+import io.chatcamp.sdk.GroupChannelParams;
+import io.chatcamp.sdk.Message;
+import io.chatcamp.sdk.MessageParams;
 import io.chatcamp.sdk.OpenChannel;
 import io.chatcamp.sdk.Participant;
 import io.chatcamp.sdk.PreviousMessageListQuery;
+import io.chatcamp.sdk.PublicGroupChannelListQuery;
+import io.chatcamp.sdk.TotalCountFilterParams;
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 public class ConversationActivity extends AppCompatActivity implements AttachmentSender.UploadListener {
@@ -53,6 +59,7 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
     private HeaderView headerView;
     private ProgressBar loadMessagePb;
     private LoadingView loadingView;
+    private TextView connectionState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +74,25 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
         loadMessagePb = findViewById(R.id.load_message_pb);
         loadingView = findViewById(R.id.loading_view);
         mMessagesList.setLoadingView(loadingView);
+        connectionState = findViewById(R.id.tv_connection);
 
+        ChatCamp.addConnectionListener("conversation", new ChatCamp.ConnectionListener() {
+            @Override
+            public void onConnectionChanged(ChatCamp.NetworkState networkState) {
+                if(networkState == ChatCamp.NetworkState.CONNECTED) {
+                    connectionState.setVisibility(View.GONE);
+                    Log.e("connected", "in connected");
+                } else if(networkState == ChatCamp.NetworkState.DISCONNECTED) {
+                    connectionState.setText("No Network");
+                    connectionState.setVisibility(View.VISIBLE);
+                    Log.e("connected", "in disconnected");
+                } else if(networkState == ChatCamp.NetworkState.CONNECTING) {
+                    connectionState.setText("Connecting");
+                    connectionState.setVisibility(View.VISIBLE);
+                    Log.e("connected", "in connecting");
+                }
+            }
+        });
         // use a linear layout manager
 
         setSupportActionBar(headerView.getToolbar());
@@ -94,18 +119,81 @@ public class ConversationActivity extends AppCompatActivity implements Attachmen
 
         } else {
             //TODO check the participant state - INVITED, ALL,  ACCEPTED
-            final GroupChannelListQuery.ParticipantState groupFilter = GroupChannelListQuery.ParticipantState.ACCEPTED;//GroupChannelListQuery.ParticipantState.valueOf(getIntent().getStringExtra("participantState"));
+            final GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter groupFilter
+                    = GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter.PARTICIPANT_STATE_ACCEPTED;//GroupChannelListQuery.ParticipantState.valueOf(getIntent().getStringExtra("participantState"));
             GroupChannel.get(channelId, new GroupChannel.GetListener() {
                 @Override
                 public void onResult(final GroupChannel groupChannel, ChatCampException e) {
                     setChannel(groupChannel);
+                    groupChannel.unbanParticipant("sandesh",  new BaseChannel.UnbanParticipantListener() {
+                        @Override
+                        public void onResult(ChatCampException e) {
+                            Log.d("sdf", "sf");
+                        }
+                    });
+//                    GroupChannelParams params = new GroupChannelParams();
+//                    params.setDistinct(false);
+//                    groupChannel.update(params, new BaseChannel.UpdateListener() {
+//                        @Override
+//                        public void onResult(BaseChannel channel, ChatCampException e) {
+//                            Log.d("sdf", "sf");
+//                        }
+//                    });
+
+//                    PreviousMessageListQuery a = groupChannel.createPreviousMessageListQuery();
+//                    a.setDirection(PreviousMessageListQuery.PreviousMessageListQueryFilterDirection.NEXT);
+//                    a.setReference("6511125190171160576");
+                   // a.setTimestamp(1552373219);
+//                    a.setTextSearch("7");
+
+//                    a.setSortBy(PreviousMessageListQuery.PreviousMessageListQueryFilterSortBy.SORT_BY_INSERTED_AT);
+
+//                    a.setLimit(20);
+//                    a.setUserId("10101");
+//                    a.load(new PreviousMessageListQuery.ResultListener() {
+//                        @Override
+//                        public void onResult(List<Message> messageList, ChatCampException e) {
+//                            Log.d("sd", "sf");
+//                        }
+//                    });
+//                    groupChannel.deleteMessage("6507858293761765376", new BaseChannel.DeleteMessageListener() {
+//                        @Override
+//                        public void onResult(ChatCampException exception) {
+//                            Log.d("sdf", "Sdf");
+//                        }
+//                    });
+//                    PublicGroupChannelListQuery query = GroupChannel.createPublicGroupChannelListQuery();
+//                    query.load(new PublicGroupChannelListQuery.ResultHandler() {
+//                        @Override
+//                        public void onResult(List<GroupChannel> groupChannelList, ChatCampException e) {
+//                            Log.d("sdf", "Sdf");
+//                        }
+//                    });
+
+//                    groupChannel.getTotalMessageCount(new BaseChannel.OnGetTotalMessageCountListener() {
+//                        @Override
+//                        public void onGetTotalMessageCount(int count, TotalCountFilterParams params, ChatCampException chatCampException) {
+//                            Log.d("sdf", "Sdf");
+//                        }
+//                    });
+//                    groupChannel.setActive(false, new BaseChannel.SetActiveListener() {
+//                        @Override
+//                        public void onResult(ChatCampException e) {
+//                            groupChannel.sync(new GroupChannel.SyncListener() {
+//                                @Override
+//                                public void onResult(GroupChannel groupChannela, ChatCampException e) {
+//                                    groupChannela.ifActive();
+//                                }
+//                            });
+//                        }
+//                    });
 //                    groupChannel.sync(new GroupChannel.SyncListener() {
 //                        @Override
 //                        public void onResult(ChatCampException e) {
 //
 //                        }
 //                    });
-                    if (groupFilter == GroupChannelListQuery.ParticipantState.INVITED) {
+                    if (groupFilter == GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter.PARTICIPANT_STATE_INVITED) {
                         groupChannel.acceptInvitation(new GroupChannel.AcceptInvitationListener() {
                             @Override
                             public void onResult(GroupChannel groupChannel, ChatCampException e) {

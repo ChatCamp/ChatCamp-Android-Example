@@ -1,18 +1,14 @@
 package io.chatcamp.app;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.view.View;
 
 import io.chatcamp.app.setting.SettingFragment;
 
 public class ListActivity extends AppCompatActivity {
-
 
 
     private BottomNavigationView navigation;
@@ -27,7 +23,8 @@ public class ListActivity extends AppCompatActivity {
 
 
     private void handleNavigationGroupChannels() {
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new GroupChannelListFragment()).commit();
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new GroupChannelHomeFragment()).commit();
     }
 
     private void handleNavigationOpenChannels() {
@@ -44,7 +41,7 @@ public class ListActivity extends AppCompatActivity {
                     handleNavigationOpenChannels();
                     return true;
                 case R.id.navigation_group_channels:
-                     handleNavigationGroupChannels();
+                    handleNavigationGroupChannels();
                     return true;
                 case R.id.navigation_user_list:
                     getSupportFragmentManager().beginTransaction().replace(R.id.container, new UserListFragment()).commit();

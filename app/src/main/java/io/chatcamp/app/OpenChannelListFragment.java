@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.chatcamp.uikit.channel.ChannelAdapter;
 import com.chatcamp.uikit.channel.ChannelList;
 import com.chatcamp.uikit.customview.LoadingView;
+import com.chatcamp.uikit.database.DbBaseChannelWrapper;
 
 import io.chatcamp.sdk.BaseChannel;
 
@@ -44,7 +45,7 @@ public class OpenChannelListFragment extends Fragment {
         channelList.setChannelType(BaseChannel.ChannelType.OPEN, null);
         channelList.setChannelClickListener(new ChannelAdapter.ChannelClickedListener() {
             @Override
-            public void onClick(BaseChannel baseChannel) {
+            public void onClick(DbBaseChannelWrapper baseChannel) {
                 Intent intent = new Intent(getActivity(), ConversationActivity.class);
                 intent.putExtra("channelType", "open");
                 intent.putExtra("participantState", "");

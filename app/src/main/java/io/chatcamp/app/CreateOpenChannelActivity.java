@@ -11,6 +11,7 @@ import io.chatcamp.sdk.BaseChannel;
 import io.chatcamp.sdk.ChatCampException;
 import io.chatcamp.sdk.GroupChannelListQuery;
 import io.chatcamp.sdk.OpenChannel;
+import io.chatcamp.sdk.OpenChannelParams;
 
 public class CreateOpenChannelActivity extends AppCompatActivity {
 
@@ -27,12 +28,14 @@ public class CreateOpenChannelActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (channelName.getText().toString().length() > 0) {
-                    OpenChannel.create(channelName.getText().toString(), new OpenChannel.CreateListener() {
+                    OpenChannelParams params = new OpenChannelParams();
+                    params.setName(channelName.getText().toString());
+                    OpenChannel.create(params, new OpenChannel.CreateListener() {
                         @Override
                         public void onResult(BaseChannel openChannel, ChatCampException e) {
                             Intent intent = new Intent(CreateOpenChannelActivity.this, ConversationActivity.class);
                             intent.putExtra("channelType", "open");
-                            intent.putExtra("participantState", GroupChannelListQuery.ParticipantState.ALL.name());
+                            intent.putExtra("participantState", GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter.PARTICIPANT_STATE_ALL.name());
                             intent.putExtra("channelId", openChannel.getId());
                             startActivity(intent);
                             finish();

@@ -92,7 +92,7 @@ public class TestConversationFragment extends Fragment
 
         } else {
             //TODO check the participant state - INVITED, ALL,  ACCEPTED
-            final GroupChannelListQuery.ParticipantState groupFilter = GroupChannelListQuery.ParticipantState.ACCEPTED;//GroupChannelListQuery.ParticipantState.valueOf(getIntent().getStringExtra("participantState"));
+            final GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter groupFilter = GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter.PARTICIPANT_STATE_ACCEPTED;//GroupChannelListQuery.ParticipantState.valueOf(getIntent().getStringExtra("participantState"));
             GroupChannel.get(channelId, new GroupChannel.GetListener() {
                 @Override
                 public void onResult(final GroupChannel groupChannel, ChatCampException e) {
@@ -103,7 +103,7 @@ public class TestConversationFragment extends Fragment
 //
 //                        }
 //                    });
-                    if (groupFilter == GroupChannelListQuery.ParticipantState.INVITED) {
+                    if (groupFilter == GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter.PARTICIPANT_STATE_INVITED) {
                         groupChannel.acceptInvitation(new GroupChannel.AcceptInvitationListener() {
                             @Override
                             public void onResult(GroupChannel groupChannel, ChatCampException e) {

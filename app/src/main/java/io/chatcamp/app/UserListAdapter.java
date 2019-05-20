@@ -1,7 +1,6 @@
 package io.chatcamp.app;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.chatcamp.uikit.customview.AvatarView;
-import com.squareup.picasso.Picasso;
-import com.chatcamp.uikit.utils.CircleTransform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +84,7 @@ public class UserListAdapter  extends RecyclerView.Adapter<UserListAdapter.UserL
         public void bind(final User user) {
             avatar.initView(user.getAvatarUrl(), user.getDisplayName());
             nameTv.setText(user.getDisplayName());
-            if(user.isOnline()) {
+            if(user.ifOnline()) {
                 onlineIndicator.setVisibility(View.VISIBLE);
                 offlineIndicator.setVisibility(View.GONE);
             } else {

@@ -120,7 +120,7 @@ public class ChatCampAppFirebaseMessagingService extends FirebaseMessagingServic
                 }
 
                 Intent intent = new Intent(context, ConversationActivity.class);
-                String participantState = GroupChannelListQuery.ParticipantState.ALL.name();
+                String participantState = GroupChannelListQuery.GroupChannelListQueryParticipantStateFilter.PARTICIPANT_STATE_ALL.name();
                 intent.putExtra("channelId", channelId);
                 intent.putExtra("channelType", channelType);
                 intent.putExtra("participantState", participantState);
